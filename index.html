@@ -286,6 +286,98 @@
     .orb{ animation: none !important; }
     *{ animation-duration: .01ms !important; transition-duration: .01ms !important; }
   }
+
+  /* ============ FASE 2 ============ */
+.sub-tab{
+  transition: all .22s cubic-bezier(.22,1,.36,1);
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.55);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.sub-tab.on{
+  background: rgba(0,229,255,0.15);
+  border-color: rgba(0,229,255,0.55);
+  color: #00e5ff;
+  box-shadow: 0 0 20px rgba(0,229,255,0.22);
+}
+
+/* Ejercicios IA */
+.exercise-card{
+  background: rgba(255,255,255,0.045);
+  backdrop-filter: blur(28px) saturate(170%);
+  -webkit-backdrop-filter: blur(28px) saturate(170%);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 24px;
+  animation: fadeIn .45s cubic-bezier(.22,1,.36,1) both;
+}
+.exercise-card:nth-child(1){ animation-delay: .05s; }
+.exercise-card:nth-child(2){ animation-delay: .12s; }
+.exercise-card:nth-child(3){ animation-delay: .19s; }
+
+/* Timer */
+#va-timer-display{
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 40px rgba(50,215,75,0.35);
+}
+#va-phase-label{ letter-spacing: 0.18em; }
+
+/* Semáforo cognitivo */
+.traffic-lamp{
+  width: 92px; height: 92px;
+  border-radius: 50%;
+  transition: background-color .18s ease, box-shadow .18s ease;
+  will-change: background-color, box-shadow;
+}
+.traffic-lamp.green {
+  background: radial-gradient(circle at 35% 30%, #7dffa0, #32d74b 70%);
+  box-shadow: 0 0 60px rgba(50,215,75,0.75), inset 0 0 30px rgba(255,255,255,0.25);
+}
+.traffic-lamp.yellow {
+  background: radial-gradient(circle at 35% 30%, #fff28a, #ffd60a 70%);
+  box-shadow: 0 0 60px rgba(255,214,10,0.75), inset 0 0 30px rgba(255,255,255,0.25);
+}
+.traffic-lamp.red {
+  background: radial-gradient(circle at 35% 30%, #ff9a8f, #ff453a 70%);
+  box-shadow: 0 0 60px rgba(255,69,58,0.75), inset 0 0 30px rgba(255,255,255,0.25);
+}
+
+/* Recetas */
+.recipe-card{
+  background: rgba(255,255,255,0.045);
+  backdrop-filter: blur(28px) saturate(170%);
+  -webkit-backdrop-filter: blur(28px) saturate(170%);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 26px;
+  animation: fadeIn .4s cubic-bezier(.22,1,.36,1) both;
+}
+
+/* Modal */
+#api-modal{
+  transition: opacity .28s ease;
+}
+#api-modal.hidden-modal{
+  opacity: 0;
+  pointer-events: none;
+}
+#api-modal .modal-panel{
+  transform: translateY(0) scale(1);
+  transition: transform .32s cubic-bezier(.22,1,.36,1);
+}
+#api-modal.hidden-modal .modal-panel{
+  transform: translateY(24px) scale(.96);
+}
+
+/* Pulso suave para el bloque de prevención */
+@keyframes pulse-border{
+  0%,100%{ border-color: rgba(255,159,10,0.35); }
+  50%    { border-color: rgba(255,159,10,0.85); }
+}
+.prevention-locked{
+  animation: pulse-border 2.2s ease-in-out infinite;
+}
 </style>
 </head>
 
