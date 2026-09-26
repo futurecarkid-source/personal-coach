@@ -2643,16 +2643,19 @@ function bootApp() {
 
 function initGlobalEvents() {
   // Tab navigation
-  $$('.tab-btn').forEach(btn => {
+$$('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       showScreen(btn.dataset.tab);
-      if (btn.dataset.tab === 'session') stopSemaforoIfActive();
     });
   });
-
+        
   // Matchday
   document.getElementById('btnMatchday').addEventListener('click', startMatchday);
   document.getElementById('exitMatchday').addEventListener('click', stopMatchday);
+  // Vallenato
+  document.getElementById('btnVallenato').addEventListener('click', startVallenato);
+  document.getElementById('exitVallenato').addEventListener('click', stopVallenato);
+
 
   // Heatmap modal
   document.getElementById('btnHeatmap').addEventListener('click', () => {
@@ -2843,17 +2846,16 @@ function initGlobalEvents() {
     }
   });
 
-  // Visibilidad: pausar cronómetros al salir
+// Visibilidad: pausar cronómetros al salir
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       stopPlyoTimer();
-      if (semaforoInterval) {
-        clearInterval(semaforoInterval);
-        semaforoInterval = null;
-        document.getElementById('btnSemaforo').textContent = 'Activar semáforo';
-      }
+      stopSemaforo();
     }
   });
+
+  wireSemaforoCleanup();
+  wireVoiceCoach();
 }
 
 function stopSemaforoIfActive() {
@@ -2863,6 +2865,235 @@ function stopSemaforoIfActive() {
 /* ---------------------------------------------------------------------------
    18. INICIALIZACIÓN
 --------------------------------------------------------------------------- */
+  /* =========================================================
+   COACH IA POR VOZ — SpeechRecognition + Gemini + TTS
+   ========================================================= */
+let voiceRecognition = null;
+let voiceIsRecording = false;
+let voiceFinalTranscript = '';
+let lastAiResponseText = '';
+
+function getSpeechRecognition() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return null;
+  const rec = new SR();
+  rec.lang = 'es-CO';
+  rec.continuous = true;
+  rec.interimResults = true;
+  rec.maxAlternatives = 1;
+  return rec;
+}
+
+function stopVoiceRecording() {
+  voiceIsRecording = false;
+  const icon = document.getElementById('micIcon');
+  const label = document.getElementById('micLabel');
+  const btn = document.getElementById('btnVoiceRecord');
+  if (icon) icon.setAttribute('data-lucide', 'mic');
+  if (label) label.textContent = 'Toca para hablar';
+  if (btn) {
+    btn.classList.remove('bg-iosred/20', 'border-iosred/50');
+    btn.classList.add('bg-iosgreen/20', 'border-iosgreen/50');
+  }
+  try { if (voiceRecognition) voiceRecognition.stop(); } catch (e) {}
+  refreshIcons();
+}
+
+function startVoiceRecording() {
+  const rec = getSpeechRecognition();
+  if (!rec) {
+    const t = document.getElementById('voiceTranscript');
+    if (t) t.textContent = '⚠️ Este navegador no soporta dictado por voz. Usa Safari o Chrome.';
+    return;
+  }
+
+  try {
+    if (voiceRecognition) {
+      voiceRecognition.onresult = null;
+      voiceRecognition.onerror = null;
+      voiceRecognition.onend = null;
+      voiceRecognition.stop();
+    }
+  } catch (e) {}
+
+  voiceRecognition = rec;
+  voiceFinalTranscript = '';
+  voiceIsRecording = true;
+
+  const icon = document.getElementById('micIcon');
+  const label = document.getElementById('micLabel');
+  const btn = document.getElementById('btnVoiceRecord');
+  const transcriptEl = document.getElementById('voiceTranscript');
+
+  if (icon) icon.setAttribute('data-lucide', 'square');
+  if (label) label.textContent = '🔴 Grabando... toca para parar';
+  if (btn) {
+    btn.classList.remove('bg-iosgreen/20', 'border-iosgreen/50');
+    btn.classList.add('bg-iosred/20', 'border-iosred/50');
+  }
+  if (transcriptEl) transcriptEl.textContent = '';
+  refreshIcons();
+
+  rec.onresult = (event) => {
+    let interim = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const txt = event.results[i][0].transcript;
+      if (event.results[i].isFinal) {
+        voiceFinalTranscript += txt + ' ';
+      } else {
+        interim += txt;
+      }
+    }
+    if (transcriptEl) transcriptEl.textContent = (voiceFinalTranscript + interim).trim() || '—';
+  };
+
+  rec.onerror = (e) => {
+    console.warn('[SpeechRecognition]', e.error);
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+      if (transcriptEl) transcriptEl.textContent = '⚠️ Permiso de micrófono denegado. Actívalo en los ajustes de Safari.';
+    }
+    stopVoiceRecording();
+  };
+
+  rec.onend = () => {
+    if (voiceIsRecording) {
+      try { rec.start(); } catch (e) { stopVoiceRecording(); }
+    }
+  };
+
+  try {
+    rec.start();
+    playBeep(880, 0.1);
+  } catch (e) {
+    console.error('[SpeechRecognition] start() falló', e);
+    stopVoiceRecording();
+  }
+}
+
+function speakText(text) {
+  if (!text) return;
+  try {
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'es-CO';
+    utter.rate = 0.98;
+    utter.pitch = 1.0;
+    utter.volume = 1.0;
+
+    const voices = window.speechSynthesis.getVoices();
+    const esVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('es'));
+    if (esVoice) utter.voice = esVoice;
+
+    window.speechSynthesis.speak(utter);
+  } catch (e) {
+    console.warn('[TTS] Falló', e);
+  }
+}
+
+async function analyzeVoiceWithGemini() {
+  const diaryText = (voiceFinalTranscript || document.getElementById('voiceTranscript')?.textContent || '').trim();
+  const wrap = document.getElementById('aiResponseWrap');
+  const respEl = document.getElementById('aiResponse');
+  wrap.classList.remove('hidden');
+
+  if (!diaryText || diaryText === '—') {
+    typeText('Primero presiona el micrófono y cuéntame qué pasó.', 'aiResponse');
+    return;
+  }
+
+  state.diary = diaryText;
+  persist();
+
+  const key = state.settings.geminiApiKey;
+  if (!key) {
+    const fallback = '⚠️ Sin clave API. Configúrala en Perfil. Mientras tanto: la sequía no se rompe pensando más, se rompe simplificando. Deja de buscar el gol perfecto. Ataca el primero, el feo, el fácil. Los killers viven de eso.';
+    typeText(fallback, 'aiResponse');
+    speakText(fallback);
+    return;
+  }
+
+  respEl.textContent = '';
+  typeText('El Coach IA está pensando...', 'aiResponse');
+
+  const streak = state.streak.matchesWithoutGoal;
+  const systemPrompt = `Eres un psicólogo deportivo de élite que habla con un delantero colombiano. Lleva ${streak} partidos sin gol. Si menciona el vallenato, ÚSALO A SU FAVOR: el vallenato es su ancla emocional, no una distracción. Sé crudo, directo, sin rodeos. Máximo 4 frases. Habla como si estuvieras a su lado en el vestuario, no como un libro de autoayuda.`;
+
+  const payload = {
+    contents: [{
+      role: 'user',
+      parts: [{ text: systemPrompt + '\n\nLO QUE DIJO EL JUGADOR:\n' + diaryText }]
+    }],
+    generationConfig: { temperature: 0.9, maxOutputTokens: 350 }
+  };
+
+  const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=' + encodeURIComponent(key);
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const errTxt = await res.text();
+      console.error('[Gemini]', res.status, errTxt);
+      const msg = '⚠️ Error ' + res.status + ' al conectar con Gemini. Revisa la clave o la cuota.';
+      typeText(msg, 'aiResponse');
+      speakText(msg);
+      return;
+    }
+
+    const data = await res.json();
+    let text = '';
+    try { text = data.candidates[0].content.parts[0].text; } catch (e) { text = 'Gemini no devolvió texto legible.'; }
+    text = text.trim();
+    lastAiResponseText = text;
+
+    typeText(text, 'aiResponse');
+    setTimeout(() => speakText(text), 400);
+
+    addXP(5);
+    logHistory('ai', 'Análisis por voz completado');
+  } catch (err) {
+    console.error('[Gemini] Fetch error', err);
+    const msg = '⚠️ Error de red. Revisa tu conexión. Mientras tanto: la sequía se rompe con paciencia táctica, no con angustia.';
+    typeText(msg, 'aiResponse');
+    speakText(msg);
+  }
+}
+
+function wireVoiceCoach() {
+  const btn = document.getElementById('btnVoiceRecord');
+  if (!btn) return;
+
+  btn.addEventListener('click', () => {
+    if (voiceIsRecording) stopVoiceRecording();
+    else startVoiceRecording();
+  });
+
+  const analyzeBtn = document.getElementById('btnAnalyzeVoice');
+  if (analyzeBtn) analyzeBtn.addEventListener('click', analyzeVoiceWithGemini);
+
+  const replayBtn = document.getElementById('btnReplayVoice');
+  if (replayBtn) {
+    replayBtn.addEventListener('click', () => {
+      if (lastAiResponseText) speakText(lastAiResponseText);
+    });
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (voiceIsRecording) stopVoiceRecording();
+      try { window.speechSynthesis.cancel(); } catch (e) {}
+    }
+  }, { passive: true });
+
+  if (window.speechSynthesis) {
+    window.speechSynthesis.onvoiceschanged = () => {};
+    window.speechSynthesis.getVoices();
+  }
+}
 window.addEventListener('DOMContentLoaded', () => {
   installLogo();
   initOnboarding();
@@ -2891,10 +3122,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
   refreshIcons();
 });
-
-// Refresco de iconos tras cambios dinámicos
-const observer = new MutationObserver(() => { refreshIcons(); });
-observer.observe(document.body, { childList: true, subtree: true });
 
 </script>
 </body>
