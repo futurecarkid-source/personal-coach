@@ -3074,32 +3074,46 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     /* Sequía */
-    $('#drought-minus').addEventListener('click', function () {
-      OB.draft.drought = clamp(OB.draft.drought - 1, 0, 99);
-      syncDroughtUI();
-    });
-    $('#drought-plus').addEventListener('click', function () {
-      OB.draft.drought = clamp(OB.draft.drought + 1, 0, 99);
-      syncDroughtUI();
-    });
+    const btnDroughtMinus = $('#drought-minus');
+    if (btnDroughtMinus) {
+      btnDroughtMinus.addEventListener('click', function () {
+        OB.draft.drought = clamp(OB.draft.drought - 1, 0, 99);
+        syncDroughtUI();
+      });
+    }
+    const btnDroughtPlus = $('#drought-plus');
+    if (btnDroughtPlus) {
+      btnDroughtPlus.addEventListener('click', function () {
+        OB.draft.drought = clamp(OB.draft.drought + 1, 0, 99);
+        syncDroughtUI();
+      });
+    }
 
     /* Vallenato */
     const valInput = $('#ob-vallenato');
-    valInput.addEventListener('input', function () {
-      OB.draft.vallenato = valInput.value.trim();
-    });
+    if (valInput) {
+      valInput.addEventListener('input', function () {
+        OB.draft.vallenato = valInput.value.trim();
+      });
+    }
 
     /* Navegación */
-    $('#ob-next').addEventListener('click', obNext);
-    $('#ob-back').addEventListener('click', obBack);
+    const btnObNext = $('#ob-next');
+    if (btnObNext) btnObNext.addEventListener('click', obNext);
+    const btnObBack = $('#ob-back');
+    if (btnObBack) btnObBack.addEventListener('click', obBack);
 
     /* Enter en inputs de texto */
-    nameInput.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') { e.preventDefault(); nameInput.blur(); obNext(); }
-    });
-    valInput.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') { e.preventDefault(); valInput.blur(); obNext(); }
-    });
+    if (nameInput) {
+      nameInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); nameInput.blur(); obNext(); }
+      });
+    }
+    if (valInput) {
+      valInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); valInput.blur(); obNext(); }
+      });
+    }
 
     /* Estado inicial */
     syncPositionUI();
@@ -3605,13 +3619,16 @@ document.addEventListener('DOMContentLoaded', function () {
     frame.addEventListener('lostpointercapture', endDrag);
 
     /* Giroscopio */
-    $('#btn-gyro').addEventListener('click', function () {
-      if (CardState.gyroEnabled) {
-        disableGyro();
-      } else {
-        enableGyro();
-      }
-    });
+    const btnGyro = $('#btn-gyro');
+    if (btnGyro) {
+      btnGyro.addEventListener('click', function () {
+        if (CardState.gyroEnabled) {
+          disableGyro();
+        } else {
+          enableGyro();
+        }
+      });
+    }
   }
 
   /* ==========================================================
@@ -7280,9 +7297,12 @@ const TTS = (function () {
       VirtualAssistant.mount();
 
       if (!mounted) {
-        $('#btn-generate-session').addEventListener('click', onGenerate);
-        $('#btn-prevention').addEventListener('click', onPrevention);
-        $('#btn-open-api').addEventListener('click', function () { openApiModal(); });
+        const btnGen = $('#btn-generate-session');
+        if (btnGen) btnGen.addEventListener('click', onGenerate);
+        const btnPrev = $('#btn-prevention');
+        if (btnPrev) btnPrev.addEventListener('click', onPrevention);
+        const btnOpenApi = $('#btn-open-api');
+        if (btnOpenApi) btnOpenApi.addEventListener('click', function () { openApiModal(); });
 
         $$('.va-preset').forEach(function (b) {
           b.addEventListener('click', function () {
@@ -7291,20 +7311,27 @@ const TTS = (function () {
           });
         });
 
-        $('#btn-va-start').addEventListener('click', function () { VirtualAssistant.start(); });
-        $('#btn-va-pause').addEventListener('click', function () { VirtualAssistant.pause(); });
-        $('#btn-va-reset').addEventListener('click', function () {
+        const btnVaStart = $('#btn-va-start');
+        if (btnVaStart) btnVaStart.addEventListener('click', function () { VirtualAssistant.start(); });
+        const btnVaPause = $('#btn-va-pause');
+        if (btnVaPause) btnVaPause.addEventListener('click', function () { VirtualAssistant.pause(); });
+        const btnVaReset = $('#btn-va-reset');
+        if (btnVaReset) btnVaReset.addEventListener('click', function () {
           VirtualAssistant.reset();
           TTS.speak('Cronómetro reiniciado');
         });
 
-        $('#btn-tts-toggle').addEventListener('click', function () {
-          const on = TTS.toggle();
-          const lbl = $('#tts-label');
-          if (lbl) lbl.textContent = on ? 'Voz ON' : 'Voz OFF';
-        });
+        const btnTtsToggle = $('#btn-tts-toggle');
+        if (btnTtsToggle) {
+          btnTtsToggle.addEventListener('click', function () {
+            const on = TTS.toggle();
+            const lbl = $('#tts-label');
+            if (lbl) lbl.textContent = on ? 'Voz ON' : 'Voz OFF';
+          });
+        }
 
-        $('#btn-light-toggle').addEventListener('click', function () { TrafficLight.toggle(); });
+        const btnLightToggle = $('#btn-light-toggle');
+        if (btnLightToggle) btnLightToggle.addEventListener('click', function () { TrafficLight.toggle(); });
 
         mounted = true;
       }
@@ -7355,22 +7382,26 @@ function init() {
   /* --- Modal API Key --- */
   const apiModal = $('#api-modal');
   if (apiModal) {
-    $('#api-cancel').addEventListener('click', closeApiModal);
-    $('#api-save').addEventListener('click', function () {
-      const input = $('#api-key-input');
-      const val = (input && input.value || '').trim();
-      if (val.length < 20) {
-        shakeEl(input);
-        toast('Clave demasiado corta');
-        return;
-      }
-      GeminiAPI.setKey(val);
-      closeApiModal();
-      toast('API Key guardada');
-      TTS.speak('Clave configurada. Motor I A disponible.');
-      /* Refrescar aviso si estamos en training */
-      if (currentTab === 'training') TrainingUI.mount();
-    });
+    const btnApiCancel = $('#api-cancel');
+    if (btnApiCancel) btnApiCancel.addEventListener('click', closeApiModal);
+    const btnApiSave = $('#api-save');
+    if (btnApiSave) {
+      btnApiSave.addEventListener('click', function () {
+        const input = $('#api-key-input');
+        const val = (input && input.value || '').trim();
+        if (val.length < 20) {
+          shakeEl(input);
+          toast('Clave demasiado corta');
+          return;
+        }
+        GeminiAPI.setKey(val);
+        closeApiModal();
+        toast('API Key guardada');
+        TTS.speak('Clave configurada. Motor I A disponible.');
+        /* Refrescar aviso si estamos en training */
+        if (currentTab === 'training') TrainingUI.mount();
+      });
+    }
     apiModal.addEventListener('click', function (e) {
       if (e.target === apiModal) closeApiModal();
     });
