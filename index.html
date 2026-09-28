@@ -2786,12 +2786,20 @@ window.APP_LOGO = "data:image/png;base64," + window.APP_LOGO_B64;
       Se usa si Gemini falla o no responde en 8 segundos.
     </p>
 
-    <div class="grid grid-cols-2 gap-2.5 mt-5">
-      <button type="button" id="api-cancel"
-              class="btn-ghost rounded-2xl py-3.5 text-[13px] font-bold">Cancelar</button>
-      <button type="button" id="api-save"
-              class="btn-primary rounded-2xl py-3.5 text-[13px]">Guardar</button>
-    </div>
+<button type="button" id="api-test"
+        class="w-full rounded-2xl py-3.5 text-[13px] font-bold mt-5
+               active:scale-[.97] transition-transform flex items-center justify-center gap-2"
+        style="background: rgba(255,214,10,0.14); border: 1px solid rgba(255,214,10,0.42); color: #ffd60a;">
+  <i data-lucide="zap" class="w-4 h-4"></i> Probar clave ahora
+</button>
+<p id="api-test-result" class="text-[11px] mt-3 text-center font-bold"></p>
+
+<div class="grid grid-cols-2 gap-2.5 mt-3">
+  <button type="button" id="api-cancel"
+          class="btn-ghost rounded-2xl py-3.5 text-[13px] font-bold">Cancelar</button>
+  <button type="button" id="api-save"
+          class="btn-primary rounded-2xl py-3.5 text-[13px]">Guardar</button>
+</div>
   </div>
 </div>
 
@@ -7123,7 +7131,7 @@ function extractJSON(text) {
 }
 
   const GeminiAPI = (function () {
-    const MODEL = 'gemini-2.0-flash';
+const MODEL = 'gemini-2.5-flash';
     const BASE = 'https://generativelanguage.googleapis.com/v1beta/models/';
 
     function getKey() {
@@ -7664,25 +7672,28 @@ function normalizeAI(list, category) {
             return { source: 'gemini', exercises: normalizeAI(list, category) };
           }
           throw new Error('Estructura inválida');
-        } catch (errGemini) {
-          console.warn('[TrainingEngine] Gemini falló, probando Claude', errGemini);
-          if (ClaudeAPI.hasKey()) {
-            try {
-              const prompt2 = buildPrompt(d, category, checkin, n);
-              const json2 = await ClaudeAPI.generate(prompt2, { json: true, timeoutMs: 20000 });
-              const list2 = Array.isArray(json2) ? json2 : (json2 && json2.exercises) || null;
-              if (Array.isArray(list2) && list2.length) {
-                return { source: 'claude', exercises: normalizeAI(list2, category) };
-              }
-              throw new Error('Estructura inválida (Claude)');
-            } catch (errClaude) {
-              console.warn('[TrainingEngine] Claude también falló, usando banco local', errClaude);
-              return { source: 'local', exercises: localFallback(category, n) };
-            }
-          }
-          return { source: 'local', exercises: localFallback(category, n) };
-        }
+} catch (errGemini) {
+  console.warn('[TrainingEngine] Gemini falló:', errGemini);
+  toast('⚠️ Gemini falló: ' + (errGemini.message || 'error').slice(0, 60));
+  
+  if (ClaudeAPI.hasKey()) {
+    try {
+      const prompt2 = buildPrompt(d, category, checkin, n);
+      const json2 = await ClaudeAPI.generate(prompt2, { json: true, timeoutMs: 20000 });
+      const list2 = Array.isArray(json2) ? json2 : (json2 && json2.exercises) || null;
+      if (Array.isArray(list2) && list2.length) {
+        return { source: 'claude', exercises: normalizeAI(list2, category) };
       }
+      throw new Error('Estructura inválida (Claude)');
+    } catch (errClaude) {
+      console.warn('[TrainingEngine] Claude falló:', errClaude);
+      toast('⚠️ Claude también falló. Usando banco local.');
+      return { source: 'local', exercises: localFallback(category, n) };
+    }
+  }
+  toast('⚠️ Sin Claude configurado. Usando banco local.');
+  return { source: 'local', exercises: localFallback(category, n) };
+}
 
       if (ClaudeAPI.hasKey()) {
         try {
@@ -8917,6 +8928,65 @@ function init() {
   initPhotoControls();
   initProfile();
 
+/* --- Probar API Keys --- */
+const btnApiTest = $('#api-test');
+if (btnApiTest) {
+  btnApiTest.addEventListener('click', async function () {
+    const input = $('#api-key-input');
+    const result = $('#api-test-result');
+    const val = (input && input.value || '').trim();
+    
+    if (val.length < 20) {
+      result.textContent = '❌ Clave vacía o muy corta';
+      result.style.color = '#ff453a';
+      return;
+    }
+    
+    result.textContent = '⏳ Probando…';
+    result.style.color = '#ffd60a';
+    btnApiTest.disabled = true;
+    
+    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + encodeURIComponent(val);
+    const body = {
+      contents: [{ role: 'user', parts: [{ text: 'Responde solo: OK' }] }],
+      generationConfig: { maxOutputTokens: 10 }
+    };
+    
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      
+      if (res.ok) {
+        result.textContent = '✅ ¡Clave válida! Todo funciona.';
+        result.style.color = '#32d74b';
+      } else if (res.status === 400) {
+        result.textContent = '❌ Clave inválida o mal copiada (400)';
+        result.style.color = '#ff453a';
+      } else if (res.status === 403) {
+        result.textContent = '❌ API no habilitada en tu cuenta (403). Andá a aistudio.google.com/apikey';
+        result.style.color = '#ff453a';
+      } else if (res.status === 404) {
+        result.textContent = '❌ Modelo no disponible (404). Avisale a Federico.';
+        result.style.color = '#ff453a';
+      } else if (res.status === 429) {
+        result.textContent = '⚠️ Demasiadas requests. Esperá 1 min.';
+        result.style.color = '#ffd60a';
+      } else {
+        result.textContent = '❌ Error ' + res.status + '. Probá de nuevo.';
+        result.style.color = '#ff453a';
+      }
+    } catch (e) {
+      result.textContent = '❌ Sin conexión o bloqueado por el navegador';
+      result.style.color = '#ff453a';
+    } finally {
+      btnApiTest.disabled = false;
+    }
+  });
+}
+  
   /* --- Modal API Key --- */
   const apiModal = $('#api-modal');
   if (apiModal) {
