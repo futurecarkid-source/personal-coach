@@ -1,6 +1,6 @@
 # Inventario Funcional Personalizado Definitivo
 
-**Proyecto:** Dorsal *(nombre de trabajo, ver §11)* · **Plataforma:** iPhone + iPad (iOS 26 y 27) · **Documento:** borrador 2, corregido tras la revisión de 8 revisores (2026-10-08) · **Estado:** pendiente de tu aprobación
+**Proyecto:** Dorsal *(nombre de trabajo, ver §11)* · **Plataforma:** iPhone + iPad (iOS 26 y 27) · **Documento:** borrador 3 (borrador 2 corregido tras la revisión de 8 revisores, más las ideas diferenciadoras; 2026-10-08) · **Estado:** pendiente de tu aprobación
 
 > Cómo leerlo: las secciones 0 a 11 están en lenguaje simple. Lo técnico está al final, en los **Anexos A y B**, para quien programa.
 
@@ -242,6 +242,49 @@ Leyenda: **P0** primera versión (H1) · **P1** siguiente · **P2** después · 
 
 ---
 
+## 4b. Ideas diferenciadoras (nuevas) — para ir por encima de las demás apps
+
+Nada de lo que pediste se recorta. Estas ideas se **suman**. Ninguna app rival junta todo esto, y nosotros tenemos tres ventajas reales: **(1)** lo gratis es útil de verdad y funciona sin internet, **(2)** está pensada para menores y para salud con seguridad real, y **(3)** mide la parte mental (reacción al fallo, decisiones), que casi nadie mide. No puedo prometer que "dejará en pañales" a nadie; lo que sí puedo es que cada pieza funcione bien y esté bien hecha.
+
+### M20 · Modo Campo (entrenar sin mirar el teléfono) — P1 · G · H2
+- Pantalla de alto contraste y botones enormes, legible al sol y con guantes.
+- Entrenamientos **guiados por voz** con el teléfono en el bolsillo o con auriculares ("cinco repeticiones, descanso, siguiente"); vibración en iPhone.
+- Resuelve el problema de que "toca tener el celular a la mano".
+
+### M21 · Semana de Partido y Ritual de partido — P1 · G · H2
+- Cuenta atrás al próximo partido y plan automático de los días previos y posteriores (carga baja el día anterior, recuperación el día siguiente).
+- **Ritual de partido:** lista de bolso, hidratación, comida previa, calentamiento, Zen y visualización; y después del partido, recuperación, nota y esfuerzo.
+
+### M22 · Descubrimientos (patrones tuyos) — P2 · G (explicación por IA: Pro) · H4
+- La app busca **patrones propios** con tus datos: "tus mejores partidos llegan tras 8 horas o más de sueño", "rindes menos cuando subes la carga más de lo normal", "tu reacción mejora los días con Zen".
+- Siempre con el aviso "patrón, no causa" y solo cuando hay datos suficientes.
+- **Resumen semanal del Coach** ("Tu semana en 60 segundos"), compartible.
+
+### M23 · Combine en tu bolsillo (tests por video) — P2 · G · H3
+- Grabas con el iPhone en cámara lenta un sprint, un salto o un cambio de dirección; marcas inicio y final **cuadro a cuadro** y la app calcula el tiempo (y la altura del salto por el tiempo de vuelo).
+- Alimenta PAC, Salto y Agilidad de la tarjeta. Muestra el margen de error según los cuadros por segundo del video.
+- Evaluaciones cada 4 semanas con **metas medibles de temporada** (ejemplo: bajar 0,1 s en 10 m), que también entran al plan (M01).
+
+### M24 · Perfil para ojeadores y Highlights — P2 · G · H3–H4
+- **Perfil de una página** (PDF): tarjeta, evolución, estadísticas y mejores momentos. Rotulado con honestidad: "estadísticas etiquetadas por el propio jugador".
+- **Highlights automáticos:** con tus etiquetas, la app recorta cada jugada (unos segundos antes y después) y arma un resumen con rótulos. Sin música con derechos. El recorte final requiere compilación real.
+
+### M25 · Retos y duelos entre amigos sin servidor — P2 · G · H4
+- Retas a un amigo (mejor reacción, racha, misión de la semana) con un enlace o código; el resultado vuelve por mensaje. Ranking real entre equipos: P3 (necesita servidor).
+
+### M26 · Panel familiar para menores — P2 · G · H4–H5
+- Un adulto responsable **autoriza** las funciones sensibles (IA, fotos, video), ve un resumen semanal y fija horarios. Es un diferenciador de confianza para clubes y familias.
+
+### M27 · Widgets y atajos — P2 · G · H5
+- Widgets de inicio (racha, sesión de hoy, cuenta atrás al partido), Live Activity del cronómetro y "Empezar sesión" con Siri y Atajos (esto último, P3). Solo en compilaciones reales.
+
+### M28 · Contador de toques y malabares por cámara — P3 · experimental
+- Contar toques con la cámara, al estilo de las apps de otros deportes. Requiere un modelo de visión propio; solo se promete cuando funcione de verdad en pruebas.
+
+**Contenido para Latinoamérica (dentro de M15, M12 y M02):** comidas y recetas locales según tu país, recursos de ayuda del país y español neutro. Casi ninguna app extranjera lo hace bien.
+
+---
+
 ## 5. Seguridad, salud, menores y App Store (nuevo)
 
 - **Qué es la app:** herramienta de entrenamiento y bienestar; **no diagnostica ni trata**. Se evitan en la tienda palabras como "diagnóstico", "tratamiento" o "terapia".
@@ -283,13 +326,15 @@ Cada hito termina con algo que puedes probar. **"Hito principal" = donde se entr
 | **H0** Preparación (tú) | Lista H0 de §6 | — |
 | **H1a** "Mi primer plan" | M00 corto · M01 por reglas · M02 reducido · M03 básico · M18 base | **P0 = tu MVP (7.4)** |
 | **H1b** "Mi juego" | M04 simple · M06 tarjeta estática · M07 racha + XP | P0 |
-| **H2** "Cuerpo y plan IA para ti" | M04 completo · M05 · M14 · M17 · M13 local + IA para ti · M19 (servicio solo para ti) · (completa M03, M06 3D, M07, M01 con IA) | P1 |
-| **H3** "Partido" | M08 | P1 |
-| **H4** "Táctica y mente" | M10 · M11 · M12 · M16 (varios jugadores en un dispositivo) | P1–P2 |
-| **H5** "Pro y nutrición" | M19 (suscripciones) · M15 · M09 (experimental) | P2–P3 |
+| **H2** "Cuerpo y plan IA para ti" | M04 completo · M05 · M14 · M17 · M13 local + IA para ti · M19 (servicio solo para ti) · M20 · M21 · (completa M03, M06 3D, M07, M01 con IA) | P1 |
+| **H3** "Partido" | M08 · M23 · M24 | P1–P2 |
+| **H4** "Táctica y mente" | M10 · M11 · M12 · M16 (varios jugadores en un dispositivo) · M22 · M25 · M26 | P1–P2 |
+| **H5** "Pro y nutrición" | M19 (suscripciones) · M15 · M09 (experimental) · M27 · M28 (experimental) | P2–P3 |
 | **H6** "Lanzamiento" | Pulido, accesibilidad, rendimiento, material para TestFlight y App Store | P1 |
 
-**Con tus 5 días completos:** meta realista (es una estimación, no una promesa) → **H1a y H1b funcionando de verdad** y **gran parte de H2** en tu iPhone; H3 en curso. **H4 a H6 llegan después.** El ritmo lo marcan los ciclos de prueba en tu dispositivo, la aprobación de Apple y tu cuota de uso, no solo la escritura de código. Lo no terminado al día 5 se entrega como maqueta marcada como tal, nunca como función falsa.
+**Con tus 5 días completos:** meta realista (es una estimación, no una promesa) → **H1a y H1b funcionando de verdad** y **gran parte de H2** en tu iPhone; H3 en curso. **H4 a H6 llegan después.** El ritmo lo marcan los ciclos de prueba en tu dispositivo, la aprobación de Apple y tu cuota de uso, no solo la escritura de código.
+
+**Nada del inventario se recorta.** El orden de los hitos es una secuencia, no una lista de cosas que se quedan fuera. **Un módulo solo se da por terminado cuando funciona en tu dispositivo**; lo que aún no esté listo sigue en cola, marcado como pendiente, nunca presentado como función terminada ni como maqueta que aparenta funcionar. Hay cuatro piezas que dependen de terceros y pueden retrasarse sin que sea culpa del código: la aprobación de Apple, la precisión de la IA con video, la revisión profesional de las reglas de salud y la disponibilidad de Expo Go.
 
 ---
 
@@ -341,6 +386,8 @@ Cada hito termina con algo que puedes probar. **"Hito principal" = donde se entr
 11. Tu país se pregunta en el cuestionario.
 12. Nombre de trabajo "Dorsal".
 13. Varios jugadores en un solo dispositivo (H4); sincronización entre dispositivos queda para después.
+14. Las ideas de §4b (M20–M28) se suman al inventario; M28 es experimental.
+15. Sangre fría: la métrica de reinicio tras un error (tiempo de reacción al fallo, medido en tus etiquetas de M08) alimenta el atributo Mentalidad.
 
 ---
 
