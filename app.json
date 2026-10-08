@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "Dorsal",
+    "slug": "dorsal",
+    "version": "0.1.0",
+    "scheme": "dorsal",
+    "orientation": "default",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "requireFullScreen": false
+    },
+    "plugins": ["expo-router", "expo-sqlite", "expo-status-bar"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
