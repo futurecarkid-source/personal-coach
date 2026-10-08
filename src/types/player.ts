@@ -85,6 +85,8 @@ export const playerSchema = z.object({
   club: z.string().max(40).nullable(),
   ageBand: ageBandSchema,
   attributes: attributesSchema,
+  /** Autoevaluación del cuestionario (1 a 10) por atributo principal. */
+  selfAssessment: z.record(z.string(), z.number().min(1).max(10)).default({}),
   /** Fecha ISO de creación de la tarjeta. */
   createdAt: z.string(),
 });

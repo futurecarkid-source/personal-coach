@@ -6,6 +6,10 @@ export const DEFAULT_SETTINGS: Settings = {
   cardEffect: 2,
   reduceMotion: false,
   healthNoticeAccepted: false,
+  aiGatewayUrl: '',
+  aiConsentAt: null,
+  guardianConsent: false,
+  coachPersona: 'motivador',
 };
 
 export const DEFAULT_PLAN_PREFS: PlanPrefs = {
@@ -14,6 +18,7 @@ export const DEFAULT_PLAN_PREFS: PlanPrefs = {
   equipment: ['ninguno'],
   discomfortZones: [],
   matchDates: [],
+  goals: [],
 };
 
 export function createInitialState(): AppState {
@@ -28,11 +33,16 @@ export function createInitialState(): AppState {
     matches: [],
     plays: [],
     timerPresets: [],
+    aiPlan: null,
+    coachLog: [],
+    painReports: [],
   };
 }
 
 const MAX_CHECKINS = 400;
 const MAX_LOGS = 800;
+const MAX_COACH_LOG = 40;
+const MAX_PAIN_REPORTS = 200;
 
 function isWeeklyStreak(state: AppState): boolean {
   return state.player ? isMinor(state.player.ageBand) : false;
@@ -60,6 +70,17 @@ export function appReducer(state: AppState, action: AppAction): AppState {
 
     case 'SET_SETTINGS':
       return { ...state, settings: { ...state.settings, ...action.patch } };
+
+    case 'APPLY_ESTIMATES': {
+      if (!state.player) return state;
+      const attributes = { ...state.player.attributes };
+      for (const [key, value] of Object.entries(action.attributes)) {
+        const current = attributes[key as keyof typeof attributes];
+        // Solo se reemplazan las cifras que siguen siendo "estimado": lo medido o ajustado a mano se respeta.
+        if (value && (!current || current.source === 'estimado')) attributes[key as keyof typeof attributes] = value;
+      }
+      return { ...state, player: { ...state.player, attributes } };
+    }
 
     case 'SET_PLAN_PREFS':
       return { ...state, planPrefs: action.prefs };
@@ -123,6 +144,30 @@ export function appReducer(state: AppState, action: AppAction): AppState {
 
     case 'DELETE_TIMER_PRESET':
       return { ...state, timerPresets: state.timerPresets.filter((p) => p.id !== action.presetId) };
+
+    case 'SET_AI_PLAN':
+      return { ...state, aiPlan: action.plan };
+
+    case 'ADD_COACH_MESSAGE':
+      return { ...state, coachLog: [...state.coachLog, action.message].slice(-MAX_COACH_LOG) };
+
+    case 'CLEAR_COACH_LOG':
+      return { ...state, coachLog: [] };
+
+    case 'ADD_PAIN_REPORT':
+      return { ...state, painReports: [...state.painReports, action.report].slice(-MAX_PAIN_REPORTS) };
+
+    case 'ADD_PAIN_FOLLOWUP':
+      return {
+        ...state,
+        painReports: state.painReports.map((r) => (r.id === action.reportId ? { ...r, followUps: [...r.followUps, action.followUp] } : r)),
+      };
+
+    case 'RESOLVE_PAIN':
+      return { ...state, painReports: state.painReports.map((r) => (r.id === action.reportId ? { ...r, status: 'resuelto' } : r)) };
+
+    case 'CLEAR_PAIN_BLOCK':
+      return { ...state, painReports: state.painReports.map((r) => (r.id === action.reportId ? { ...r, clearedByProfessional: true } : r)) };
 
     case 'RESET_ALL':
       return createInitialState();

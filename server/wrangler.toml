@@ -1,0 +1,12 @@
+name = "dorsal-gateway"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+
+# Contadores de uso (crear con: wrangler kv namespace create USAGE y pegar aquí el id).
+# [[kv_namespaces]]
+# binding = "USAGE"
+# id = "PEGAR_ID_AQUI"
+
+# Secretos (no van aquí): wrangler secret put ANTHROPIC_API_KEY y wrangler secret put OWNER_ACCESS_CODE
+# Variables opcionales: MODEL_DEFAULT, MODEL_COACH_CHAT, DAILY_LIMIT_OWNER, DAILY_LIMIT_PRO
+[vars]

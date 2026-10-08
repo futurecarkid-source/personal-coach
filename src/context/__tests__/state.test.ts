@@ -16,6 +16,7 @@ const player = (ageBand: Player['ageBand']): Player => ({
   club: null,
   ageBand,
   attributes: estimateAttributes({ position: 'MC', level: 'amateur' }),
+  selfAssessment: {},
   createdAt: '2026-10-08T00:00:00.000Z',
 });
 
@@ -94,6 +95,28 @@ describe('persistence', () => {
     expect(loaded.status).toBe('recovered');
     expect(loaded.state.player).toBeNull();
     expect(storage.dump()[CORRUPT_KEY]).toContain('"version":1');
+  });
+
+  it('loads a state saved before the AI fields existed (migration by defaults)', async () => {
+    const old = createInitialState() as unknown as Record<string, unknown>;
+    delete old.aiPlan;
+    delete old.coachLog;
+    delete old.painReports;
+    const settings = { ...(old.settings as Record<string, unknown>) };
+    delete settings.aiGatewayUrl;
+    delete settings.aiConsentAt;
+    delete settings.guardianConsent;
+    delete settings.coachPersona;
+    old.settings = settings;
+    const planPrefs = { ...(old.planPrefs as Record<string, unknown>) };
+    delete planPrefs.goals;
+    old.planPrefs = planPrefs;
+    const storage = createMemoryStorage({ [STATE_KEY]: JSON.stringify(old) });
+    const loaded = await loadState(storage);
+    expect(loaded.status).toBe('ok');
+    expect(loaded.state.painReports).toEqual([]);
+    expect(loaded.state.settings.aiConsentAt).toBeNull();
+    expect(loaded.state.planPrefs.goals).toEqual([]);
   });
 
   it('rejects data that does not match the schema', async () => {

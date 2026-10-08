@@ -121,6 +121,10 @@ export const timerPresetSchema = z.object({
 });
 export type TimerPreset = z.infer<typeof timerPresetSchema>;
 
+export const GOALS = ['subir_nivel', 'prevenir_lesiones', 'mejorar_mentalidad', 'mejorar_fisico', 'entender_juego', 'llevar_estadisticas'] as const;
+export const goalSchema = z.enum(GOALS);
+export type Goal = z.infer<typeof goalSchema>;
+
 export const planPrefsSchema = z.object({
   daysPerWeek: z.number().int().min(1).max(7),
   minutesPerSession: z.number().int().min(10).max(120),
@@ -129,5 +133,7 @@ export const planPrefsSchema = z.object({
   discomfortZones: z.array(bodyZoneSchema),
   /** Fechas ISO de partidos próximos. */
   matchDates: z.array(z.string()),
+  /** Objetivos elegidos en el cuestionario (se pueden elegir varios). */
+  goals: z.array(goalSchema).default([]),
 });
 export type PlanPrefs = z.infer<typeof planPrefsSchema>;

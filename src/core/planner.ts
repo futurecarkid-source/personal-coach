@@ -87,7 +87,7 @@ function pickExercises(
   return picked;
 }
 
-function feelsBad(checkIn: CheckIn | null | undefined): boolean {
+export function feelsBad(checkIn: CheckIn | null | undefined): boolean {
   if (!checkIn) return false;
   return checkIn.mood <= 3 || checkIn.energy <= 2 || checkIn.soreness >= 8;
 }

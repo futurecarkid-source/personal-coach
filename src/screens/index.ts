@@ -5,3 +5,5 @@ export * from './WorkoutRunnerScreen';
 export * from './MatchScreen';
 export * from './TacticsScreen';
 export * from './ProfileScreen';
+export * from './CoachScreen';
+export * from './PainScreen';

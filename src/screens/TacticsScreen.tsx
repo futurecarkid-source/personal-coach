@@ -1,5 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
+import { describeAiError, explainTactic, type TacticExplainOutput } from '../ai';
+import { useAiAccess } from '../ai/useAi';
 import { AppText, GlassButton, GlassCard, GlassSurface, Screen, SectionHeader } from '../components/common';
 import { TacticalBoard } from '../components/specialized/TacticalBoard';
 import { useAppDispatch, useAppState } from '../context';
@@ -21,6 +23,11 @@ export function TacticsScreen(): React.JSX.Element {
   const [name, setName] = useState('');
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const latest = useRef<{ frame: PlayFrame; format: GameFormat; formation: string } | null>(null);
+  const access = useAiAccess();
+  const [question, setQuestion] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [explain, setExplain] = useState<TacticExplainOutput | null>(null);
+  const [explainError, setExplainError] = useState<string | null>(null);
 
   const save = (): void => {
     if (!latest.current) return;
@@ -36,6 +43,39 @@ export function TacticsScreen(): React.JSX.Element {
     setName('');
   };
 
+  const askCoachAboutBoard = async (): Promise<void> => {
+    setExplainError(null);
+    if (!access.config) {
+      setExplainError(access.gate.allowed ? 'La IA no está disponible.' : access.gate.message);
+      return;
+    }
+    const current = latest.current;
+    const frame = current?.frame ?? loaded?.frame;
+    if (!frame) {
+      setExplainError('Mueve o dibuja algo en la pizarra primero.');
+      return;
+    }
+    const r2 = (n: number): number => Math.round(n * 100) / 100;
+    const own = frame.tokens.filter((t) => t.team === 'propio');
+    const rival = frame.tokens.filter((t) => t.team === 'rival');
+    setBusy(true);
+    try {
+      const out = await explainTactic(access.config, {
+        format: current?.format ?? loaded?.format ?? 'f11',
+        formation: current?.formation ?? loaded?.formation ?? '4-3-3',
+        rivalFormation: rival.length > 0 ? (current?.formation ?? loaded?.formation ?? null) : null,
+        tokens: frame.tokens.slice(0, 40).map((t) => ({ team: t.team, x: r2(t.pos.x), y: r2(t.pos.y) })),
+        drawings: frame.drawings.slice(0, 20).map((d) => ({ kind: d.kind, from: { x: r2(d.from.x), y: r2(d.from.y) }, to: { x: r2(d.to.x), y: r2(d.to.y) } })),
+        question: question.trim() || (own.length > 0 ? 'Explícame esta jugada y qué debo vigilar.' : 'Explícame esta pizarra.'),
+      });
+      setExplain(out);
+    } catch (e) {
+      setExplainError(describeAiError(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <Screen>
       <AppText variant="largeTitle">Táctica</AppText>
@@ -48,6 +88,26 @@ export function TacticsScreen(): React.JSX.Element {
           latest.current = { frame, format: meta.format, formation: meta.formation };
         }}
       />
+
+      <GlassCard>
+        <SectionHeader title="Pregúntale al coach" subtitle="Explica tu pizarra: estructura, riesgos y sugerencias" />
+        <View style={styles.form}>
+          <GlassSurface radius={radii.button} flat>
+            <TextInput value={question} onChangeText={setQuestion} placeholder="Pregunta (opcional)" placeholderTextColor={colors.textSecondary} maxLength={300} style={[styles.input, { color: colors.text }]} accessibilityLabel="Pregunta sobre la pizarra" />
+          </GlassSurface>
+          <GlassButton label={busy ? 'Pensando…' : 'Explícame esta jugada'} icon="sparkles" variant="primary" disabled={busy} haptic="medium" onPress={() => { void askCoachAboutBoard(); }} />
+          {explainError ? <AppText variant="callout" tone="danger">{explainError}</AppText> : null}
+          {explain ? (
+            <View style={styles.form}>
+              <AppText variant="body">{explain.explanation}</AppText>
+              {explain.strengths.length > 0 ? <AppText variant="callout">Fortalezas: {explain.strengths.join(' · ')}</AppText> : null}
+              {explain.risks.length > 0 ? <AppText variant="callout" tone="danger">Riesgos: {explain.risks.join(' · ')}</AppText> : null}
+              {explain.suggestions.length > 0 ? <AppText variant="callout">Sugerencias: {explain.suggestions.join(' · ')}</AppText> : null}
+              <AppText variant="caption" tone="secondary">Respuesta generada por IA. Puede contener errores.</AppText>
+            </View>
+          ) : null}
+        </View>
+      </GlassCard>
 
       <GlassCard>
         <SectionHeader title="Guardar jugada" />

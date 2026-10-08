@@ -1,12 +1,14 @@
-import React from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
-import { AppText, Chip, GlassButton, GlassCard, Screen, SectionHeader, SegmentedControl, Stepper } from '../components/common';
+import React, { useState } from 'react';
+import { Alert, StyleSheet, TextInput, View } from 'react-native';
+import { CONSENT_TEXT, describeAiError, refineScouting } from '../ai';
+import { useAiAccess } from '../ai/useAi';
+import { AppText, Chip, GlassButton, GlassCard, GlassSurface, Screen, SectionHeader, SegmentedControl, Stepper } from '../components/common';
 import { PlayerCard3D } from '../components/specialized/PlayerCard3D';
 import { ATTRIBUTE_LABELS, LEVEL_LABELS, POSITION_LABELS } from '../content/attributeLabels';
 import { useAppDispatch, useAppState } from '../context';
 import { computeOvr, headlineKeys } from '../core/ovr';
-import { isHapticsSupported, spacing } from '../theme';
-import type { AttributeKey } from '../types';
+import { isHapticsSupported, radii, spacing, useTheme } from '../theme';
+import { isMinor, type AttributeKey } from '../types';
 
 const SOURCE_LABEL = { estimado: 'Estimado', medido: 'Medido', ajustado: 'Ajustado' } as const;
 
@@ -14,11 +16,47 @@ export function ProfileScreen(): React.JSX.Element {
   const { state } = useAppState();
   const dispatch = useAppDispatch();
   const { player, settings } = state;
+  const { colors } = useTheme();
+  const access = useAiAccess();
+  const [code, setCode] = useState('');
+  const [aiNote, setAiNote] = useState<string | null>(null);
+  const [aiBusy, setAiBusy] = useState(false);
   if (!player) return <Screen><AppText variant="body">Crea tu tarjeta para empezar.</AppText></Screen>;
 
   const ovr = computeOvr(player.position, player.attributes);
   const main = headlineKeys(player.position);
   const others = (Object.keys(player.attributes) as AttributeKey[]).filter((k) => !main.includes(k));
+
+  const consent = (): void => {
+    Alert.alert('Antes de usar la IA', CONSENT_TEXT, [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Acepto', onPress: () => access.acceptConsent() },
+    ]);
+  };
+
+  const saveCode = async (): Promise<void> => {
+    const ok = await access.saveAccessCode(code);
+    setAiNote(ok ? (code.trim() ? 'Código guardado en el llavero de tu dispositivo.' : 'Código borrado.') : 'No se pudo guardar el código.');
+    if (ok) setCode('');
+  };
+
+  const refine = async (): Promise<void> => {
+    setAiNote(null);
+    if (!access.config) {
+      setAiNote(access.gate.allowed ? 'La IA no está disponible.' : access.gate.message);
+      return;
+    }
+    setAiBusy(true);
+    try {
+      const attributes = await refineScouting(access.config, state);
+      dispatch({ type: 'APPLY_ESTIMATES', attributes });
+      setAiNote('Cifras refinadas. Las que ajustaste a mano o mediste no se tocan.');
+    } catch (e) {
+      setAiNote(describeAiError(e));
+    } finally {
+      setAiBusy(false);
+    }
+  };
 
   const confirmReset = (): void => {
     Alert.alert('Borrar todos mis datos', 'Se borrarán tu tarjeta, tus sesiones, partidos y jugadas de este dispositivo. No se puede deshacer.', [
@@ -106,6 +144,68 @@ export function ProfileScreen(): React.JSX.Element {
       </GlassCard>
 
       <GlassCard>
+        <SectionHeader title="IA y Coach" subtitle={access.config ? 'Conectada' : 'Sin conectar'} />
+        <View style={styles.list}>
+          <AppText variant="callout" tone="secondary">
+            La IA hace tu plan, responde en el chat, explica tu pizarra, revisa partidos y orienta tu seguimiento de dolor. Sin IA, el coach local sigue funcionando.
+          </AppText>
+          <AppText variant="caption" tone="secondary">Dirección del servicio de IA</AppText>
+          <GlassSurface radius={radii.button} flat>
+            <TextInput
+              value={settings.aiGatewayUrl}
+              onChangeText={(v) => dispatch({ type: 'SET_SETTINGS', patch: { aiGatewayUrl: v } })}
+              placeholder="https://…"
+              placeholderTextColor={colors.textSecondary}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="url"
+              style={[styles.input, { color: colors.text }]}
+              accessibilityLabel="Dirección del servicio de IA"
+            />
+          </GlassSurface>
+          <AppText variant="caption" tone="secondary">Código de acceso {access.hasAccessCode ? '(guardado)' : '(no guardado)'}</AppText>
+          <GlassSurface radius={radii.button} flat>
+            <TextInput
+              value={code}
+              onChangeText={setCode}
+              placeholder="Pega tu código"
+              placeholderTextColor={colors.textSecondary}
+              secureTextEntry
+              autoCapitalize="none"
+              autoCorrect={false}
+              style={[styles.input, { color: colors.text }]}
+              accessibilityLabel="Código de acceso a la IA"
+            />
+          </GlassSurface>
+          <View style={styles.wrapRow}>
+            <GlassButton label={code.trim() ? 'Guardar código' : 'Borrar código'} size="compact" haptic="medium" disabled={!code.trim() && !access.hasAccessCode} onPress={() => { void saveCode(); }} />
+            {settings.aiConsentAt ? (
+              <GlassButton label="Retirar permiso" size="compact" haptic="warning" onPress={() => access.withdrawConsent()} />
+            ) : (
+              <GlassButton label="Revisar y aceptar qué se envía" size="compact" variant="primary" haptic="medium" onPress={consent} />
+            )}
+          </View>
+          {isMinor(player.ageBand) ? (
+            <View style={styles.settingRow}>
+              <View style={styles.flex}>
+                <AppText variant="headline">Permiso de un adulto</AppText>
+                <AppText variant="caption" tone="secondary">Por tu edad, la IA solo se usa con el permiso de un padre, madre o tutor. Nunca se envían fotos ni video.</AppText>
+              </View>
+              <Chip label={settings.guardianConsent ? 'Sí' : 'No'} selected={settings.guardianConsent} onPress={() => dispatch({ type: 'SET_SETTINGS', patch: { guardianConsent: !settings.guardianConsent } })} />
+            </View>
+          ) : null}
+          <AppText variant="caption" tone="secondary">Tono del coach</AppText>
+          <View style={styles.wrapRow}>
+            {(['exigente', 'motivador', 'cientifico', 'calmado'] as const).map((p) => (
+              <Chip key={p} label={p === 'cientifico' ? 'Científico' : p.charAt(0).toUpperCase() + p.slice(1)} selected={settings.coachPersona === p} onPress={() => dispatch({ type: 'SET_SETTINGS', patch: { coachPersona: p } })} />
+            ))}
+          </View>
+          <GlassButton label={aiBusy ? 'Refinando…' : 'Refinar mis cifras con IA'} icon="sparkles" size="compact" haptic="medium" disabled={aiBusy} onPress={() => { void refine(); }} />
+          {aiNote ? <AppText variant="callout" tone="secondary">{aiNote}</AppText> : null}
+        </View>
+      </GlassCard>
+
+      <GlassCard>
         <SectionHeader title="Tus datos" subtitle="Se guardan en este dispositivo." />
         <View style={styles.block}>
           <GlassButton label="Borrar todos mis datos" icon="trash" variant="danger" haptic="warning" onPress={confirmReset} />
@@ -123,4 +223,6 @@ const styles = StyleSheet.create({
   settingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.md },
   flex: { flex: 1, gap: 2 },
   block: { gap: spacing.md, marginTop: spacing.sm },
+  wrapRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  input: { fontSize: 17, paddingHorizontal: spacing.lg, paddingVertical: spacing.md },
 });

@@ -1,0 +1,17 @@
+{
+  "name": "dorsal-gateway",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Servicio mínimo de IA de Dorsal (Cloudflare Worker): guarda las claves, comprueba el acceso, limita el uso y llama al modelo.",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.132.1"
+  },
+  "devDependencies": {
+    "wrangler": "^4"
+  }
+}

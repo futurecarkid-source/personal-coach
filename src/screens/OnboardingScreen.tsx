@@ -11,6 +11,7 @@ import {
   BODY_ZONES,
   EQUIPMENT,
   FEET,
+  GOALS,
   LEVELS,
   POSITIONS,
   isMinor,
@@ -18,6 +19,7 @@ import {
   type BodyZone,
   type Equipment,
   type Foot,
+  type Goal,
   type Level,
   type OutfieldAttributeKey,
   type Player,
@@ -41,6 +43,15 @@ const EQUIPMENT_LABELS: Record<Equipment, string> = {
   balon: 'Balón',
   conos: 'Conos',
   escalera: 'Escalera de agilidad',
+};
+
+const GOAL_LABELS: Record<Goal, string> = {
+  subir_nivel: 'Subir de nivel o fichar',
+  prevenir_lesiones: 'Prevenir lesiones',
+  mejorar_mentalidad: 'Mejorar mentalidad',
+  mejorar_fisico: 'Mejorar mi físico',
+  entender_juego: 'Entender mejor el juego',
+  llevar_estadisticas: 'Llevar mis estadísticas',
 };
 
 const FOOT_LABELS: Record<Foot, string> = { izquierdo: 'Izquierdo', derecho: 'Derecho', ambos: 'Ambos' };
@@ -79,6 +90,7 @@ export function OnboardingScreen(): React.JSX.Element {
   const [minutes, setMinutes] = useState(40);
   const [equipment, setEquipment] = useState<Equipment[]>(['ninguno']);
   const [zones, setZones] = useState<BodyZone[]>([]);
+  const [goals, setGoals] = useState<Goal[]>([]);
   const [self, setSelf] = useState<SelfAssessment>({});
 
   const anyYes = answers.some((a) => a === true);
@@ -105,12 +117,13 @@ export function OnboardingScreen(): React.JSX.Element {
       club: null,
       ageBand,
       attributes: estimateAttributes({ position, level, selfAssessment: self }),
+      selfAssessment: Object.fromEntries(Object.entries(self).filter((e): e is [string, number] => typeof e[1] === 'number')),
       createdAt: new Date().toISOString(),
     };
     dispatch({ type: 'SET_SETTINGS', patch: { healthNoticeAccepted: true } });
     dispatch({
       type: 'SET_PLAN_PREFS',
-      prefs: { daysPerWeek: days, minutesPerSession: minutes, equipment: equipment.length > 0 ? equipment : ['ninguno'], discomfortZones: zones, matchDates: [] },
+      prefs: { daysPerWeek: days, minutesPerSession: minutes, equipment: equipment.length > 0 ? equipment : ['ninguno'], discomfortZones: zones, matchDates: [], goals },
     });
     dispatch({ type: 'SET_PLAYER', player });
     haptics.success();
@@ -217,6 +230,13 @@ export function OnboardingScreen(): React.JSX.Element {
 
       {step === 3 ? (
         <GlassCard>
+          <AppText variant="caption" tone="secondary" style={styles.label}>Tus objetivos (elige los que quieras)</AppText>
+          <View style={styles.wrap}>
+            {GOALS.map((g) => (
+              <Chip key={g} label={GOAL_LABELS[g]} selected={goals.includes(g)} onPress={() => setGoals((list) => toggle(list, g))} />
+            ))}
+          </View>
+          <View style={styles.spacer} />
           <Stepper label="Días de entrenamiento por semana" value={days} min={1} max={7} onChange={setDays} />
           <View style={styles.spacer} />
           <Stepper label="Tiempo por sesión" value={minutes} min={15} max={90} step={5} unit="min" onChange={setMinutes} />

@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { describeAiError, requestAiPlan } from '../ai';
+import { useAiAccess } from '../ai/useAi';
 import { AppText, Chip, FaceRating, GlassButton, GlassCard, Icon, ProgressBar, Screen, SectionHeader } from '../components/common';
+import { PainFollowUpCard } from '../components/specialized/PainFollowUpCard';
 import { BODY_ZONE_LABELS } from '../content/attributeLabels';
 import { EXERCISE_BY_ID } from '../content/exercises';
 import { useAppDispatch, useAppState } from '../context';
@@ -27,7 +30,10 @@ export function HomeScreen(): React.JSX.Element {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { colors } = useTheme();
-  const { today, week, todaySession } = useWeekPlan();
+  const { today, week, todaySession, usingAi } = useWeekPlan();
+  const access = useAiAccess();
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiMessage, setAiMessage] = useState<string | null>(null);
   const player = state.player;
   const todayCheckIn = state.checkIns.find((c) => c.date === today) ?? null;
   const [mood, setMood] = useState<number | null>(todayCheckIn?.mood ?? null);
@@ -45,16 +51,38 @@ export function HomeScreen(): React.JSX.Element {
     setEditing(false);
   };
 
+  const generateAiPlan = async (): Promise<void> => {
+    setAiMessage(null);
+    if (!access.config) {
+      setAiMessage(access.gate.allowed ? 'La IA no está disponible.' : access.gate.message);
+      return;
+    }
+    setAiBusy(true);
+    try {
+      const { plan } = await requestAiPlan(access.config, state, today, todaySession, new Date().toISOString());
+      dispatch({ type: 'SET_AI_PLAN', plan });
+      setAiMessage(plan.rationale || 'Plan con IA listo.');
+    } catch (e) {
+      setAiMessage(describeAiError(e));
+    } finally {
+      setAiBusy(false);
+    }
+  };
+
+  const activePain = state.painReports.filter((r) => r.status === 'activo');
   const sessionIsRest = todaySession?.kind === 'descanso';
   const restRegistered = state.gamification.lastActiveDate === today;
 
   return (
     <Screen>
-      <View>
-        <AppText variant="caption" tone="secondary">
-          {new Date().toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long' })}
-        </AppText>
-        <AppText variant="largeTitle">Hola, {player?.nickname ?? 'jugador'}</AppText>
+      <View style={styles.rowBetween}>
+        <View style={styles.flex}>
+          <AppText variant="caption" tone="secondary">
+            {new Date().toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long' })}
+          </AppText>
+          <AppText variant="largeTitle">Hola, {player?.nickname ?? 'jugador'}</AppText>
+        </View>
+        <GlassButton label="Coach" icon="bubble.left.fill" size="compact" haptic="medium" onPress={() => router.push('/coach')} />
       </View>
 
       <GlassCard>
@@ -111,6 +139,11 @@ export function HomeScreen(): React.JSX.Element {
             )}
           </View>
         ) : null}
+        <View style={styles.block}>
+          <GlassButton label={aiBusy ? 'Creando tu plan…' : usingAi ? 'Actualizar plan con IA' : 'Plan con IA'} icon="sparkles" size="compact" haptic="medium" disabled={aiBusy} onPress={() => { void generateAiPlan(); }} />
+          {usingAi ? <AppText variant="caption" tone="secondary">Estás usando un plan hecho con IA y revisado por las reglas de seguridad.</AppText> : null}
+          {aiMessage ? <AppText variant="callout" tone="secondary">{aiMessage}</AppText> : null}
+        </View>
       </GlassCard>
 
       <GlassCard>
@@ -145,6 +178,21 @@ export function HomeScreen(): React.JSX.Element {
       </GlassCard>
 
       <GlassCard>
+        <SectionHeader title="Dolor y lesiones" right={<GlassButton label="Tengo un dolor" icon="cross.case.fill" size="compact" haptic="medium" onPress={() => router.push('/pain')} />} />
+        {activePain.length === 0 ? <AppText variant="callout" tone="secondary" style={styles.caption}>Sin dolores activos. Si algo te molesta, repórtalo: revisamos señales de alarma y cuidamos tu plan.</AppText> : null}
+      </GlassCard>
+      {activePain.map((report) => (
+        <PainFollowUpCard
+          key={report.id}
+          report={report}
+          allReports={state.painReports}
+          onFollowUp={(id, intensity) => dispatch({ type: 'ADD_PAIN_FOLLOWUP', reportId: id, followUp: { at: new Date().toISOString(), intensity, note: '' } })}
+          onResolve={(id) => dispatch({ type: 'RESOLVE_PAIN', reportId: id })}
+          onProfessionalCleared={(id) => dispatch({ type: 'CLEAR_PAIN_BLOCK', reportId: id })}
+        />
+      ))}
+
+      <GlassCard>
         <SectionHeader title="Tu semana" />
         <View style={styles.weekRow}>
           {week.map((s) => (
@@ -169,7 +217,8 @@ function DayDot({ session, isToday }: { session: PlannedSession; isToday: boolea
 }
 
 const styles = StyleSheet.create({
-  rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
+  flex: { flex: 1 },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   right: { alignItems: 'flex-end' },
   spacer: { height: spacing.md },

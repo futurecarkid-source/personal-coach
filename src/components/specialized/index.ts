@@ -6,3 +6,4 @@ export * from './MiniPitch';
 export * from './HeatmapPitch';
 export * from './IntervalTimer';
 export * from './ExerciseGlyph';
+export * from './PainFollowUpCard';

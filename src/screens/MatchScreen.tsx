@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
+import { describeAiError, reviewMatch, type MatchReviewOutput } from '../ai';
+import { useAiAccess } from '../ai/useAi';
+import { EXERCISE_BY_ID } from '../content/exercises';
 import { AppText, Chip, FaceRating, GlassButton, GlassCard, GlassSurface, Screen, SectionHeader, Stepper } from '../components/common';
 import { MatchTracker, type NewMatchEvent } from '../components/specialized/MatchTracker';
 import { useAppDispatch, useAppState } from '../context';
@@ -15,6 +18,10 @@ export function MatchScreen(): React.JSX.Element {
   const [opponent, setOpponent] = useState('');
   const [competition, setCompetition] = useState('');
   const [venue, setVenue] = useState<Match['venue']>('local');
+  const access = useAiAccess();
+  const [reviewBusy, setReviewBusy] = useState(false);
+  const [review, setReview] = useState<MatchReviewOutput | null>(null);
+  const [reviewError, setReviewError] = useState<string | null>(null);
 
   const selected = state.matches.find((m) => m.id === selectedId) ?? null;
 
@@ -40,6 +47,21 @@ export function MatchScreen(): React.JSX.Element {
   };
 
   if (selected) {
+    const askReview = async (): Promise<void> => {
+      setReviewError(null);
+      if (!access.config || !state.player) {
+        setReviewError(access.gate.allowed ? 'La IA no está disponible.' : access.gate.message);
+        return;
+      }
+      setReviewBusy(true);
+      try {
+        setReview(await reviewMatch(access.config, selected, state.player));
+      } catch (e) {
+        setReviewError(describeAiError(e));
+      } finally {
+        setReviewBusy(false);
+      }
+    };
     const update = (patch: Partial<Match>): void => dispatch({ type: 'UPSERT_MATCH', match: { ...selected, ...patch } });
     const addEvent = (event: NewMatchEvent): void =>
       dispatch({ type: 'ADD_MATCH_EVENT', matchId: selected.id, event: { ...event, id: newId('ev'), matchId: selected.id } });
@@ -75,6 +97,23 @@ export function MatchScreen(): React.JSX.Element {
           <FaceRating label="Mi nota del partido" value={selected.selfRating} onChange={(v) => update({ selfRating: v })} />
           <View style={styles.gap} />
           <FaceRating label="Esfuerzo percibido" value={selected.rpe} onChange={(v) => update({ rpe: v })} />
+        </GlassCard>
+        <GlassCard>
+          <SectionHeader title="Revisión con IA" subtitle="Usa solo tus estadísticas etiquetadas (no el video)" />
+          <View style={styles.form}>
+            <GlassButton label={reviewBusy ? 'Revisando…' : 'Revisar mi partido'} icon="sparkles" variant="primary" disabled={reviewBusy || selected.events.length === 0} haptic="medium" onPress={() => { void askReview(); }} />
+            {selected.events.length === 0 ? <AppText variant="caption" tone="secondary">Registra algunas acciones primero.</AppText> : null}
+            {reviewError ? <AppText variant="callout" tone="danger">{reviewError}</AppText> : null}
+            {review ? (
+              <View style={styles.form}>
+                <AppText variant="headline">{review.headline}</AppText>
+                {review.positives.map((t) => <AppText key={t} variant="callout">+ {t}</AppText>)}
+                {review.toImprove.map((t) => <AppText key={t} variant="callout" tone="secondary">→ {t}</AppText>)}
+                {review.drills.length > 0 ? <AppText variant="callout">Para trabajarlo: {review.drills.map((id) => EXERCISE_BY_ID.get(id)?.name ?? id).join(', ')}</AppText> : null}
+                <AppText variant="caption" tone="secondary">Respuesta generada por IA. Puede contener errores.</AppText>
+              </View>
+            ) : null}
+          </View>
         </GlassCard>
       </Screen>
     );
