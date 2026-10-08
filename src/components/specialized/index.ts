@@ -5,6 +5,6 @@ export * from './MatchTracker';
 export * from './MiniPitch';
 export * from './HeatmapPitch';
 export * from './IntervalTimer';
-export * from './ExerciseGlyph';
+export * from './ExerciseFigure';
 export * from './PainFollowUpCard';
 export * from './ReadinessRing';

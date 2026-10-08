@@ -3,7 +3,7 @@ import { Linking, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { AppText, FaceRating, GlassButton, GlassCard, ProgressBar, Screen } from '../components/common';
-import { ExerciseGlyph } from '../components/specialized/ExerciseGlyph';
+import { ExerciseFigure } from '../components/specialized/ExerciseFigure';
 import { EXERCISE_BY_ID, youtubeSearchUrl } from '../content/exercises';
 import { useAppDispatch } from '../context';
 import { newId } from '../core/dates';
@@ -122,7 +122,7 @@ export function WorkoutRunnerScreen(): React.JSX.Element {
         />
       ) : (
         <>
-          <ExerciseGlyph pattern={current.pattern} />
+          <ExerciseFigure key={current.id} exercise={current} />
           <View style={styles.center}>
             <AppText variant="title" style={styles.titleCenter}>{current.name}</AppText>
             <AppText variant="callout" tone="secondary">Serie {flow.setIndex + 1} de {current.sets}</AppText>
