@@ -14,6 +14,8 @@ export interface PlanInput {
   matchDates: readonly string[];
   /** Último check-in; si el cuerpo no está bien, el primer día baja a recuperación. */
   latestCheckIn?: CheckIn | null;
+  /** La Preparación del día pide descanso o recuperación (anillo en rojo o alerta de dolor). */
+  forceRecovery?: boolean;
 }
 
 const TRAINING_WEEKDAYS: Record<number, readonly number[]> = {
@@ -129,7 +131,7 @@ export function planDays(input: PlanInput, library: readonly Exercise[] = EXERCI
       title = KIND_TITLES.descanso;
     }
 
-    if (i === 0 && kind !== 'descanso' && feelsBad(input.latestCheckIn)) {
+    if (i === 0 && kind !== 'descanso' && (feelsBad(input.latestCheckIn) || input.forceRecovery === true)) {
       kind = 'recuperacion';
       title = 'Recuperación (hoy te sientes cansado o con molestias)';
     }

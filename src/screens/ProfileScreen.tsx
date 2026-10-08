@@ -111,6 +111,19 @@ export function ProfileScreen(): React.JSX.Element {
       <GlassCard>
         <SectionHeader title="Ajustes" />
         <View style={styles.list}>
+          <View style={styles.block}>
+            <AppText variant="headline">Sensibilidad de la Preparación</AppText>
+            <NativeSegmented
+              options={[
+                { value: 'estricto', label: 'Estricto' },
+                { value: 'equilibrado', label: 'Equilibrado' },
+                { value: 'permisivo', label: 'Permisivo' },
+              ]}
+              value={settings.readinessSensitivity}
+              onChange={(v) => dispatch({ type: 'SET_SETTINGS', patch: { readinessSensitivity: v } })}
+            />
+          </View>
+          <Stepper label="Horas de sueño que quieres dormir" value={settings.sleepGoalHours} min={5} max={12} step={0.5} unit="h" onChange={(v) => dispatch({ type: 'SET_SETTINGS', patch: { sleepGoalHours: v } })} />
           <NativeToggle
             label="Háptica"
             description={isHapticsSupported() ? 'Vibraciones finas en cada interacción.' : 'Este dispositivo (iPad) no tiene motor de vibración.'}

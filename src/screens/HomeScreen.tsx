@@ -3,8 +3,10 @@ import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { describeAiError, requestAiPlan } from '../ai';
 import { useAiAccess } from '../ai/useAi';
-import { AppText, Chip, FaceRating, GlassButton, GlassCard, Icon, ProgressBar, Screen, SectionHeader } from '../components/common';
+import { AppText, Chip, FaceRating, GlassButton, GlassCard, Icon, ProgressBar, Screen, SectionHeader, Stepper } from '../components/common';
 import { PainFollowUpCard } from '../components/specialized/PainFollowUpCard';
+import { ReadinessRing } from '../components/specialized/ReadinessRing';
+import { useReadiness } from '../hooks/useReadiness';
 import { BODY_ZONE_LABELS } from '../content/attributeLabels';
 import { EXERCISE_BY_ID } from '../content/exercises';
 import { useAppDispatch, useAppState } from '../context';
@@ -32,6 +34,10 @@ export function HomeScreen(): React.JSX.Element {
   const { colors } = useTheme();
   const { today, week, todaySession, usingAi } = useWeekPlan();
   const access = useAiAccess();
+  const readiness = useReadiness();
+  const todaySleep = state.sleepLogs.find((l) => l.date === today) ?? null;
+  const [sleepHours, setSleepHours] = useState(todaySleep?.hours ?? state.settings.sleepGoalHours - 0.5);
+  const [sleepQuality, setSleepQuality] = useState<number | null>(todaySleep ? todaySleep.quality * 2 : null);
   const [aiBusy, setAiBusy] = useState(false);
   const [aiMessage, setAiMessage] = useState<string | null>(null);
   const player = state.player;
@@ -104,6 +110,25 @@ export function HomeScreen(): React.JSX.Element {
         <AppText variant="caption" tone="secondary" style={styles.caption}>
           {state.gamification.freezes} congelador{state.gamification.freezes === 1 ? '' : 'es'} de racha · el descanso programado no rompe tu racha
         </AppText>
+      </GlassCard>
+
+      <ReadinessRing readiness={readiness} />
+
+      <GlassCard>
+        <SectionHeader title="Sueño de anoche" subtitle={`Tu meta: ${state.settings.sleepGoalHours} h`} />
+        <View style={styles.block}>
+          <Stepper label="Horas dormidas" value={sleepHours} min={0} max={14} step={0.5} unit="h" onChange={setSleepHours} />
+          <FaceRating label="Calidad del sueño" value={sleepQuality} onChange={setSleepQuality} />
+          <GlassButton
+            label={todaySleep ? 'Actualizar sueño' : 'Guardar sueño'}
+            icon="moon.zzz.fill"
+            size="compact"
+            haptic="success"
+            disabled={sleepQuality === null}
+            onPress={() => sleepQuality !== null && dispatch({ type: 'LOG_SLEEP', log: { date: today, hours: sleepHours, quality: Math.max(1, Math.min(5, Math.round(sleepQuality / 2))) } })}
+          />
+          {sleepHours < state.settings.sleepGoalHours - 1.5 ? <AppText variant="caption" tone="secondary">Dormir menos de lo que necesitas baja tu Preparación. Hoy protege tu descanso de esta noche.</AppText> : null}
+        </View>
       </GlassCard>
 
       <GlassCard>

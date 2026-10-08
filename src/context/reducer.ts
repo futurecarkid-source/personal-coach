@@ -10,6 +10,8 @@ export const DEFAULT_SETTINGS: Settings = {
   aiConsentAt: null,
   guardianConsent: false,
   coachPersona: 'motivador',
+  readinessSensitivity: 'equilibrado',
+  sleepGoalHours: 8,
 };
 
 export const DEFAULT_PLAN_PREFS: PlanPrefs = {
@@ -36,6 +38,7 @@ export function createInitialState(): AppState {
     aiPlan: null,
     coachLog: [],
     painReports: [],
+    sleepLogs: [],
   };
 }
 
@@ -144,6 +147,11 @@ export function appReducer(state: AppState, action: AppAction): AppState {
 
     case 'DELETE_TIMER_PRESET':
       return { ...state, timerPresets: state.timerPresets.filter((p) => p.id !== action.presetId) };
+
+    case 'LOG_SLEEP': {
+      const sleepLogs = [...state.sleepLogs.filter((l) => l.date !== action.log.date), action.log].slice(-200);
+      return { ...state, sleepLogs, gamification: touchStreak(state.gamification, action.log.date, isWeeklyStreak(state)) };
+    }
 
     case 'SET_AI_PLAN':
       return { ...state, aiPlan: action.plan };

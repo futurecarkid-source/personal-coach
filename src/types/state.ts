@@ -20,7 +20,19 @@ export const settingsSchema = z.object({
   /** Un adulto responsable autoriza la IA (obligatorio para menores). */
   guardianConsent: z.boolean().default(false),
   coachPersona: z.enum(['exigente', 'motivador', 'cientifico', 'calmado']).default('motivador'),
+  /** Qué tan pronto el anillo de Preparación te pide bajar la carga. */
+  readinessSensitivity: z.enum(['estricto', 'equilibrado', 'permisivo']).default('equilibrado'),
+  /** Horas de sueño que quieres dormir (cada persona elige la suya). */
+  sleepGoalHours: z.number().min(5).max(12).default(8),
 });
+
+export const sleepLogSchema = z.object({
+  date: z.string(),
+  hours: z.number().min(0).max(16),
+  /** Calidad percibida 1 (mala) a 5 (muy buena). */
+  quality: z.number().int().min(1).max(5),
+});
+export type SleepLog = z.infer<typeof sleepLogSchema>;
 export type Settings = z.infer<typeof settingsSchema>;
 
 export const gamificationSchema = z.object({
@@ -77,6 +89,7 @@ export const appStateSchema = z.object({
   aiPlan: aiPlanSchema.nullable().default(null),
   coachLog: z.array(coachMessageSchema).default([]),
   painReports: z.array(painReportSchema).default([]),
+  sleepLogs: z.array(sleepLogSchema).default([]),
 });
 
 export type AppState = Omit<z.infer<typeof appStateSchema>, 'player'> & { player: Player | null };
@@ -99,6 +112,7 @@ export type AppAction =
   | { type: 'DELETE_PLAY'; playId: string }
   | { type: 'SAVE_TIMER_PRESET'; preset: TimerPreset }
   | { type: 'DELETE_TIMER_PRESET'; presetId: string }
+  | { type: 'LOG_SLEEP'; log: SleepLog }
   | { type: 'SET_AI_PLAN'; plan: AiPlan | null }
   | { type: 'ADD_COACH_MESSAGE'; message: CoachMessage }
   | { type: 'CLEAR_COACH_LOG' }
