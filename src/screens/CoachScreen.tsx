@@ -159,7 +159,7 @@ export function CoachScreen(): React.JSX.Element {
         </GlassSurface>
         <HapticTouch haptic="medium" onPress={() => { void send(); }} disabled={busy || text.trim().length === 0} accessibilityLabel="Enviar">
           <GlassSurface radius={radii.pill} tint={colors.accent} interactive flat style={styles.send}>
-            <Icon name="arrow.up" size={20} color={colors.textOnAccent} />
+            <Icon name="arrow.up" size={20} color={colors.accent} />
           </GlassSurface>
         </HapticTouch>
       </View>

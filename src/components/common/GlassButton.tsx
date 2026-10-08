@@ -30,8 +30,8 @@ export function GlassButton({
   const { colors } = useTheme();
   const compact = size === 'compact';
   const tint = variant === 'primary' ? colors.accent : variant === 'danger' ? colors.danger : undefined;
-  const textTone = variant === 'primary' || variant === 'danger' ? 'onAccent' : variant === 'ghost' ? 'accent' : 'primary';
-  const iconColor = variant === 'primary' || variant === 'danger' ? colors.textOnAccent : variant === 'ghost' ? colors.accent : colors.text;
+  const textTone = variant === 'primary' ? 'accent' : variant === 'danger' ? 'danger' : variant === 'ghost' ? 'accent' : 'primary';
+  const iconColor = variant === 'primary' ? colors.accent : variant === 'danger' ? colors.danger : variant === 'ghost' ? colors.accent : colors.text;
 
   const inner = (
     <View style={[styles.row, { paddingVertical: compact ? spacing.sm : spacing.md, paddingHorizontal: compact ? spacing.md : spacing.lg }]}>

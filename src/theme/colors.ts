@@ -38,7 +38,7 @@ export const lightPalette: Palette = {
   warning: '#E0A100',
   danger: '#B3261E',
   glassBorder: 'rgba(255,255,255,0.65)',
-  glassFill: 'rgba(255,255,255,0.55)',
+  glassFill: 'rgba(255,255,255,0.26)',
   glassTint: 'rgba(255,255,255,0.12)',
   shadow: 'rgba(28,28,30,0.18)',
 };
@@ -60,7 +60,7 @@ export const darkPalette: Palette = {
   warning: '#F0B429',
   danger: '#F05A5A',
   glassBorder: 'rgba(255,255,255,0.18)',
-  glassFill: 'rgba(40,40,44,0.5)',
+  glassFill: 'rgba(40,40,44,0.3)',
   glassTint: 'rgba(255,255,255,0.06)',
   shadow: 'rgba(0,0,0,0.5)',
 };

@@ -25,7 +25,7 @@ export function Chip({ label, selected = false, onPress, disabled }: ChipProps):
       accessibilityState={{ selected }}
     >
       <GlassSurface radius={radii.chip} variant="regular" tint={selected ? colors.accent : undefined} flat interactive>
-        <AppText variant="callout" tone={selected ? 'onAccent' : 'primary'} style={styles.label}>
+        <AppText variant="callout" tone={selected ? 'accent' : 'primary'} style={styles.label}>
           {label}
         </AppText>
       </GlassSurface>

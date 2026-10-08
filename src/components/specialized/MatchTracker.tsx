@@ -219,7 +219,7 @@ function EventButton({ def, onPress }: { def: MatchEventDef; onPress: () => void
     <HapticTouch haptic="none" onPress={onPress} accessibilityLabel={def.label} style={styles.eventCell}>
       <GlassSurface radius={radii.button} variant="regular" tint={tint} interactive flat>
         <View style={styles.eventInner}>
-          <AppText variant="callout" tone={tint ? 'onAccent' : 'primary'} style={styles.eventLabel} numberOfLines={2}>
+          <AppText variant="callout" tone={tint ? 'accent' : 'primary'} style={styles.eventLabel} numberOfLines={2}>
             {def.label}
           </AppText>
         </View>
