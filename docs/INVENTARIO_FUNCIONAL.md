@@ -1,6 +1,6 @@
 # Inventario Funcional Personalizado Definitivo
 
-**Proyecto:** Dorsal *(nombre de trabajo, ver §11)* · **Plataforma:** iPhone + iPad (iOS 26 y 27) · **Documento:** borrador 3 (borrador 2 corregido tras la revisión de 8 revisores, más las ideas diferenciadoras; 2026-10-08) · **Estado:** pendiente de tu aprobación
+**Proyecto:** Dorsal *(nombre de trabajo, ver §11)* · **Plataforma:** iPhone + iPad (iOS 26 y 27) · **Documento:** borrador 3 (borrador 2 corregido tras la revisión de 8 revisores, más las ideas diferenciadoras; 2026-10-08) · **Estado:** APROBADO por Federico (con todas las ideas M20–M28 y modo online primero)
 
 > Cómo leerlo: las secciones 0 a 11 están en lenguaje simple. Lo técnico está al final, en los **Anexos A y B**, para quien programa.
 
@@ -8,7 +8,7 @@
 
 ## 0. Resumen en lenguaje simple
 
-Una app de iPhone y iPad que se ve y se siente como parte de iOS 26 (vidrio líquido real, gestos, iconos y animaciones de Apple). Al terminar un cuestionario te arma un **plan de entrenamiento personal**; cada día entras a un **juego** (racha, misiones, premios, tarjeta 3D) que crea disciplina; cuida tu **cuerpo** (carga, dolor, lesiones, sueño, nutrición) y tu **mente** (reflejos, respiración, rutina); y analiza tus **partidos en video**. Lo básico es gratis y funciona sin internet; la IA es la parte de pago, y para ti es gratis.
+Una app de iPhone y iPad que se ve y se siente como parte de iOS 26 (vidrio líquido real, gestos, iconos y animaciones de Apple). Al terminar un cuestionario te arma un **plan de entrenamiento personal**; cada día entras a un **juego** (racha, misiones, premios, tarjeta 3D) que crea disciplina; cuida tu **cuerpo** (carga, dolor, lesiones, sueño, nutrición) y tu **mente** (reflejos, respiración, rutina); y analiza tus **partidos en video**. Lo básico es gratis; la IA es la parte de pago, y para ti es gratis. **La app necesita internet:** sin conexión funciona solo de forma muy limitada (ver §3b).
 
 ---
 
@@ -19,8 +19,9 @@ Una app de iPhone y iPad que se ve y se siente como parte de iOS 26 (vidrio líq
 | Plataformas | iOS + Android con 3 niveles de vidrio | **Solo iPhone y iPad**, con el aspecto de iOS 26 (y 27). Android queda fuera de la primera etapa |
 | Aspecto | Oscuro por defecto | **Claro por defecto** (blanco + grises), acento naranja, vidrio líquido real; el modo oscuro sigue al sistema |
 | Eje del producto | Herramientas sueltas conectadas | **Plan personal diario + juego** (racha, premios) como motor del hábito |
+| Conexión | 100% sin internet | **Online primero:** necesita internet; sin conexión solo funciona lo básico por 72 h (§3b) |
 | Servidores | Ninguno | **Un mini-servicio** (gratis al inicio) para la IA, para dar y verificar el acceso Pro y, más adelante, las suscripciones. De tu teléfono solo sale lo que tú mandas a la IA (texto, fotos o clips que apruebas) y tu identificador de suscripción. Todo lo demás se queda en tu dispositivo |
-| Plan por IA | Opcional con tu clave | **Tú pediste un plan de IA para cada usuario.** En la primera versión el plan lo arma un **motor de reglas** (sin IA): es gratis y funciona sin internet. **El plan por IA lo tienes tú desde el hito H2** y todos los Pro desde H5 |
+| Plan por IA | Opcional con tu clave | **Tú pediste un plan de IA para cada usuario.** En la primera versión el plan lo arma un **motor de reglas** (sin IA): es gratis. **El plan por IA lo tienes tú desde el hito H2** y todos los Pro desde H5 |
 | Modo Partido | Captura en vivo con dos toques | **Etiquetado sobre video grabado**, con postura, actitud y mente. Alcance: todas las acciones |
 | Entrenamientos | Banco offline + planificador | **Eje central**: animación, "Empezar ejercicio", plan |
 | Módulos nuevos | — | Lesiones con mapa/foto y seguimiento, sueño, nutrición con macros, coach texto/voz, análisis de video con IA, varios jugadores, juego completo |
@@ -59,6 +60,23 @@ Una app de iPhone y iPad que se ve y se siente como parte de iOS 26 (vidrio líq
 - Precios y cupos mensuales: por definir con el costo real (el video es lo más caro).
 - **Sin muro de pago** al terminar el cuestionario. **Sin compras** para obtener ventajas del juego.
 
+### 3b. Conexión: online primero, sin conexión muy limitado (decisión tuya, detalles míos)
+
+La app **necesita internet** para abrirse, descargar contenido y sincronizar. No exige crear cuenta: usa un identificador anónimo y comprueba tu acceso en el servicio.
+
+| Con internet | Sin internet (hasta **72 h** desde la última conexión) |
+|---|---|
+| Todo | Ver y hacer las **sesiones ya descargadas** con "Empezar ejercicio" |
+| | Temporizador y cronómetro |
+| | Check-in y esfuerzo percibido (se guardan y se envían al reconectar) |
+| | Ver tu tarjeta y tu racha |
+| | Respiración Zen y tests de Reflejos |
+| | **Alertas de seguridad** (urgencias, alertas rojas, recursos de ayuda): **siempre disponibles** |
+
+- **No funciona sin internet:** cuestionario inicial, generar o cambiar el plan, coach (local o IA), reporte de dolor con seguimiento, Modo Partido y video, pizarra, simulador, nutrición, descargar paquetes, compartir y retos.
+- **Pasadas 72 h sin conexión:** la app muestra "Reconecta para continuar". Siguen disponibles las alertas de seguridad y **exportar tus datos**.
+- **Qué implica:** hace falta el servicio en la nube también para el acceso, el contenido (ejercicios, escenarios, alimentos) y la sincronización. Sigue sin ser necesario un servidor propio para los datos personales: esos se quedan en tu dispositivo. Los tiempos de espera y la lista exacta se pueden ajustar.
+
 ---
 
 ## 4. Inventario por módulo
@@ -76,7 +94,7 @@ Leyenda: **P0** primera versión (H1) · **P1** siguiente · **P2** después · 
 
 ### M01 · Plan Personalizado — P0 (reglas) / P1 (completo) · G · IA: Pro
 *Origen: 2.4, 6.6, 7.4.*
-- **Motor de reglas (gratis, sin internet):** plan de 4 semanas con vistas **Hoy** y **Semana**; adapta a posición, nivel, objetivos, tiempo y equipamiento; **excluye ejercicios** de las zonas con molestia marcadas; progresión con límites.
+- **Motor de reglas (gratis):** plan de 4 semanas con vistas **Hoy** y **Semana**; adapta a posición, nivel, objetivos, tiempo y equipamiento; **excluye ejercicios** de las zonas con molestia marcadas; progresión con límites.
 - **P1:** calendario, ciclo hasta 12 semanas, alrededor de los días de partido, "¿Por qué este plan?", opciones "más corto / más fácil / descanso", reglas por dolor activo y por Preparación (necesitan los módulos M04 y M05).
 - **Plan IA (Pro; para ti desde H2):** la IA elige **solo ejercicios que existen en el banco**; una capa de seguridad valida contraindicaciones y límites antes de mostrarse; reajuste semanal por adherencia, check-ins, partidos y dolor; chat para ajustes ("hoy solo tengo 20 min").
 - **La app (o la IA) elige los ejercicios y programas de prevención por persona**; tú no tienes que escogerlos.
@@ -88,7 +106,7 @@ Leyenda: **P0** primera versión (H1) · **P1** siguiente · **P2** después · 
 - **Animaciones:** maniquí vectorial animado, dibujado en el dispositivo (liviano y sin licencias).
 - **"Empezar ejercicio" (P0):** pantalla completa estilo apps de fitness de Apple: animación grande, contador de repeticiones o tiempo, cuenta atrás, descanso automático, siguiente/anterior/saltar, pausa, háptica por fase (en iPhone), pantalla siempre encendida y **esfuerzo percibido (RPE) al final**, con XP. **P1:** voz, sustituir ejercicio, registrar peso y repeticiones reales.
 - **Video de YouTube (opcional):** botón "Ver explicación" que abre la búsqueda del ejercicio en YouTube (requiere internet). P1: un enlace concreto por ejercicio, curado, cuando esté verificado.
-- Rutinas propias, favoritos, historial, búsqueda y filtros. Funciona sin internet (salvo los videos).
+- Rutinas propias, favoritos, historial, búsqueda y filtros. Las sesiones ya descargadas se pueden hacer sin conexión por un tiempo limitado (§3b).
 
 ### M03 · Temporizadores — P0 (básicos) / P1 (completo) · G
 *Origen: 2.6.*
@@ -238,13 +256,13 @@ Leyenda: **P0** primera versión (H1) · **P1** siguiente · **P2** después · 
 - **H5 — Suscripción Pro** mensual/anual con compras de Apple (gestor propuesto: RevenueCat), **"Restaurar compras"** visible, precio y renovación visibles antes de pagar, códigos de oferta para amigos y equipo, y tu acceso Pro permanente. Requiere aceptar el contrato de Apps de pago y completar datos bancarios y fiscales en App Store Connect.
 - **Modo desarrollador:** una clave propia en el Keychain para pruebas, **solo en compilaciones de desarrollo** (nunca en TestFlight).
 - Cuenta de demostración Pro para la revisión de Apple.
-- La app funciona completa en modo gratis sin internet.
+- La app necesita internet para abrirse y sincronizar; el modo sin conexión es limitado (§3b).
 
 ---
 
 ## 4b. Ideas diferenciadoras (nuevas) — para ir por encima de las demás apps
 
-Nada de lo que pediste se recorta. Estas ideas se **suman**. Ninguna app rival junta todo esto, y nosotros tenemos tres ventajas reales: **(1)** lo gratis es útil de verdad y funciona sin internet, **(2)** está pensada para menores y para salud con seguridad real, y **(3)** mide la parte mental (reacción al fallo, decisiones), que casi nadie mide. No puedo prometer que "dejará en pañales" a nadie; lo que sí puedo es que cada pieza funcione bien y esté bien hecha.
+Nada de lo que pediste se recorta. Estas ideas se **suman**. Ninguna app rival junta todo esto, y nosotros tenemos tres ventajas reales: **(1)** lo gratis es útil de verdad, **(2)** está pensada para menores y para salud con seguridad real, y **(3)** mide la parte mental (reacción al fallo, decisiones), que casi nadie mide. No puedo prometer que "dejará en pañales" a nadie; lo que sí puedo es que cada pieza funcione bien y esté bien hecha.
 
 ### M20 · Modo Campo (entrenar sin mirar el teléfono) — P1 · G · H2
 - Pantalla de alto contraste y botones enormes, legible al sol y con guantes.
@@ -354,6 +372,7 @@ Cada hito termina con algo que puedes probar. **"Hito principal" = donde se entr
 12. **Vidrio sobre blanco.** Se diseña con contenido detrás.
 13. **Versiones.** Se fija Expo SDK 57; no se migra a la 58 durante el proyecto.
 14. **iPad.** No tiene vibración: la háptica es solo del iPhone.
+15. **Depender de internet.** Si falla el servicio, la app queda limitada para todos; se necesita un servicio estable y monitoreado, y las alertas de seguridad deben seguir funcionando sin conexión. Entrenar en canchas con mala señal es el caso a cuidar: por eso las sesiones se descargan antes y valen 72 h.
 
 ---
 
@@ -377,7 +396,7 @@ Cada hito termina con algo que puedes probar. **"Hito principal" = donde se entr
 2. Base blanca con grises, acento naranja, grafito y azul profundo solo como apoyo. Modo oscuro automático.
 3. Freemium: nada se bloquea tras el cuestionario; Pro = IA; tú gratis.
 4. En la primera versión el plan lo arma un motor de reglas; **la IA llega para ti en H2** y para todos en H5.
-5. Se acepta el mini-servicio de IA (cambia el "sin servidores" del Prompt 1).
+5. Se acepta el servicio en la nube (IA, acceso, contenido; cambia el "sin servidores" del Prompt 1) y **la app es online primero**, con modo sin conexión muy limitado (§3b).
 6. Pagarás Apple Developer (~US$99/año) y lo iniciarás hoy.
 7. Tu MVP es plan personalizado + ejercicios + "Empezar ejercicio".
 8. Video: primero etiquetado manual; luego análisis cualitativo con IA, sin promesa de seguimiento automático.
