@@ -141,7 +141,7 @@ export function PainScreen(): React.JSX.Element {
     return (
       <Screen tabBarSpace={false} plain>
         <SectionHeader title={urgent ? 'Busca atención ahora' : alert ? 'Conviene que te evalúe un profesional' : 'Dolor registrado'} />
-        <GlassCard tint={urgent ? '#D93A3A' : alert ? '#E0A100' : undefined}>
+        <GlassCard tint={urgent ? '#B3261E' : alert ? '#E0A100' : undefined}>
           {urgent || alert ? (
             <View style={styles.block}>
               <AppText variant="body" tone={urgent || alert ? 'primary' : 'primary'}>

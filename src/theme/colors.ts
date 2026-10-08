@@ -1,4 +1,4 @@
-/** Paleta: base blanca con grises, acento naranja, grafito y un azul profundo de apoyo. */
+/** Paleta: base blanca con grises, acento rojo anaranjado, grafito y un azul profundo de apoyo. */
 export interface Palette {
   background: string;
   backgroundAlt: string;
@@ -30,13 +30,13 @@ export const lightPalette: Palette = {
   textSecondary: '#6C6C70',
   textOnAccent: '#FFFFFF',
   separator: 'rgba(60,60,67,0.18)',
-  accent: '#FF6A1A',
-  accentSoft: 'rgba(255,106,26,0.16)',
+  accent: '#F23D14',
+  accentSoft: 'rgba(242,61,20,0.14)',
   graphite: '#2C2C2E',
   deepBlue: '#1F3A5F',
   success: '#2E9E5B',
   warning: '#E0A100',
-  danger: '#D93A3A',
+  danger: '#B3261E',
   glassBorder: 'rgba(255,255,255,0.65)',
   glassFill: 'rgba(255,255,255,0.55)',
   glassTint: 'rgba(255,255,255,0.12)',
@@ -52,8 +52,8 @@ export const darkPalette: Palette = {
   textSecondary: '#A1A1A6',
   textOnAccent: '#FFFFFF',
   separator: 'rgba(235,235,245,0.18)',
-  accent: '#FF7A33',
-  accentSoft: 'rgba(255,122,51,0.2)',
+  accent: '#FF5A36',
+  accentSoft: 'rgba(255,90,54,0.2)',
   graphite: '#3A3A3C',
   deepBlue: '#5B8DEF',
   success: '#3DBB72',
@@ -70,6 +70,6 @@ export const rarityGradients = {
   bronce: ['#C58A5B', '#8A5A33'],
   plata: ['#DADCE2', '#9EA3AF'],
   oro: ['#F7D679', '#C99A2E'],
-  especial: ['#FF9A4D', '#E0451F'],
+  especial: ['#FF7A4D', '#C92A12'],
   leyenda: ['#2B3A67', '#101827'],
 } as const satisfies Record<string, readonly [string, string]>;

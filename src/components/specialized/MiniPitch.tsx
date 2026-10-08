@@ -31,8 +31,8 @@ export function MiniPitch({ width, markers = [], selected, onSelect }: MiniPitch
           ))}
           {selected ? (
             <>
-              <Circle cx={selected.x} cy={selected.y} r={3} fill="rgba(255,106,26,0.35)" />
-              <Circle cx={selected.x} cy={selected.y} r={1.4} fill="#FF6A1A" stroke="#FFFFFF" strokeWidth={0.35} />
+              <Circle cx={selected.x} cy={selected.y} r={3} fill="rgba(242,61,20,0.35)" />
+              <Circle cx={selected.x} cy={selected.y} r={1.4} fill="#F23D14" stroke="#FFFFFF" strokeWidth={0.35} />
             </>
           ) : null}
         </PitchSvg>

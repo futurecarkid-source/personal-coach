@@ -95,7 +95,7 @@ export function PainPhoto({ value, onChange, hint }: PainPhotoProps): React.JSX.
           <View
             key={`${m.x}-${m.y}-${i}`}
             pointerEvents="none"
-            style={[styles.marker, { left: `${m.x * 100}%`, top: `${m.y * 100}%`, borderColor: colors.accent, backgroundColor: 'rgba(255,122,0,0.25)' }]}
+            style={[styles.marker, { left: `${m.x * 100}%`, top: `${m.y * 100}%`, borderColor: colors.accent, backgroundColor: 'rgba(242,61,20,0.25)' }]}
           />
         ))}
       </Pressable>
