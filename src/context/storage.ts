@@ -1,7 +1,10 @@
+import { loadKvStore } from './kvStore';
+
 /**
  * Capa de almacenamiento intercambiable. En la app se usa `expo-sqlite/kv-store`
  * (viene incluido con Expo, funciona en Expo Go y es asíncrono como AsyncStorage).
  */
+
 export interface StorageAdapter {
   getItem(key: string): Promise<string | null>;
   setItem(key: string, value: string): Promise<void>;
@@ -27,8 +30,6 @@ let defaultAdapter: StorageAdapter | null = null;
 /** Carga perezosa para no importar el módulo nativo en las pruebas. */
 export function getDefaultStorage(): StorageAdapter {
   if (defaultAdapter) return defaultAdapter;
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const kv = require('expo-sqlite/kv-store') as { default: StorageAdapter };
-  defaultAdapter = kv.default;
+  defaultAdapter = loadKvStore();
   return defaultAdapter;
 }

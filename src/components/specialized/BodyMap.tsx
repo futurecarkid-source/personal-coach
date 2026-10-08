@@ -80,7 +80,7 @@ export function BodyMap({ zone, side, view, onViewChange, onSelect, height = 340
   const body = colors.surfaceStrong;
   const selectedFill = colors.accent;
 
-  const isSelected = (r: Region): boolean => r.zone === zone && (r.half === 'centro' || sideFromHalf(r.half, view) === side);
+  const isSelected = (r: Region): boolean => r.zone === zone && (r.half === 'centro' || side === 'centro' || sideFromHalf(r.half, view) === side);
 
   const props = (r: Region): Record<string, unknown> => ({
     fill: isSelected(r) ? selectedFill : colors.surface,
@@ -94,6 +94,7 @@ export function BodyMap({ zone, side, view, onViewChange, onSelect, height = 340
 
   return (
     <View style={{ alignItems: 'center', gap: spacing.md }}>
+      <View style={{ alignSelf: 'stretch' }}>
       <SegmentedControl
         options={[
           { value: 'frente', label: 'Frente' },
@@ -102,6 +103,7 @@ export function BodyMap({ zone, side, view, onViewChange, onSelect, height = 340
         value={view}
         onChange={onViewChange}
       />
+      </View>
       <Svg width={(height * BOX_W) / BOX_H} height={height} viewBox={`0 0 ${BOX_W} ${BOX_H}`} accessibilityLabel="Mapa del cuerpo, toca donde duele">
         {/* Silueta */}
         <Circle cx={50} cy={13} r={10} fill={body} />
