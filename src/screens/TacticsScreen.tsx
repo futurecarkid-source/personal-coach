@@ -77,8 +77,7 @@ export function TacticsScreen(): React.JSX.Element {
   };
 
   return (
-    <Screen>
-      <AppText variant="largeTitle">Táctica</AppText>
+    <Screen nativeHeader>
       <TacticalBoard
         key={loaded?.key ?? 'new'}
         initialFrame={loaded?.frame}

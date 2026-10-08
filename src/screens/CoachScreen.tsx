@@ -118,7 +118,7 @@ export function CoachScreen(): React.JSX.Element {
   const lastAssistantId = [...log].reverse().find((m) => m.role === 'assistant')?.id;
 
   return (
-    <KeyboardAvoidingView style={[styles.root, { backgroundColor: colors.background }]} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <View style={styles.header}>
         <View>
           <AppText variant="title">Coach</AppText>

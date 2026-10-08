@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Alert, StyleSheet, TextInput, View } from 'react-native';
 import { CONSENT_TEXT, describeAiError, refineScouting } from '../ai';
 import { useAiAccess } from '../ai/useAi';
-import { AppText, Chip, GlassButton, GlassCard, GlassSurface, Screen, SectionHeader, SegmentedControl, Stepper } from '../components/common';
+import { AppText, Chip, GlassButton, GlassCard, GlassSurface, Screen, SectionHeader, Stepper } from '../components/common';
+import { NativeSegmented, NativeToggle } from '../components/native/NativeControls';
 import { PlayerCard3D } from '../components/specialized/PlayerCard3D';
 import { ATTRIBUTE_LABELS, LEVEL_LABELS, POSITION_LABELS } from '../content/attributeLabels';
 import { useAppDispatch, useAppState } from '../context';
@@ -82,8 +83,7 @@ export function ProfileScreen(): React.JSX.Element {
   };
 
   return (
-    <Screen>
-      <AppText variant="largeTitle">Perfil</AppText>
+    <Screen nativeHeader>
       <PlayerCard3D player={player} effect={settings.cardEffect} reduceMotion={settings.reduceMotion} />
       <AppText variant="caption" tone="secondary" style={styles.center}>
         Inclina el teléfono para mover la tarjeta. Doble toque para recalibrar. Arrastra con el dedo si no hay sensor.
@@ -111,18 +111,15 @@ export function ProfileScreen(): React.JSX.Element {
       <GlassCard>
         <SectionHeader title="Ajustes" />
         <View style={styles.list}>
-          <View style={styles.settingRow}>
-            <View style={styles.flex}>
-              <AppText variant="headline">Háptica</AppText>
-              <AppText variant="caption" tone="secondary">
-                {isHapticsSupported() ? 'Vibraciones finas en cada interacción.' : 'Este dispositivo (iPad) no tiene motor de vibración.'}
-              </AppText>
-            </View>
-            <Chip label={settings.hapticsEnabled ? 'Activada' : 'Apagada'} selected={settings.hapticsEnabled} onPress={() => dispatch({ type: 'SET_SETTINGS', patch: { hapticsEnabled: !settings.hapticsEnabled } })} />
-          </View>
+          <NativeToggle
+            label="Háptica"
+            description={isHapticsSupported() ? 'Vibraciones finas en cada interacción.' : 'Este dispositivo (iPad) no tiene motor de vibración.'}
+            value={settings.hapticsEnabled}
+            onChange={(v) => dispatch({ type: 'SET_SETTINGS', patch: { hapticsEnabled: v } })}
+          />
           <View style={styles.block}>
             <AppText variant="headline">Brillo del efecto de la tarjeta</AppText>
-            <SegmentedControl
+            <NativeSegmented
               options={[
                 { value: '0', label: 'Apagado' },
                 { value: '1', label: 'Suave' },
@@ -133,13 +130,12 @@ export function ProfileScreen(): React.JSX.Element {
               onChange={(v) => dispatch({ type: 'SET_SETTINGS', patch: { cardEffect: Number(v) as 0 | 1 | 2 | 3 } })}
             />
           </View>
-          <View style={styles.settingRow}>
-            <View style={styles.flex}>
-              <AppText variant="headline">Reducir movimiento</AppText>
-              <AppText variant="caption" tone="secondary">Además del ajuste del sistema, la tarjeta se queda quieta.</AppText>
-            </View>
-            <Chip label={settings.reduceMotion ? 'Sí' : 'No'} selected={settings.reduceMotion} onPress={() => dispatch({ type: 'SET_SETTINGS', patch: { reduceMotion: !settings.reduceMotion } })} />
-          </View>
+          <NativeToggle
+            label="Reducir movimiento"
+            description="Además del ajuste del sistema, la tarjeta se queda quieta."
+            value={settings.reduceMotion}
+            onChange={(v) => dispatch({ type: 'SET_SETTINGS', patch: { reduceMotion: v } })}
+          />
         </View>
       </GlassCard>
 

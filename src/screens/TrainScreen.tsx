@@ -27,8 +27,7 @@ export function TrainScreen(): React.JSX.Element {
   };
 
   return (
-    <Screen>
-      <AppText variant="largeTitle">Entrenar</AppText>
+    <Screen nativeHeader>
       <SegmentedControl
         options={[
           { value: 'sesiones', label: 'Sesiones' },

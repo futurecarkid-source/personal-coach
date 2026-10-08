@@ -129,7 +129,7 @@ export function PainScreen(): React.JSX.Element {
     const urgent = result.level === 'urgencias';
     const alert = result.level === 'consulta';
     return (
-      <Screen tabBarSpace={false}>
+      <Screen tabBarSpace={false} plain>
         <SectionHeader title={urgent ? 'Busca atención ahora' : alert ? 'Conviene que te evalúe un profesional' : 'Dolor registrado'} />
         <GlassCard tint={urgent ? '#D93A3A' : alert ? '#E0A100' : undefined}>
           {urgent || alert ? (
@@ -185,7 +185,7 @@ export function PainScreen(): React.JSX.Element {
   }
 
   return (
-    <Screen tabBarSpace={false}>
+    <Screen tabBarSpace={false} plain>
       <SectionHeader title="Reportar un dolor" subtitle="Unas preguntas rápidas para cuidar de ti" />
       <GlassCard>
         <AppText variant="caption" tone="secondary">¿Dónde duele?</AppText>

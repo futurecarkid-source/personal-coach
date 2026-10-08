@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppProvider, useAppState } from '@/context';
+import { TabsModeProvider } from '@/navigation';
 import { useTheme } from '@/theme';
 
 function RootNavigator(): React.JSX.Element {
@@ -28,6 +29,14 @@ function RootNavigator(): React.JSX.Element {
         <Stack.Protected guard={hasPlayer}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="workout" options={{ presentation: 'modal', gestureEnabled: true }} />
+          <Stack.Screen
+            name="coach"
+            options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.6, 1], sheetInitialDetentIndex: 0, sheetCornerRadius: 34, contentStyle: { backgroundColor: 'transparent' } }}
+          />
+          <Stack.Screen
+            name="pain"
+            options={{ presentation: 'formSheet', sheetGrabberVisible: true, sheetAllowedDetents: [0.75, 1], sheetInitialDetentIndex: 0, sheetCornerRadius: 34, contentStyle: { backgroundColor: 'transparent' } }}
+          />
         </Stack.Protected>
         <Stack.Protected guard={!hasPlayer}>
           <Stack.Screen name="onboarding" />
@@ -42,7 +51,9 @@ export default function RootLayout(): React.JSX.Element {
     <GestureHandlerRootView style={styles.flex}>
       <SafeAreaProvider>
         <AppProvider>
-          <RootNavigator />
+          <TabsModeProvider>
+            <RootNavigator />
+          </TabsModeProvider>
         </AppProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

@@ -74,13 +74,13 @@ export function HomeScreen(): React.JSX.Element {
   const restRegistered = state.gamification.lastActiveDate === today;
 
   return (
-    <Screen>
+    <Screen nativeHeader>
       <View style={styles.rowBetween}>
         <View style={styles.flex}>
           <AppText variant="caption" tone="secondary">
             {new Date().toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long' })}
           </AppText>
-          <AppText variant="largeTitle">Hola, {player?.nickname ?? 'jugador'}</AppText>
+          <AppText variant="title">Hola, {player?.nickname ?? 'jugador'}</AppText>
         </View>
         <GlassButton label="Coach" icon="bubble.left.fill" size="compact" haptic="medium" onPress={() => router.push('/coach')} />
       </View>

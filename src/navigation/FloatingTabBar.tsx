@@ -10,19 +10,7 @@ import { Icon, type IconName } from '../components/common/Icon';
 import { getGlassTier, radii, springs, triggerHaptic, useTheme } from '../theme';
 import { FLOATING_TAB_BAR_HEIGHT, FLOATING_TAB_BAR_MARGIN } from './constants';
 
-export interface TabMeta {
-  title: string;
-  icon: IconName;
-}
-
-/** Iconos y títulos por nombre de ruta. */
-export const TAB_META: Record<string, TabMeta> = {
-  index: { title: 'Hoy', icon: 'house.fill' },
-  entrenar: { title: 'Entrenar', icon: 'figure.run' },
-  partido: { title: 'Partido', icon: 'sportscourt.fill' },
-  tactica: { title: 'Táctica', icon: 'square.grid.3x3.fill' },
-  perfil: { title: 'Perfil', icon: 'person.crop.square.fill' },
-};
+import { TABS } from './tabs';
 
 const BAR_PADDING = 6;
 
@@ -79,8 +67,9 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps): React.
             />
           </Animated.View>
           {state.routes.map((route, index) => {
-            const meta = TAB_META[route.name] ?? { title: route.name, icon: 'circle.fill' as IconName };
             const focused = state.index === index;
+            const def = TABS.find((t) => t.name === route.name);
+            const meta = { title: def?.title ?? route.name, icon: (focused ? def?.iconSelected : def?.icon) ?? ('circle.fill' as IconName) };
             const onPress = (): void => {
               const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
               if (!focused && !event.defaultPrevented) navigation.navigate(route.name, route.params);
