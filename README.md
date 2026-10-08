@@ -39,4 +39,6 @@ Hecho y verificado (tipos, lint, 225 pruebas, empaquetado de iOS con Metro y del
 
 Los ejercicios tienen **maniquí animado** propio (figura de palos de perfil, 27 animaciones originales calculadas con ángulos en `src/core/pose.ts`, datos en `src/content/exerciseAnimations.ts`); la hoja de contacto de revisión se genera con `POSE_DUMP=<carpeta> npx jest src/core/__tests__/pose.test.ts`.
 
-Pendiente (ver inventario): mapa corporal con foto, publicar el servicio de IA y suscripciones, video de partidos, simulador, nutrición, varios jugadores, y el resto de módulos. Los textos de lesiones y ejercicios deben revisarlos profesionales del deporte antes de publicar.
+El reporte de dolor tiene **mapa del cuerpo** (frente y espalda, lado izquierdo o derecho), **foto con marcadores** que se queda solo en el dispositivo y se borra al resolver el dolor, y orientación de IA también en los seguimientos (la IA solo puede subir la precaución).
+
+Pendiente (ver inventario): análisis de la foto por IA (hoy nunca se envía), publicar el servicio de IA y suscripciones, video de partidos, simulador, nutrición, varios jugadores, y el resto de módulos. Los textos de lesiones y ejercicios deben revisarlos profesionales del deporte antes de publicar.

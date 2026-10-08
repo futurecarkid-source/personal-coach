@@ -143,6 +143,7 @@ export type AppAction =
   | { type: 'CLEAR_COACH_LOG' }
   | { type: 'ADD_PAIN_REPORT'; report: PainReport }
   | { type: 'ADD_PAIN_FOLLOWUP'; reportId: string; followUp: PainReport['followUps'][number] }
+  | { type: 'RAISE_PAIN_LEVEL'; reportId: string; level: PainReport['level'] }
   | { type: 'RESOLVE_PAIN'; reportId: string }
   | { type: 'CLEAR_PAIN_BLOCK'; reportId: string }
   | { type: 'RESET_ALL' };

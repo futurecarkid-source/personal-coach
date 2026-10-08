@@ -18,8 +18,10 @@ import {
   type PainScreening,
   type PainScreeningInput,
 } from '../core/painSafety';
+import { BACK_ONLY, BodyMap } from '../components/specialized/BodyMap';
+import { PainPhoto } from '../components/specialized/PainPhoto';
 import { haptics, spacing } from '../theme';
-import { BODY_ZONES, type BodyZone, type PainReport } from '../types';
+import { BODY_ZONES, type BodyZone, type PainPhoto as PainPhotoValue, type PainReport, type PainSide } from '../types';
 
 const MECHANISM_LABEL: Record<PainMechanism, string> = { golpe: 'Un golpe', giro: 'Un giro o torcedura', sobrecarga: 'Sobrecarga o repetición', sin_causa: 'No sé / sin causa' };
 const KIND_LABEL: Record<PainKind, string> = { punzante: 'Punzante', tiron: 'Tirón', ardor: 'Ardor', rigidez: 'Rigidez', sordo: 'Sordo o constante' };
@@ -69,6 +71,9 @@ export function PainScreen(): React.JSX.Element {
   const presetZone = BODY_ZONES.find((z) => z === params.zone);
   const [input, setInput] = useState<PainScreeningInput>({ ...EMPTY_SCREENING_INPUT, intensity: 3, ...(presetZone ? { zone: presetZone } : {}) });
   const [kind, setKind] = useState<PainKind>('sordo');
+  const [side, setSide] = useState<PainSide>('centro');
+  const [view, setView] = useState<'frente' | 'espalda'>(presetZone && BACK_ONLY.includes(presetZone) ? 'espalda' : 'frente');
+  const [photo, setPhoto] = useState<PainPhotoValue | null>(null);
   const [result, setResult] = useState<PainScreening | null>(null);
   const [report, setReport] = useState<PainReport | null>(null);
   const [aiBusy, setAiBusy] = useState(false);
@@ -83,6 +88,8 @@ export function PainScreen(): React.JSX.Element {
     const saved: PainReport = {
       id: newId('pain'),
       zone: input.zone,
+      side,
+      photo,
       createdAt: new Date().toISOString(),
       intensity: input.intensity,
       mechanism: input.mechanism,
@@ -113,13 +120,14 @@ export function PainScreen(): React.JSX.Element {
         access.config,
         {
           profile,
-          report: { zone: report.zone, intensity: report.intensity, kind: report.kind, daysSinceOnset: input.daysSinceOnset, canWalk: report.canUseNormally, swelling: report.swelling },
+          report: { zone: report.zone, side: report.side, intensity: report.intensity, kind: report.kind, daysSinceOnset: input.daysSinceOnset, canWalk: report.canUseNormally, swelling: report.swelling },
           history: [],
           question: '',
         },
         report.level,
       );
       setAiOut(out);
+      if (out.level === 'descansar' || out.level === 'consultar') dispatch({ type: 'RAISE_PAIN_LEVEL', reportId: report.id, level: 'consulta' });
     } catch (e) {
       setAiError(describeAiError(e));
     } finally {
@@ -171,7 +179,7 @@ export function PainScreen(): React.JSX.Element {
               </View>
             ) : access.config ? (
               <View style={styles.block}>
-                <AppText variant="callout" tone="secondary">Se envían a la IA solo la zona, la intensidad, el tipo de dolor y tus datos mínimos de perfil. Nunca fotos.</AppText>
+                <AppText variant="callout" tone="secondary">Se envían a la IA solo la zona, el lado, la intensidad, el tipo de dolor y tus datos mínimos de perfil. Nunca fotos.</AppText>
                 {aiError ? <AppText variant="callout" tone="danger">{aiError}</AppText> : null}
                 <GlassButton label={aiBusy ? 'Consultando…' : 'Pedir orientación a la IA'} icon="sparkles" disabled={aiBusy} onPress={() => { void askAi(); }} />
               </View>
@@ -191,9 +199,30 @@ export function PainScreen(): React.JSX.Element {
       <SectionHeader title="Reportar un dolor" subtitle="Unas preguntas rápidas para cuidar de ti" />
       <GlassCard>
         <AppText variant="caption" tone="secondary">¿Dónde duele?</AppText>
+        <BodyMap
+          zone={input.zone}
+          side={side}
+          view={view}
+          onViewChange={setView}
+          onSelect={(z, sd) => {
+            haptics.selection();
+            set('zone', z);
+            setSide(sd);
+          }}
+        />
+        <AppText variant="caption" tone="secondary" style={styles.label}>O elige de la lista</AppText>
         <View style={styles.wrap}>
           {BODY_ZONES.map((z) => (
-            <Chip key={z} label={BODY_ZONE_LABELS[z]} selected={input.zone === z} onPress={() => set('zone', z)} />
+            <Chip
+              key={z}
+              label={BODY_ZONE_LABELS[z]}
+              selected={input.zone === z}
+              onPress={() => {
+                set('zone', z);
+                setSide('centro');
+                if (BACK_ONLY.includes(z)) setView('espalda');
+              }}
+            />
           ))}
         </View>
         <View style={styles.gap} />
@@ -211,6 +240,13 @@ export function PainScreen(): React.JSX.Element {
           {PAIN_KINDS.map((k) => (
             <Chip key={k} label={KIND_LABEL[k]} selected={kind === k} onPress={() => setKind(k)} />
           ))}
+        </View>
+      </GlassCard>
+
+      <GlassCard>
+        <AppText variant="headline">Foto (opcional)</AppText>
+        <View style={styles.top}>
+          <PainPhoto value={photo} onChange={setPhoto} />
         </View>
       </GlassCard>
 

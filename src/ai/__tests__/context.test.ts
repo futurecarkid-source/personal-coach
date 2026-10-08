@@ -26,7 +26,7 @@ describe('AI context', () => {
   it('merges quiz discomfort with active pain zones', () => {
     const s = stateWithPlayer();
     s.planPrefs = { ...s.planPrefs, discomfortZones: ['tobillo'] };
-    s.painReports = [{ id: 'r', zone: 'rodilla', createdAt: '2026-10-07T10:00:00.000Z', intensity: 5, mechanism: 'giro', kind: 'punzante', canUseNormally: true, swelling: false, level: 'consulta', ruleIds: ['R3'], followUps: [], status: 'activo', clearedByProfessional: false }];
+    s.painReports = [{ id: 'r', zone: 'rodilla', createdAt: '2026-10-07T10:00:00.000Z', intensity: 5, mechanism: 'giro', kind: 'punzante', canUseNormally: true, swelling: false, level: 'consulta', side: 'centro', photo: null, ruleIds: ['R3'], followUps: [], status: 'activo', clearedByProfessional: false }];
     expect(effectiveDiscomfortZones(s).sort()).toEqual(['rodilla', 'tobillo']);
     expect(buildSnapshot(s, '2026-10-08', undefined).activePain[0]).toMatchObject({ zone: 'rodilla', intensity: 5 });
   });

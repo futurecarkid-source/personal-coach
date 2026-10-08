@@ -105,6 +105,7 @@ export const painFollowupInputSchema = z.object({
     daysSinceOnset: z.number(),
     canWalk: z.boolean(),
     swelling: z.boolean(),
+    side: z.enum(['izquierdo', 'derecho', 'centro']).optional(),
   }),
   history: z.array(z.object({ daysAgo: z.number(), intensity: z.number() })),
   question: z.string(),

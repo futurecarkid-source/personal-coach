@@ -7,4 +7,6 @@ export * from './HeatmapPitch';
 export * from './IntervalTimer';
 export * from './ExerciseFigure';
 export * from './PainFollowUpCard';
+export * from './BodyMap';
+export * from './PainPhoto';
 export * from './ReadinessRing';

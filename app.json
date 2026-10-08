@@ -10,7 +10,12 @@
       "supportsTablet": true,
       "requireFullScreen": false
     },
-    "plugins": ["expo-router", "expo-sqlite", "expo-status-bar"],
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      "expo-status-bar",
+      ["expo-image-picker", { "cameraPermission": "Dorsal usa la cámara para que puedas fotografiar una zona que te duele. La foto se queda en tu dispositivo.", "photosPermission": "Dorsal accede a tus fotos solo si eliges una para marcar una zona que te duele." }]
+    ],
     "experiments": {
       "typedRoutes": true
     }

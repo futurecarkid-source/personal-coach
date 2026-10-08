@@ -13,6 +13,7 @@ import { useAppDispatch, useAppState } from '../context';
 import { newId, weekdayMonday0 } from '../core/dates';
 import { levelProgress } from '../core/gamification';
 import { useWeekPlan } from '../hooks/useTodayPlan';
+import { deletePhoto } from '../services/photoStore';
 import { spacing, useTheme } from '../theme';
 import { BODY_ZONES, isMinor, type BodyZone, type CheckIn, type PlannedSession } from '../types';
 
@@ -211,8 +212,14 @@ export function HomeScreen(): React.JSX.Element {
           key={report.id}
           report={report}
           allReports={state.painReports}
-          onFollowUp={(id, intensity) => dispatch({ type: 'ADD_PAIN_FOLLOWUP', reportId: id, followUp: { at: new Date().toISOString(), intensity, note: '' } })}
-          onResolve={(id) => dispatch({ type: 'RESOLVE_PAIN', reportId: id })}
+          onFollowUp={(id, intensity, photo) => dispatch({ type: 'ADD_PAIN_FOLLOWUP', reportId: id, followUp: { at: new Date().toISOString(), intensity, note: '', ...(photo ? { photo } : {}) } })}
+          onResolve={(id) => {
+            // Al resolverse el dolor, las fotos asociadas se borran del dispositivo.
+            const target = state.painReports.find((r) => r.id === id);
+            if (target?.photo) deletePhoto(target.photo.uri);
+            target?.followUps.forEach((f) => f.photo && deletePhoto(f.photo.uri));
+            dispatch({ type: 'RESOLVE_PAIN', reportId: id });
+          }}
           onProfessionalCleared={(id) => dispatch({ type: 'CLEAR_PAIN_BLOCK', reportId: id })}
         />
       ))}

@@ -182,8 +182,16 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         painReports: state.painReports.map((r) => (r.id === action.reportId ? { ...r, followUps: [...r.followUps, action.followUp] } : r)),
       };
 
+    case 'RAISE_PAIN_LEVEL': {
+      const rank = { ok: 0, consulta: 1, urgencias: 2 } as const;
+      return {
+        ...state,
+        painReports: state.painReports.map((r) => (r.id === action.reportId && rank[action.level] > rank[r.level] ? { ...r, level: action.level } : r)),
+      };
+    }
+
     case 'RESOLVE_PAIN':
-      return { ...state, painReports: state.painReports.map((r) => (r.id === action.reportId ? { ...r, status: 'resuelto' } : r)) };
+      return { ...state, painReports: state.painReports.map((r) => (r.id === action.reportId ? { ...r, status: 'resuelto', photo: null, followUps: r.followUps.map(({ photo: _photo, ...rest }) => rest) } : r)) };
 
     case 'CLEAR_PAIN_BLOCK':
       return { ...state, painReports: state.painReports.map((r) => (r.id === action.reportId ? { ...r, clearedByProfessional: true } : r)) };
