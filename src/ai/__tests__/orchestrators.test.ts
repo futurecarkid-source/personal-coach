@@ -57,7 +57,7 @@ describe('merging and levels', () => {
     const s = state();
     const today = '2026-10-05';
     const week = rulesWeek(s, today);
-    const trainingIndex = week.findIndex((d) => d.kind !== 'descanso' && d.exerciseIds.includes('sentadilla-peso-corporal'));
+    const trainingIndex = week.findIndex((d) => d.kind !== 'descanso' && d.exerciseIds.length > 0);
     const aiDays = week.map((d, i) => (i === trainingIndex ? { ...d, exerciseIds: ['sentadilla-peso-corporal', 'zancada-alterna', 'plancha-frontal'] } : d));
     const plan = toAiPlan(aiDays, 'r', 'x');
     expect(trainingIndex).toBeGreaterThanOrEqual(0);

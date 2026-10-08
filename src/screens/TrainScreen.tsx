@@ -28,6 +28,10 @@ export function TrainScreen(): React.JSX.Element {
 
   return (
     <Screen nativeHeader>
+      <View style={styles.shortcuts}>
+        <GlassButton label="Mente" icon="brain.head.profile" size="compact" haptic="light" onPress={() => router.push('/mind')} />
+        <GlassButton label="Lesiones" icon="cross.case.fill" size="compact" haptic="light" onPress={() => router.push('/injuries')} />
+      </View>
       <SegmentedControl
         options={[
           { value: 'sesiones', label: 'Sesiones' },
@@ -87,7 +91,7 @@ export function TrainScreen(): React.JSX.Element {
 
       {section === 'ejercicios' ? (
         <View style={styles.list}>
-          <SectionHeader title="Biblioteca" subtitle={`${EXERCISES.length} ejercicios (meta de la primera versión: 20 a 30)`} />
+          <SectionHeader title="Biblioteca" subtitle={`${EXERCISES.length} ejercicios`} />
           {EXERCISES.map((exercise) => (
             <ExerciseRow key={exercise.id} exercise={exercise} />
           ))}
@@ -123,6 +127,7 @@ function ExerciseRow({ exercise }: { exercise: Exercise }): React.JSX.Element {
 }
 
 const styles = StyleSheet.create({
+  shortcuts: { flexDirection: 'row', gap: spacing.sm },
   list: { gap: spacing.md },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.md },
   flex: { flex: 1, gap: 2 },

@@ -8,6 +8,7 @@ export const DEFAULT_SETTINGS: Settings = {
   healthNoticeAccepted: false,
   aiGatewayUrl: '',
   aiConsentAt: null,
+  lastOnlineAt: null,
   guardianConsent: false,
   coachPersona: 'motivador',
   readinessSensitivity: 'equilibrado',
@@ -39,6 +40,8 @@ export function createInitialState(): AppState {
     coachLog: [],
     painReports: [],
     sleepLogs: [],
+    reflexLogs: [],
+    mindLogs: [],
   };
 }
 
@@ -151,6 +154,14 @@ export function appReducer(state: AppState, action: AppAction): AppState {
     case 'LOG_SLEEP': {
       const sleepLogs = [...state.sleepLogs.filter((l) => l.date !== action.log.date), action.log].slice(-200);
       return { ...state, sleepLogs, gamification: touchStreak(state.gamification, action.log.date, isWeeklyStreak(state)) };
+    }
+
+    case 'LOG_REFLEX':
+      return { ...state, reflexLogs: [...state.reflexLogs, action.log].slice(-100) };
+
+    case 'LOG_MIND': {
+      const day = action.log.at.slice(0, 10);
+      return { ...state, mindLogs: [...state.mindLogs, action.log].slice(-200), gamification: touchStreak(state.gamification, day, isWeeklyStreak(state)) };
     }
 
     case 'SET_AI_PLAN':

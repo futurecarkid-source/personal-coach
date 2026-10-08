@@ -17,6 +17,8 @@ export const settingsSchema = z.object({
   aiGatewayUrl: z.string().default(''),
   /** Fecha ISO en que la persona aceptó el aviso de qué se envía a la IA y a quién. */
   aiConsentAt: z.string().nullable().default(null),
+  /** Última vez que se confirmó conexión con el servicio (regla de 72 h). */
+  lastOnlineAt: z.string().nullable().default(null),
   /** Un adulto responsable autoriza la IA (obligatorio para menores). */
   guardianConsent: z.boolean().default(false),
   coachPersona: z.enum(['exigente', 'motivador', 'cientifico', 'calmado']).default('motivador'),
@@ -33,6 +35,25 @@ export const sleepLogSchema = z.object({
   quality: z.number().int().min(1).max(5),
 });
 export type SleepLog = z.infer<typeof sleepLogSchema>;
+
+export const reflexLogSchema = z.object({
+  at: z.string(),
+  mode: z.enum(['simple', 'gonogo']),
+  medianMs: z.number().nullable(),
+  sdMs: z.number().nullable(),
+  anticipations: z.number().int().min(0),
+  omissions: z.number().int().min(0),
+  commissions: z.number().int().min(0),
+  lapses: z.number().int().min(0),
+});
+export type ReflexLog = z.infer<typeof reflexLogSchema>;
+
+export const mindLogSchema = z.object({
+  at: z.string(),
+  protocol: z.string(),
+  seconds: z.number().int().min(0),
+});
+export type MindLog = z.infer<typeof mindLogSchema>;
 export type Settings = z.infer<typeof settingsSchema>;
 
 export const gamificationSchema = z.object({
@@ -90,6 +111,8 @@ export const appStateSchema = z.object({
   coachLog: z.array(coachMessageSchema).default([]),
   painReports: z.array(painReportSchema).default([]),
   sleepLogs: z.array(sleepLogSchema).default([]),
+  reflexLogs: z.array(reflexLogSchema).default([]),
+  mindLogs: z.array(mindLogSchema).default([]),
 });
 
 export type AppState = Omit<z.infer<typeof appStateSchema>, 'player'> & { player: Player | null };
@@ -113,6 +136,8 @@ export type AppAction =
   | { type: 'SAVE_TIMER_PRESET'; preset: TimerPreset }
   | { type: 'DELETE_TIMER_PRESET'; presetId: string }
   | { type: 'LOG_SLEEP'; log: SleepLog }
+  | { type: 'LOG_REFLEX'; log: ReflexLog }
+  | { type: 'LOG_MIND'; log: MindLog }
   | { type: 'SET_AI_PLAN'; plan: AiPlan | null }
   | { type: 'ADD_COACH_MESSAGE'; message: CoachMessage }
   | { type: 'CLEAR_COACH_LOG' }

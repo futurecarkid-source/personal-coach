@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { askPainFollowup, buildProfileContext, describeAiError, type PainFollowupOutput } from '../ai';
 import { useAiAccess } from '../ai/useAi';
 import { AppText, Chip, GlassButton, GlassCard, Screen, SectionHeader, Stepper } from '../components/common';
@@ -65,7 +65,9 @@ export function PainScreen(): React.JSX.Element {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const access = useAiAccess();
-  const [input, setInput] = useState<PainScreeningInput>({ ...EMPTY_SCREENING_INPUT, intensity: 3 });
+  const params = useLocalSearchParams<{ zone?: string }>();
+  const presetZone = BODY_ZONES.find((z) => z === params.zone);
+  const [input, setInput] = useState<PainScreeningInput>({ ...EMPTY_SCREENING_INPUT, intensity: 3, ...(presetZone ? { zone: presetZone } : {}) });
   const [kind, setKind] = useState<PainKind>('sordo');
   const [result, setResult] = useState<PainScreening | null>(null);
   const [report, setReport] = useState<PainReport | null>(null);

@@ -11,3 +11,4 @@ export * from './SectionHeader';
 export * from './ProgressBar';
 export * from './FaceRating';
 export * from './Stepper';
+export * from './OnlineGate';
