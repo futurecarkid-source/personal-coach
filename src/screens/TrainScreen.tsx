@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { AppText, GlassButton, GlassCard, Icon, Screen, SectionHeader, SegmentedControl } from '../components/common';
+import { AppText, Columns, GlassButton, GlassCard, Icon, Screen, SectionHeader, SegmentedControl } from '../components/common';
 import { ExerciseFigure } from '../components/specialized/ExerciseFigure';
 import { IntervalTimer } from '../components/specialized/IntervalTimer';
 import { EXERCISES, EXERCISE_BY_ID, youtubeSearchUrl } from '../content/exercises';
@@ -28,7 +28,7 @@ export function TrainScreen(): React.JSX.Element {
   };
 
   return (
-    <Screen nativeHeader>
+    <Screen nativeHeader wide>
       <View style={styles.shortcuts}>
         <GlassButton label="Mente" icon="brain.head.profile" size="compact" haptic="light" onPress={() => router.push('/mind')} />
         <GlassButton label="Lesiones" icon="cross.case.fill" size="compact" haptic="light" onPress={() => router.push('/injuries')} />
@@ -49,12 +49,13 @@ export function TrainScreen(): React.JSX.Element {
           {week.map((session) => {
             const isToday = session.date === today;
             const rest = session.kind === 'descanso';
+            const done = state.sessionLogs.some((l) => l.date === session.date);
             return (
-              <GlassCard key={session.date} tint={isToday ? undefined : undefined}>
+              <GlassCard key={session.date}>
                 <View style={styles.rowBetween}>
                   <View style={styles.flex}>
-                    <AppText variant="caption" tone={isToday ? 'accent' : 'secondary'}>
-                      {isToday ? 'HOY · ' : ''}{DAY_NAMES[weekdayMonday0(session.date)]}
+                    <AppText variant="label" tone={done ? 'success' : isToday ? 'accent' : 'secondary'}>
+                      {done ? 'Hecha · ' : isToday ? 'Hoy · ' : ''}{DAY_NAMES[weekdayMonday0(session.date)]}
                     </AppText>
                     <AppText variant="headline">{session.title}</AppText>
                     {!rest ? (
@@ -63,10 +64,10 @@ export function TrainScreen(): React.JSX.Element {
                       </AppText>
                     ) : null}
                   </View>
-                  {isToday && !rest ? (
+                  {isToday && !rest && !done ? (
                     <GlassButton label="Empezar" icon="play.fill" variant="primary" size="compact" haptic="heavy" onPress={() => router.push('/workout')} />
                   ) : (
-                    <Icon name={rest ? 'moon.fill' : 'figure.run'} size={22} />
+                    <Icon name={done ? 'checkmark' : rest ? 'moon.fill' : 'figure.run'} size={22} />
                   )}
                 </View>
                 {!rest ? (
@@ -93,9 +94,10 @@ export function TrainScreen(): React.JSX.Element {
       {section === 'ejercicios' ? (
         <View style={styles.list}>
           <SectionHeader title="Biblioteca" subtitle={`${EXERCISES.length} ejercicios`} />
-          {EXERCISES.map((exercise) => (
-            <ExerciseRow key={exercise.id} exercise={exercise} />
-          ))}
+          <Columns
+            left={EXERCISES.slice(0, Math.ceil(EXERCISES.length / 2)).map((exercise) => <ExerciseRow key={exercise.id} exercise={exercise} />)}
+            right={EXERCISES.slice(Math.ceil(EXERCISES.length / 2)).map((exercise) => <ExerciseRow key={exercise.id} exercise={exercise} />)}
+          />
         </View>
       ) : null}
     </Screen>

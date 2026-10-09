@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { Alert, StyleSheet, TextInput, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { CONSENT_TEXT, describeAiError, refineScouting } from '../ai';
 import { useAiAccess } from '../ai/useAi';
-import { AppText, Chip, GlassButton, GlassCard, GlassSurface, Screen, SectionHeader, Stepper } from '../components/common';
+import { AppText, Chip, Columns, GlassButton, GlassCard, GlassSurface, Screen, SectionHeader, Stepper } from '../components/common';
 import { NativeSegmented, NativeToggle } from '../components/native/NativeControls';
 import { PlayerCard3D } from '../components/specialized/PlayerCard3D';
 import { ATTRIBUTE_LABELS, LEVEL_LABELS, POSITION_LABELS } from '../content/attributeLabels';
 import { useAppDispatch, useAppState } from '../context';
+import { levelProgress } from '../core/gamification';
 import { computeOvr, headlineKeys } from '../core/ovr';
+import { rankFor } from '../core/progression';
 import { isHapticsSupported, radii, spacing, useTheme } from '../theme';
 import { isMinor, type AttributeKey } from '../types';
 
@@ -18,6 +21,8 @@ export function ProfileScreen(): React.JSX.Element {
   const dispatch = useAppDispatch();
   const { player, settings } = state;
   const { colors } = useTheme();
+  const router = useRouter();
+  const progress = levelProgress(state.gamification.xp);
   const access = useAiAccess();
   const [code, setCode] = useState('');
   const [aiNote, setAiNote] = useState<string | null>(null);
@@ -82,8 +87,21 @@ export function ProfileScreen(): React.JSX.Element {
     );
   };
 
-  return (
-    <Screen nativeHeader>
+  const rankCard = (
+    <GlassCard>
+      <View style={styles.rankRow}>
+        <View style={styles.flex}>
+          <AppText variant="label" tone="secondary">Rango</AppText>
+          <AppText variant="title">{rankFor(progress.level).name} · nivel {progress.level}</AppText>
+          <AppText variant="caption" tone="secondary">{state.gamification.xp} XP · {state.achievements.length} logros</AppText>
+        </View>
+        <GlassButton label="Logros" icon="trophy.fill" size="compact" haptic="light" onPress={() => router.push('/logros')} />
+      </View>
+    </GlassCard>
+  );
+
+  const left = (
+    <>
       <PlayerCard3D player={player} effect={settings.cardEffect} reduceMotion={settings.reduceMotion} />
       <AppText variant="caption" tone="secondary" style={styles.center}>
         Inclina el teléfono para mover la tarjeta. Doble toque para recalibrar. Arrastra con el dedo si no hay sensor.
@@ -107,7 +125,12 @@ export function ProfileScreen(): React.JSX.Element {
           <View style={styles.list}>{others.map(renderAttr)}</View>
         </GlassCard>
       ) : null}
+    </>
+  );
 
+  const right = (
+    <>
+      {rankCard}
       <GlassCard>
         <SectionHeader title="Ajustes" />
         <View style={styles.list}>
@@ -220,12 +243,19 @@ export function ProfileScreen(): React.JSX.Element {
           <GlassButton label="Borrar todos mis datos" icon="trash" variant="danger" haptic="warning" onPress={confirmReset} />
         </View>
       </GlassCard>
+    </>
+  );
+
+  return (
+    <Screen nativeHeader wide>
+      <Columns left={left} right={right} />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   center: { textAlign: 'center' },
+  rankRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.md },
   note: { marginTop: spacing.sm },
   list: { gap: spacing.md, marginTop: spacing.md },
   attr: { paddingVertical: 2 },

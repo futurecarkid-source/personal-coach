@@ -138,6 +138,31 @@ export function MatchScreen(): React.JSX.Element {
         </View>
       </GlassCard>
 
+      {state.matches.length > 0 ? (
+        <GlassCard>
+          <AppText variant="label" tone="secondary">Tu temporada</AppText>
+          <View style={styles.seasonRow}>
+            {(() => {
+              const w = state.matches.filter((m) => m.goalsFor > m.goalsAgainst).length;
+              const d = state.matches.filter((m) => m.goalsFor === m.goalsAgainst).length;
+              const l = state.matches.length - w - d;
+              const goals = state.matches.reduce((n, m) => n + m.events.filter((e) => e.type === 'gol' && e.side === 'propio').length, 0);
+              return [
+                { v: w, t: 'Ganados' },
+                { v: d, t: 'Empates' },
+                { v: l, t: 'Perdidos' },
+                { v: goals, t: 'Tus goles' },
+              ].map((x) => (
+                <View key={x.t} style={styles.seasonCell}>
+                  <AppText variant="digits">{x.v}</AppText>
+                  <AppText variant="caption" tone="secondary">{x.t}</AppText>
+                </View>
+              ));
+            })()}
+          </View>
+        </GlassCard>
+      ) : null}
+
       <SectionHeader title="Tus partidos" subtitle={state.matches.length > 0 ? 'Desliza a la izquierda para borrar' : undefined} />
       {state.matches.length === 0 ? (
         <AppText variant="callout" tone="secondary">Aún no registraste partidos.</AppText>
@@ -161,6 +186,8 @@ export function MatchScreen(): React.JSX.Element {
 }
 
 const styles = StyleSheet.create({
+  seasonRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: spacing.md },
+  seasonCell: { alignItems: 'center', flex: 1 },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.md },
   flex: { flex: 1, gap: 2 },
   row: { flexDirection: 'row', gap: spacing.sm },
