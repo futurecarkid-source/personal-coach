@@ -9,3 +9,4 @@ export * from './CoachScreen';
 export * from './PainScreen';
 export * from './MindScreen';
 export * from './InjuriesScreen';
+export * from './AchievementsScreen';

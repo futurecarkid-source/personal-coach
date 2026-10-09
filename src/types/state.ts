@@ -65,6 +65,8 @@ export const gamificationSchema = z.object({
   lastActiveDate: z.string().nullable(),
   /** Congeladores de racha disponibles. */
   freezes: z.number().int().min(0),
+  /** Último nivel del que ya se celebró la subida. */
+  celebratedLevel: z.number().int().min(1).default(1),
 });
 export type Gamification = z.infer<typeof gamificationSchema>;
 
@@ -113,6 +115,9 @@ export const appStateSchema = z.object({
   sleepLogs: z.array(sleepLogSchema).default([]),
   reflexLogs: z.array(reflexLogSchema).default([]),
   mindLogs: z.array(mindLogSchema).default([]),
+  achievements: z.array(z.object({ id: z.string(), at: z.string() })).default([]),
+  /** Misiones y retos ya cobrados (clave `fecha:id` o `week-N`). */
+  questClaims: z.array(z.string()).default([]),
 });
 
 export type AppState = Omit<z.infer<typeof appStateSchema>, 'player'> & { player: Player | null };
@@ -138,6 +143,9 @@ export type AppAction =
   | { type: 'LOG_SLEEP'; log: SleepLog }
   | { type: 'LOG_REFLEX'; log: ReflexLog }
   | { type: 'LOG_MIND'; log: MindLog }
+  | { type: 'CLAIM_QUEST'; key: string; xp: number }
+  | { type: 'UNLOCK_ACHIEVEMENT'; id: string; at: string; xp: number }
+  | { type: 'ACK_LEVEL'; level: number }
   | { type: 'SET_AI_PLAN'; plan: AiPlan | null }
   | { type: 'ADD_COACH_MESSAGE'; message: CoachMessage }
   | { type: 'CLEAR_COACH_LOG' }

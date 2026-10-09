@@ -3,7 +3,7 @@ import { StyleSheet, TextInput, View } from 'react-native';
 import { describeAiError, reviewMatch, type MatchReviewOutput } from '../ai';
 import { useAiAccess } from '../ai/useAi';
 import { EXERCISE_BY_ID } from '../content/exercises';
-import { AppText, Chip, FaceRating, GlassButton, GlassCard, GlassSurface, Screen, SectionHeader, Stepper } from '../components/common';
+import { AppText, Chip, FaceRating, GlassButton, GlassCard, GlassSurface, Screen, SectionHeader, Stepper, SwipeRow } from '../components/common';
 import { MatchTracker, type NewMatchEvent } from '../components/specialized/MatchTracker';
 import { useAppDispatch, useAppState } from '../context';
 import { newId, toISODate } from '../core/dates';
@@ -138,20 +138,22 @@ export function MatchScreen(): React.JSX.Element {
         </View>
       </GlassCard>
 
-      <SectionHeader title="Tus partidos" />
+      <SectionHeader title="Tus partidos" subtitle={state.matches.length > 0 ? 'Desliza a la izquierda para borrar' : undefined} />
       {state.matches.length === 0 ? (
         <AppText variant="callout" tone="secondary">Aún no registraste partidos.</AppText>
       ) : (
         [...state.matches].reverse().map((m) => (
-          <GlassCard key={m.id}>
-            <View style={styles.rowBetween}>
-              <View style={styles.flex}>
-                <AppText variant="headline">vs {m.opponent}</AppText>
-                <AppText variant="callout" tone="secondary">{m.date} · {m.goalsFor}-{m.goalsAgainst} · {m.events.length} eventos</AppText>
+          <SwipeRow key={m.id} onDelete={() => dispatch({ type: 'DELETE_MATCH', matchId: m.id })}>
+            <GlassCard>
+              <View style={styles.rowBetween}>
+                <View style={styles.flex}>
+                  <AppText variant="headline">vs {m.opponent}</AppText>
+                  <AppText variant="callout" tone="secondary">{m.date} · {m.goalsFor}-{m.goalsAgainst} · {m.events.length} eventos</AppText>
+                </View>
+                <GlassButton label="Abrir" size="compact" haptic="light" onPress={() => setSelectedId(m.id)} />
               </View>
-              <GlassButton label="Abrir" size="compact" haptic="light" onPress={() => setSelectedId(m.id)} />
-            </View>
-          </GlassCard>
+            </GlassCard>
+          </SwipeRow>
         ))
       )}
     </Screen>

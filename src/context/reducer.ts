@@ -42,6 +42,8 @@ export function createInitialState(): AppState {
     sleepLogs: [],
     reflexLogs: [],
     mindLogs: [],
+    achievements: [],
+    questClaims: [],
   };
 }
 
@@ -178,6 +180,17 @@ export function appReducer(state: AppState, action: AppAction): AppState {
       const day = action.log.at.slice(0, 10);
       return { ...state, mindLogs: [...state.mindLogs, action.log].slice(-200), gamification: touchStreak(state.gamification, day, isWeeklyStreak(state)) };
     }
+
+    case 'CLAIM_QUEST':
+      if (state.questClaims.includes(action.key)) return state;
+      return { ...state, questClaims: [...state.questClaims, action.key].slice(-120), gamification: addXp(state.gamification, action.xp) };
+
+    case 'UNLOCK_ACHIEVEMENT':
+      if (state.achievements.some((a) => a.id === action.id)) return state;
+      return { ...state, achievements: [...state.achievements, { id: action.id, at: action.at }], gamification: addXp(state.gamification, action.xp) };
+
+    case 'ACK_LEVEL':
+      return { ...state, gamification: { ...state.gamification, celebratedLevel: Math.max(state.gamification.celebratedLevel, action.level) } };
 
     case 'SET_AI_PLAN':
       return { ...state, aiPlan: action.plan };

@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { OnlineGate } from '@/components/common';
+import { CelebrationHost } from '@/components/specialized/CelebrationHost';
 import { AppProvider, useAppState } from '@/context';
 import { TabsModeProvider } from '@/navigation';
 import { useTheme } from '@/theme';
@@ -31,6 +32,7 @@ function RootNavigator(): React.JSX.Element {
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="workout" options={{ presentation: 'modal', gestureEnabled: true }} />
           <Stack.Screen name="mind" options={{ headerShown: true, title: 'Mente', headerLargeTitle: true, headerTransparent: true, headerBlurEffect: 'systemMaterial' }} />
+          <Stack.Screen name="logros" options={{ headerShown: true, title: 'Logros', headerLargeTitle: true, headerTransparent: true, headerBlurEffect: 'systemMaterial' }} />
           <Stack.Screen name="injuries" options={{ headerShown: true, title: 'Lesiones', headerLargeTitle: true, headerTransparent: true, headerBlurEffect: 'systemMaterial' }} />
           <Stack.Screen
             name="coach"
@@ -56,7 +58,9 @@ export default function RootLayout(): React.JSX.Element {
         <AppProvider>
           <TabsModeProvider>
             <OnlineGate>
-              <RootNavigator />
+              <CelebrationHost>
+                <RootNavigator />
+              </CelebrationHost>
             </OnlineGate>
           </TabsModeProvider>
         </AppProvider>

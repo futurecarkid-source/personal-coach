@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { springs, useTheme } from '../../theme';
 
-export function ProgressBar({ fraction, height = 8 }: { fraction: number; height?: number }): React.JSX.Element {
+export function ProgressBar({ fraction, height = 8, color, trackColor }: { fraction: number; height?: number; color?: string; trackColor?: string }): React.JSX.Element {
   const { colors } = useTheme();
   const value = useSharedValue(0);
   useEffect(() => {
@@ -11,8 +11,8 @@ export function ProgressBar({ fraction, height = 8 }: { fraction: number; height
   }, [fraction, value]);
   const fill = useAnimatedStyle(() => ({ width: `${value.value * 100}%` }));
   return (
-    <View style={[styles.track, { height, borderRadius: height / 2, backgroundColor: colors.surfaceStrong }]}>
-      <Animated.View style={[{ height, borderRadius: height / 2, backgroundColor: colors.accent }, fill]} />
+    <View style={[styles.track, { height, borderRadius: height / 2, backgroundColor: trackColor ?? colors.surfaceStrong }]}>
+      <Animated.View style={[{ height, borderRadius: height / 2, backgroundColor: color ?? colors.accent }, fill]} />
     </View>
   );
 }

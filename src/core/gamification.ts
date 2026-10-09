@@ -7,6 +7,7 @@ export const INITIAL_GAMIFICATION: Gamification = {
   bestStreak: 0,
   lastActiveDate: null,
   freezes: 1,
+  celebratedLevel: 1,
 };
 
 export function levelFromXp(xp: number): number {

@@ -28,6 +28,8 @@ export interface ScreenProps {
   tabBarSpace?: boolean;
   /** La pantalla tiene barra de título nativa (título grande de iOS): el sistema ajusta el espacio superior. */
   nativeHeader?: boolean;
+  /** Permite usar el ancho de la tablet (dos columnas con `Columns`). */
+  wide?: boolean;
   /** Sin degradado ni manchas de fondo (hojas, donde se ve el material del sistema). */
   plain?: boolean;
   contentStyle?: StyleProp<ViewStyle>;
@@ -37,11 +39,11 @@ export interface ScreenProps {
  * Fondo de las pantallas: degradado suave con manchas de color. El vidrio líquido necesita
  * contenido detrás para verse (sobre blanco liso casi no se distingue), por eso hay color de fondo.
  */
-export function Screen({ children, scroll = true, tabBarSpace = true, nativeHeader = false, plain = false, contentStyle }: ScreenProps): React.JSX.Element {
+export function Screen({ children, scroll = true, tabBarSpace = true, nativeHeader = false, plain = false, wide = false, contentStyle }: ScreenProps): React.JSX.Element {
   const { colors, isDark } = useTheme();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
-  const maxWidth = 760;
+  const maxWidth = wide ? 1100 : 760;
   const [locked, setLocked] = useState(false);
   const lock = useCallback(() => setLocked(true), []);
   const unlock = useCallback(() => setLocked(false), []);
@@ -73,11 +75,13 @@ export function Screen({ children, scroll = true, tabBarSpace = true, nativeHead
           <>
             <LinearGradient
               pointerEvents="none"
-              colors={isDark ? ['#17171A', '#0E0E10'] : ['#FBFBFD', '#EDEDF2']}
+              colors={isDark ? ['#12151A', '#090B0E'] : ['#F2F5F8', '#E3E8ED']}
               style={[StyleSheet.absoluteFill, styles.behind]}
             />
-            <View pointerEvents="none" style={[styles.blob, styles.behind, { backgroundColor: colors.accent, opacity: isDark ? 0.22 : 0.2, top: -width * 0.25, right: -width * 0.3, width: width * 0.9, height: width * 0.9 }]} />
-            <View pointerEvents="none" style={[styles.blob, styles.behind, { backgroundColor: colors.deepBlue, opacity: isDark ? 0.25 : 0.12, top: width * 0.7, left: -width * 0.4, width: width * 0.8, height: width * 0.8 }]} />
+            {/* Franjas diagonales: dan color y movimiento detrás del vidrio. */}
+            <View pointerEvents="none" style={[styles.stripe, styles.behind, { backgroundColor: colors.accent, opacity: isDark ? 0.32 : 0.28, top: -width * 0.1, right: -width * 0.28, width: width * 0.75, height: width * 0.34 }]} />
+            <View pointerEvents="none" style={[styles.stripe, styles.behind, { backgroundColor: colors.accent, opacity: isDark ? 0.18 : 0.14, top: width * 0.12, right: -width * 0.45, width: width * 0.9, height: width * 0.16 }]} />
+            <View pointerEvents="none" style={[styles.stripe, styles.behind, { backgroundColor: colors.graphite, opacity: isDark ? 0.55 : 0.2, top: width * 0.95, left: -width * 0.5, width: width * 1.1, height: width * 0.4 }]} />
           </>
         )}
       </View>
@@ -88,7 +92,7 @@ export function Screen({ children, scroll = true, tabBarSpace = true, nativeHead
 const styles = StyleSheet.create({
   root: { flex: 1, overflow: 'hidden' },
   behind: { zIndex: -1 },
-  blob: { position: 'absolute', borderRadius: 999 },
+  stripe: { position: 'absolute', borderRadius: 28, transform: [{ rotate: '-24deg' }] },
   scrollContent: { flexGrow: 1, alignItems: 'center' },
   inner: { width: '100%', paddingHorizontal: spacing.lg, gap: spacing.lg },
 });

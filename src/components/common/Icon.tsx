@@ -1,8 +1,9 @@
 import React from 'react';
 import { SymbolView, type SymbolViewProps } from 'expo-symbols';
 import type { ColorValue } from 'react-native';
+import type { IconName } from './Icon.types';
 
-export type IconName = Extract<SymbolViewProps['name'], string>;
+export type { IconName };
 
 export interface IconProps {
   name: IconName;

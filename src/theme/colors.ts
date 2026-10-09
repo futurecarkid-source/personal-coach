@@ -1,4 +1,4 @@
-/** Paleta: base blanca con grises, acento rojo anaranjado, grafito y un azul profundo de apoyo. */
+/** Paleta deportiva: base gris frío, grafito intenso, acento rojo anaranjado y un verde "volt" para progreso y recompensas. */
 export interface Palette {
   background: string;
   backgroundAlt: string;
@@ -12,6 +12,11 @@ export interface Palette {
   accentSoft: string;
   graphite: string;
   deepBlue: string;
+  /** Verde eléctrico de progreso, XP y logros. */
+  volt: string;
+  /** Degradado de las tarjetas destacadas (arriba y abajo). */
+  heroTop: string;
+  heroBottom: string;
   success: string;
   warning: string;
   danger: string;
@@ -22,47 +27,53 @@ export interface Palette {
 }
 
 export const lightPalette: Palette = {
-  background: '#F5F5F7',
-  backgroundAlt: '#EBEBEF',
+  background: '#E9EDF1',
+  backgroundAlt: '#DDE3E9',
   surface: '#FFFFFF',
-  surfaceStrong: '#E5E5EA',
-  text: '#1C1C1E',
-  textSecondary: '#6C6C70',
+  surfaceStrong: '#D5DCE3',
+  text: '#0E1217',
+  textSecondary: '#566170',
   textOnAccent: '#FFFFFF',
-  separator: 'rgba(60,60,67,0.18)',
+  separator: 'rgba(14,18,23,0.14)',
   accent: '#F23D14',
   accentSoft: 'rgba(242,61,20,0.14)',
-  graphite: '#2C2C2E',
-  deepBlue: '#1F3A5F',
-  success: '#2E9E5B',
+  graphite: '#14181E',
+  deepBlue: '#0B2A4A',
+  volt: '#9BD800',
+  heroTop: '#1E242C',
+  heroBottom: '#0C0F13',
+  success: '#12A150',
   warning: '#E0A100',
   danger: '#B3261E',
-  glassBorder: 'rgba(255,255,255,0.65)',
+  glassBorder: 'rgba(255,255,255,0.7)',
   glassFill: 'rgba(255,255,255,0.26)',
   glassTint: 'rgba(255,255,255,0.12)',
-  shadow: 'rgba(28,28,30,0.18)',
+  shadow: 'rgba(14,18,23,0.22)',
 };
 
 export const darkPalette: Palette = {
-  background: '#0E0E10',
-  backgroundAlt: '#18181B',
-  surface: '#1C1C1E',
-  surfaceStrong: '#2C2C2E',
-  text: '#F5F5F7',
-  textSecondary: '#A1A1A6',
+  background: '#090B0E',
+  backgroundAlt: '#12151A',
+  surface: '#14181E',
+  surfaceStrong: '#232A33',
+  text: '#F4F6F8',
+  textSecondary: '#9AA4B1',
   textOnAccent: '#FFFFFF',
-  separator: 'rgba(235,235,245,0.18)',
+  separator: 'rgba(235,240,245,0.16)',
   accent: '#FF5A36',
   accentSoft: 'rgba(255,90,54,0.2)',
-  graphite: '#3A3A3C',
+  graphite: '#232A33',
   deepBlue: '#5B8DEF',
-  success: '#3DBB72',
+  volt: '#D4FF3A',
+  heroTop: '#262D37',
+  heroBottom: '#0E1115',
+  success: '#2FD070',
   warning: '#F0B429',
   danger: '#F05A5A',
   glassBorder: 'rgba(255,255,255,0.18)',
-  glassFill: 'rgba(40,40,44,0.3)',
+  glassFill: 'rgba(40,44,52,0.3)',
   glassTint: 'rgba(255,255,255,0.06)',
-  shadow: 'rgba(0,0,0,0.5)',
+  shadow: 'rgba(0,0,0,0.55)',
 };
 
 /** Colores de rareza de la tarjeta (degradado de arriba a abajo). */

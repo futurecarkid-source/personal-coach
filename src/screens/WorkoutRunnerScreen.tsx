@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { scheduleOnRN } from 'react-native-worklets';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { AppText, FaceRating, GlassButton, GlassCard, ProgressBar, Screen } from '../components/common';
 import { ExerciseFigure } from '../components/specialized/ExerciseFigure';
@@ -56,6 +58,21 @@ export function WorkoutRunnerScreen(): React.JSX.Element {
   }, [flow.stage]);
 
   const current = exercises[flow.exerciseIndex];
+
+  // Desliza el dibujo del ejercicio para pasar al siguiente o volver al anterior (solo antes de empezar la serie).
+  const swipe = Gesture.Pan()
+    .enabled(flow.stage === 'ready')
+    .activeOffsetX([-28, 28])
+    .failOffsetY([-18, 18])
+    .onEnd((e) => {
+      if (e.translationX < -90) {
+        scheduleOnRN(haptics.selection);
+        scheduleOnRN(send, { type: 'SKIP_EXERCISE' } as WorkoutEvent);
+      } else if (e.translationX > 90) {
+        scheduleOnRN(haptics.selection);
+        scheduleOnRN(send, { type: 'PREVIOUS_EXERCISE' } as WorkoutEvent);
+      }
+    });
 
   if (!todaySession || exercises.length === 0 || !current) {
     return (
@@ -132,11 +149,16 @@ export function WorkoutRunnerScreen(): React.JSX.Element {
         />
       ) : (
         <>
-          <ExerciseFigure key={current.id} exercise={current} />
-          <View style={styles.center}>
-            <AppText variant="title" style={styles.titleCenter}>{current.name}</AppText>
-            <AppText variant="callout" tone="secondary">Serie {flow.setIndex + 1} de {current.sets}</AppText>
-          </View>
+          <GestureDetector gesture={swipe}>
+            <View style={styles.swipeArea}>
+              <ExerciseFigure key={current.id} exercise={current} />
+              <View style={styles.center}>
+                <AppText variant="title" style={styles.titleCenter}>{current.name}</AppText>
+                <AppText variant="callout" tone="secondary">Serie {flow.setIndex + 1} de {current.sets}</AppText>
+                {flow.stage === 'ready' && exercises.length > 1 ? <AppText variant="caption" tone="secondary">Desliza para cambiar de ejercicio</AppText> : null}
+              </View>
+            </View>
+          </GestureDetector>
 
           {flow.stage === 'work' && isTimed ? (
             <WorkPanel key={`work-${flow.exerciseIndex}-${flow.setIndex}`} seconds={current.seconds ?? 30} onDone={() => { haptics.medium(); send({ type: 'COMPLETE_SET' }); }} />
@@ -145,9 +167,9 @@ export function WorkoutRunnerScreen(): React.JSX.Element {
               <AppText variant="digitsLarge">{isTimed ? `${current.seconds}s` : `${current.reps}`}</AppText>
               <AppText variant="callout" tone="secondary">{isTimed ? 'Mantén el tiempo' : 'repeticiones'}</AppText>
               {isTimed ? (
-                <GlassButton label="Empezar serie" icon="play.fill" variant="primary" haptic="heavy" onPress={() => send({ type: 'START_WORK' })} />
+                <GlassButton label="Empezar serie" icon="play.fill" variant="primary" haptic="heavy" fullWidth onPress={() => send({ type: 'START_WORK' })} />
               ) : (
-                <GlassButton label="Hecho" icon="checkmark" variant="primary" haptic="medium" onPress={() => send({ type: 'COMPLETE_SET' })} />
+                <GlassButton label="Hecho" icon="checkmark" variant="primary" haptic="medium" fullWidth onPress={() => send({ type: 'COMPLETE_SET' })} />
               )}
             </GlassCard>
           )}
@@ -211,6 +233,7 @@ function RestPanel({ seconds, nextLabel, onDone }: { seconds: number; nextLabel:
 }
 
 const styles = StyleSheet.create({
+  swipeArea: { gap: spacing.lg },
   top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   center: { alignItems: 'center', gap: spacing.md },
   titleCenter: { textAlign: 'center' },
