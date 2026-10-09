@@ -14,25 +14,10 @@
       "expo-router",
       "expo-sqlite",
       "expo-status-bar",
-      [
-        "expo-image-picker",
-        {
-          "cameraPermission": "Dorsal usa la cámara para que puedas fotografiar una zona que te duele. La foto se queda en tu dispositivo.",
-          "photosPermission": "Dorsal accede a tus fotos solo si eliges una para marcar una zona que te duele."
-        }
-      ]
+      ["expo-image-picker", { "cameraPermission": "Dorsal usa la cámara para que puedas fotografiar una zona que te duele. La foto se queda en tu dispositivo.", "photosPermission": "Dorsal accede a tus fotos solo si eliges una para marcar una zona que te duele." }]
     ],
     "experiments": {
-      "typedRoutes": true,
-      "baseUrl": "/personal-coach"
-    },
-    "web": {
-      "bundler": "metro",
-      "output": "single",
-      "name": "Dorsal",
-      "shortName": "Dorsal",
-      "backgroundColor": "#F5F5F7",
-      "themeColor": "#F23D14"
+      "typedRoutes": true
     }
   }
 }
