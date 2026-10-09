@@ -1,4 +1,4 @@
-# Dorsal (nombre de trabajo)
+# Fulbito (nombre de trabajo)
 
 App de iPhone y iPad para futbolistas: plan personal, juego diario, cuerpo y mente, partidos y táctica.
 Especificación completa: [`docs/INVENTARIO_FUNCIONAL.md`](docs/INVENTARIO_FUNCIONAL.md).

@@ -161,7 +161,7 @@ export function OnboardingScreen(): React.JSX.Element {
       {step === 1 ? (
         <GlassCard>
           <AppText variant="callout" style={styles.paragraph}>
-            Dorsal es una herramienta de entrenamiento y bienestar. No es un dispositivo médico, no diagnostica ni trata lesiones o enfermedades y no reemplaza a un médico, fisioterapeuta o nutricionista. Consulta a un profesional antes de empezar o cambiar tu entrenamiento, sobre todo si tienes una lesión, una condición médica o eres menor de edad.
+            Fulbito es una herramienta de entrenamiento y bienestar. No es un dispositivo médico, no diagnostica ni trata lesiones o enfermedades y no reemplaza a un médico, fisioterapeuta o nutricionista. Consulta a un profesional antes de empezar o cambiar tu entrenamiento, sobre todo si tienes una lesión, una condición médica o eres menor de edad.
           </AppText>
           {APTITUDE_QUESTIONS.map((question, i) => (
             <View key={question} style={styles.question}>

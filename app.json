@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Dorsal",
+    "name": "Fulbito",
     "slug": "dorsal",
     "version": "0.1.0",
     "scheme": "dorsal",
@@ -8,16 +8,36 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "requireFullScreen": false
+      "requireFullScreen": false,
+      "icon": "./assets/icon.png"
     },
     "plugins": [
       "expo-router",
       "expo-sqlite",
       "expo-status-bar",
-      ["expo-image-picker", { "cameraPermission": "Dorsal usa la cámara para que puedas fotografiar una zona que te duele. La foto se queda en tu dispositivo.", "photosPermission": "Dorsal accede a tus fotos solo si eliges una para marcar una zona que te duele." }]
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Fulbito usa la cámara para que puedas fotografiar una zona que te duele. La foto se queda en tu dispositivo.",
+          "photosPermission": "Fulbito accede a tus fotos solo si eliges una para marcar una zona que te duele."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#C81E00"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "name": "Fulbito",
+      "shortName": "Fulbito",
+      "themeColor": "#F23D14",
+      "backgroundColor": "#E9EDF1"
     }
   }
 }

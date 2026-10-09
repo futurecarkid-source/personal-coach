@@ -103,10 +103,10 @@ export function canUseAi(input: AiGateInput): AiGateResult {
 
 /** Texto del aviso de consentimiento (nombra al proveedor y qué datos salen del dispositivo). */
 export const CONSENT_TEXT = [
-  'Para usar la IA, Dorsal envía a su servicio y de ahí a Anthropic (el proveedor del modelo Claude) los datos mínimos de cada consulta:',
+  'Para usar la IA, Fulbito envía a su servicio y de ahí a Anthropic (el proveedor del modelo Claude) los datos mínimos de cada consulta:',
   '• tu posición, nivel, rango de edad, molestias y resumen de tus últimas sesiones y check-ins;',
   '• lo que escribes en el chat o en la pregunta;',
   '• nunca tu nombre ni apodo, club, país, fotos ni video.',
-  'Dorsal no guarda el contenido de las consultas. El proveedor puede conservarlo temporalmente según sus políticas.',
+  'Fulbito no guarda el contenido de las consultas. El proveedor puede conservarlo temporalmente según sus políticas.',
   'La IA puede equivocarse y no es consejo médico. Puedes retirar este permiso en Perfil.',
 ].join('\n');

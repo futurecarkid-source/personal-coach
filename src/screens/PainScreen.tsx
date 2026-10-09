@@ -262,7 +262,7 @@ export function PainScreen(): React.JSX.Element {
 
       <GlassButton label="Revisar mi dolor" icon="checkmark.shield" variant="primary" haptic="medium" onPress={submit} />
       <AppText variant="caption" tone="secondary">
-        Dorsal no diagnostica ni trata lesiones. Si es una emergencia, llama al número de emergencias de tu país.
+        Fulbito no diagnostica ni trata lesiones. Si es una emergencia, llama al número de emergencias de tu país.
       </AppText>
     </Screen>
   );
