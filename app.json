@@ -30,13 +30,13 @@
     "splash": {
       "image": "./assets/icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#262B33"
+      "backgroundColor": "#23272E"
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "name": "Fulbito",
       "shortName": "Fulbito",
-      "themeColor": "#262B33",
+      "themeColor": "#23272E",
       "backgroundColor": "#E9EDF1"
     }
   }
