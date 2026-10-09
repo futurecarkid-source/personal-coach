@@ -20,7 +20,6 @@ const ADVICE: Record<ReadinessLevel, string> = {
   moderado: 'Entrena, pero escucha a tu cuerpo y no subas la carga.',
   descansa: 'Hoy prioriza recuperación o descanso.',
 };
-const CONF = { baja: 'confianza baja', media: 'confianza media', alta: 'confianza alta' } as const;
 
 /** Anillo de Preparación (estilo Apple Fitness) con palabra y color suave; los detalles son opcionales. */
 export function ReadinessRing({ readiness }: { readiness: Readiness }): React.JSX.Element {
@@ -48,10 +47,10 @@ export function ReadinessRing({ readiness }: { readiness: Readiness }): React.JS
           </View>
         </View>
         <View style={styles.texts}>
-          <AppText variant="caption" tone="secondary">PREPARACIÓN</AppText>
+          <AppText variant="label" tone="secondary">Preparación</AppText>
           <AppText variant="title">{WORD[readiness.level]}</AppText>
           <AppText variant="callout" tone="secondary">{ADVICE[readiness.level]}</AppText>
-          <AppText variant="caption" tone="secondary">{readiness.calibrating ? 'Calibrando · ' : ''}{CONF[readiness.confidence]}</AppText>
+          {readiness.calibrating ? <AppText variant="caption" tone="secondary">Calibrando</AppText> : null}
         </View>
       </View>
       <View style={styles.more}>

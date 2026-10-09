@@ -31,7 +31,7 @@ export function layoutFormation(id: string, side: 'propio' | 'rival' = 'propio')
   const points: NormPoint[] = [{ x: 0.06, y: 0.5 }];
   const lineCount = formation.lines.length;
   formation.lines.forEach((count, lineIndex) => {
-    const x = lineCount === 1 ? 0.36 : 0.2 + (0.28 * lineIndex) / (lineCount - 1);
+    const x = lineCount === 1 ? 0.32 : 0.17 + (0.26 * lineIndex) / (lineCount - 1);
     for (let i = 0; i < count; i += 1) points.push({ x, y: lineY(count, i) });
   });
   if (side === 'rival') return points.map((p) => ({ x: 1 - p.x, y: 1 - p.y }));

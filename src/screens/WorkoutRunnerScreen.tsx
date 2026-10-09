@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { scheduleOnRN } from 'react-native-worklets';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
-import { AppText, FaceRating, GlassButton, GlassCard, ProgressBar, Screen } from '../components/common';
+import { AppText, Disclosure, FaceRating, GlassButton, GlassCard, ProgressBar, Screen } from '../components/common';
 import { ExerciseFigure } from '../components/specialized/ExerciseFigure';
 import { EXERCISE_BY_ID, youtubeSearchUrl } from '../content/exercises';
 import { useAppDispatch } from '../context';
@@ -155,7 +155,6 @@ export function WorkoutRunnerScreen(): React.JSX.Element {
               <View style={styles.center}>
                 <AppText variant="title" style={styles.titleCenter}>{current.name}</AppText>
                 <AppText variant="callout" tone="secondary">Serie {flow.setIndex + 1} de {current.sets}</AppText>
-                {flow.stage === 'ready' && exercises.length > 1 ? <AppText variant="caption" tone="secondary">Desliza para cambiar de ejercicio</AppText> : null}
               </View>
             </View>
           </GestureDetector>
@@ -174,16 +173,15 @@ export function WorkoutRunnerScreen(): React.JSX.Element {
             </GlassCard>
           )}
 
-          <GlassCard>
-            <AppText variant="headline">Cómo hacerlo</AppText>
+          <Disclosure title="Cómo hacerlo">
             <View style={styles.steps}>
               {current.steps.map((step, i) => (
                 <AppText key={step} variant="callout">{i + 1}. {step}</AppText>
               ))}
             </View>
             <AppText variant="callout" tone="danger" style={styles.mistake}>Error común: {current.commonMistake}</AppText>
-            <GlassButton label="Ver explicación en YouTube" icon="play.rectangle.fill" size="compact" haptic="light" onPress={() => { Linking.openURL(youtubeSearchUrl(current.youtubeQuery)).catch(() => undefined); }} />
-          </GlassCard>
+            <GlassButton label="Ver en YouTube" icon="play.rectangle.fill" size="compact" haptic="light" onPress={() => { Linking.openURL(youtubeSearchUrl(current.youtubeQuery)).catch(() => undefined); }} />
+          </Disclosure>
         </>
       )}
 

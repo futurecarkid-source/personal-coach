@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { AppText, GlassButton, GlassCard, Screen, SectionHeader, SegmentedControl } from '../components/common';
+import { AppText, Chip, GlassButton, GlassCard, Screen, SegmentedControl } from '../components/common';
 import { useAppDispatch, useAppState } from '../context';
-import { BREATH_PROTOCOLS, breathState, cycleSeconds, pulsesFor, type BreathPhase, type BreathProtocol } from '../core/breathing';
+import { BREATH_PROTOCOLS, breathState, pulsesFor, type BreathPhase, type BreathProtocol } from '../core/breathing';
 import { reflexTrend, summarizeReflex, type ReflexSummary, type ReflexTrial } from '../core/reflex';
 import { haptics, radii, spacing, useTheme } from '../theme';
 
@@ -109,18 +109,11 @@ function BreathPanel(): React.JSX.Element {
 
       {!running ? (
         <>
-          <SectionHeader title="Técnica" subtitle={`Ciclo de ${cycleSeconds(protocol)} s. En el iPhone sentirás pulsos que guían el ritmo.`} />
-          <View style={styles.list}>
+          <View style={styles.chips}>
             {BREATH_PROTOCOLS.map((p) => (
-              <Pressable key={p.id} onPress={() => { haptics.selection(); setProtocol(p); }} accessibilityRole="button" accessibilityState={{ selected: p.id === protocol.id }}>
-                <GlassCard padding={spacing.md}>
-                  <AppText variant="headline" tone={p.id === protocol.id ? 'accent' : 'primary'}>{p.name}</AppText>
-                  <AppText variant="callout" tone="secondary">{p.description}</AppText>
-                </GlassCard>
-              </Pressable>
+              <Chip key={p.id} label={p.name} selected={p.id === protocol.id} onPress={() => setProtocol(p)} />
             ))}
           </View>
-          <SectionHeader title="Duración" />
           <SegmentedControl
             options={[
               { value: '1', label: '1 min' },
@@ -130,9 +123,7 @@ function BreathPanel(): React.JSX.Element {
             value={minutes}
             onChange={setMinutes}
           />
-          <AppText variant="caption" tone="secondary">
-            Es entrenamiento de calma y foco, no un tratamiento. El 4-7-8 relaja mucho: antes de competir suele convenir más la Resonancia o la Caja. Si te mareas, respira normal y para.
-          </AppText>
+          <AppText variant="caption" tone="secondary">Entrenamiento de calma y foco, no un tratamiento. Si te mareas, respira normal.</AppText>
         </>
       ) : null}
     </>
@@ -293,14 +284,13 @@ function ReflexPanel(): React.JSX.Element {
         </GlassCard>
       ) : null}
 
-      <AppText variant="caption" tone="secondary">
-        Es un ejercicio de entrenamiento, no una evaluación clínica ni una prueba de conmoción. La medida de un teléfono tiene un margen de unos 10 a 20 ms, así que compara siempre contigo mismo y con el mismo dispositivo. Si tras un golpe en la cabeza notas lentitud o mareo, consulta a un médico.
-      </AppText>
+      <AppText variant="caption" tone="secondary">Entrenamiento, no evaluación clínica ni prueba de conmoción. Compárate solo contigo y con el mismo dispositivo.</AppText>
     </>
   );
 }
 
 const styles = StyleSheet.create({
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   orbArea: { height: 260, alignItems: 'center', justifyContent: 'center' },
   orb: { alignItems: 'center', justifyContent: 'center', borderWidth: 2 },
   center: { textAlign: 'center', marginBottom: spacing.md },

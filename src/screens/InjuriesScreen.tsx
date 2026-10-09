@@ -52,11 +52,11 @@ export function InjuriesScreen(): React.JSX.Element {
 
   return (
     <Screen tabBarSpace={false} nativeHeader>
-      <AppText variant="callout" tone="secondary">{INJURIES_DISCLAIMER}</AppText>
+      <AppText variant="caption" tone="secondary">{INJURIES_DISCLAIMER}</AppText>
       {minor ? (
         <Chip label="Zonas de crecimiento" selected={onlyGrowth} onPress={() => setOnlyGrowth((v) => !v)} />
       ) : null}
-      <SectionHeader title={`${list.length} lesiones frecuentes`} subtitle="Toca una para ver señales, prevención y cuándo consultar" />
+      <SectionHeader title={`${list.length} lesiones frecuentes`} />
       <View style={styles.list}>
         {list.map((info) => (
           <InjuryCard key={info.id} info={info} open={openId === info.id} onToggle={() => setOpenId((cur) => (cur === info.id ? null : info.id))} />

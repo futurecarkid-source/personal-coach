@@ -74,7 +74,7 @@ export function HomeScreen(): React.JSX.Element {
             <AppText variant="title">{todaySession.title}</AppText>
             {sessionIsRest ? (
               <>
-                <AppText variant="callout" tone="secondary">Descanso programado. Descansar también es entrenar.</AppText>
+                <AppText variant="callout" tone="secondary">Descanso programado.</AppText>
                 <GlassButton
                   label={restRegistered ? 'Descanso registrado' : 'Registrar descanso'}
                   icon="moon.fill"
@@ -101,9 +101,8 @@ export function HomeScreen(): React.JSX.Element {
           </View>
         ) : null}
         <View style={styles.block}>
-          <GlassButton label={aiBusy ? 'Creando tu plan…' : usingAi ? 'Actualizar plan con IA' : 'Plan con IA'} icon="sparkles" size="compact" haptic="medium" disabled={aiBusy} onPress={() => { void generateAiPlan(); }} />
-          {usingAi ? <AppText variant="caption" tone="secondary">Plan hecho con IA y revisado por las reglas de seguridad.</AppText> : null}
-          {aiMessage ? <AppText variant="callout" tone="secondary">{aiMessage}</AppText> : null}
+          <GlassButton label={aiBusy ? 'Creando tu plan…' : usingAi ? 'Plan con IA ✓' : 'Plan con IA'} icon="sparkles" variant="ghost" size="compact" haptic="medium" disabled={aiBusy} onPress={() => { void generateAiPlan(); }} />
+          {aiMessage ? <AppText variant="caption" tone="secondary">{aiMessage}</AppText> : null}
         </View>
       </GlassCard>
 

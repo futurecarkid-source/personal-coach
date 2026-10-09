@@ -3,7 +3,7 @@ import { Alert, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { CONSENT_TEXT, describeAiError, refineScouting } from '../ai';
 import { useAiAccess } from '../ai/useAi';
-import { AppText, Chip, Columns, GlassButton, GlassCard, GlassSurface, Screen, SectionHeader, Stepper } from '../components/common';
+import { AppText, Chip, Columns, Disclosure, GlassButton, GlassCard, GlassSurface, Screen, SectionHeader, Stepper } from '../components/common';
 import { NativeSegmented, NativeToggle } from '../components/native/NativeControls';
 import { PlayerCard3D } from '../components/specialized/PlayerCard3D';
 import { ATTRIBUTE_LABELS, LEVEL_LABELS, POSITION_LABELS } from '../content/attributeLabels';
@@ -103,15 +103,9 @@ export function ProfileScreen(): React.JSX.Element {
   const left = (
     <>
       <PlayerCard3D player={player} effect={settings.cardEffect} reduceMotion={settings.reduceMotion} />
-      <AppText variant="caption" tone="secondary" style={styles.center}>
-        Inclina el teléfono para mover la tarjeta. Doble toque para recalibrar. Arrastra con el dedo si no hay sensor.
-      </AppText>
 
       <GlassCard>
         <SectionHeader title={`${POSITION_LABELS[player.position]} · ${ovr}`} subtitle={`${LEVEL_LABELS[player.level]} · pie ${player.foot} · #${player.number}`} />
-        <AppText variant="callout" tone="secondary" style={styles.note}>
-          Tus cifras empiezan como “Estimado” (fórmula local) y se corrigen con tus partidos y pruebas. Puedes ajustarlas a mano.
-        </AppText>
       </GlassCard>
 
       <GlassCard>
@@ -120,10 +114,9 @@ export function ProfileScreen(): React.JSX.Element {
       </GlassCard>
 
       {others.length > 0 ? (
-        <GlassCard>
-          <SectionHeader title="Otros atributos" />
+        <Disclosure title="Otros atributos" summary={`${others.length}`}>
           <View style={styles.list}>{others.map(renderAttr)}</View>
-        </GlassCard>
+        </Disclosure>
       ) : null}
     </>
   );
@@ -131,8 +124,7 @@ export function ProfileScreen(): React.JSX.Element {
   const right = (
     <>
       {rankCard}
-      <GlassCard>
-        <SectionHeader title="Ajustes" />
+      <Disclosure title="Ajustes">
         <View style={styles.list}>
           <View style={styles.block}>
             <AppText variant="headline">Sensibilidad de la Preparación</AppText>
@@ -173,14 +165,11 @@ export function ProfileScreen(): React.JSX.Element {
             onChange={(v) => dispatch({ type: 'SET_SETTINGS', patch: { reduceMotion: v } })}
           />
         </View>
-      </GlassCard>
+      </Disclosure>
 
-      <GlassCard>
-        <SectionHeader title="IA y Coach" subtitle={access.config ? 'Conectada' : 'Sin conectar'} />
+      <Disclosure title="IA y Coach" summary={access.config ? 'Conectada' : 'Sin conectar'}>
         <View style={styles.list}>
-          <AppText variant="callout" tone="secondary">
-            La IA hace tu plan, responde en el chat, explica tu pizarra, revisa partidos y orienta tu seguimiento de dolor. Sin IA, el coach local sigue funcionando.
-          </AppText>
+          <AppText variant="callout" tone="secondary">Sin IA, el coach local sigue funcionando.</AppText>
           <AppText variant="caption" tone="secondary">Dirección del servicio de IA</AppText>
           <GlassSurface radius={radii.button} flat>
             <TextInput
@@ -235,14 +224,11 @@ export function ProfileScreen(): React.JSX.Element {
           <GlassButton label={aiBusy ? 'Refinando…' : 'Refinar mis cifras con IA'} icon="sparkles" size="compact" haptic="medium" disabled={aiBusy} onPress={() => { void refine(); }} />
           {aiNote ? <AppText variant="callout" tone="secondary">{aiNote}</AppText> : null}
         </View>
-      </GlassCard>
+      </Disclosure>
 
-      <GlassCard>
-        <SectionHeader title="Tus datos" subtitle="Se guardan en este dispositivo." />
-        <View style={styles.block}>
-          <GlassButton label="Borrar todos mis datos" icon="trash" variant="danger" haptic="warning" onPress={confirmReset} />
-        </View>
-      </GlassCard>
+      <Disclosure title="Tus datos" summary="En este dispositivo">
+        <GlassButton label="Borrar todos mis datos" icon="trash" variant="danger" haptic="warning" onPress={confirmReset} />
+      </Disclosure>
     </>
   );
 

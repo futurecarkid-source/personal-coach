@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { describeAiError, explainTactic, type TacticExplainOutput } from '../ai';
 import { useAiAccess } from '../ai/useAi';
-import { AppText, GlassButton, GlassCard, GlassSurface, Screen, SectionHeader } from '../components/common';
+import { AppText, Disclosure, GlassButton, GlassCard, GlassSurface, Screen, SectionHeader } from '../components/common';
 import { TacticalBoard } from '../components/specialized/TacticalBoard';
 import { useAppDispatch, useAppState } from '../context';
 import { newId } from '../core/dates';
@@ -88,8 +88,7 @@ export function TacticsScreen(): React.JSX.Element {
         }}
       />
 
-      <GlassCard>
-        <SectionHeader title="Pregúntale al coach" subtitle="Explica tu pizarra: estructura, riesgos y sugerencias" />
+      <Disclosure title="Pregúntale al coach">
         <View style={styles.form}>
           <GlassSurface radius={radii.button} flat>
             <TextInput value={question} onChangeText={setQuestion} placeholder="Pregunta (opcional)" placeholderTextColor={colors.textSecondary} maxLength={300} style={[styles.input, { color: colors.text }]} accessibilityLabel="Pregunta sobre la pizarra" />
@@ -106,17 +105,16 @@ export function TacticsScreen(): React.JSX.Element {
             </View>
           ) : null}
         </View>
-      </GlassCard>
+      </Disclosure>
 
-      <GlassCard>
-        <SectionHeader title="Guardar jugada" />
+      <Disclosure title="Guardar jugada" defaultOpen>
         <View style={styles.form}>
           <GlassSurface radius={radii.button} flat>
             <TextInput value={name} onChangeText={setName} placeholder="Nombre de la jugada" placeholderTextColor={colors.textSecondary} maxLength={40} style={[styles.input, { color: colors.text }]} accessibilityLabel="Nombre de la jugada" />
           </GlassSurface>
           <GlassButton label="Guardar" icon="square.and.arrow.down" variant="primary" haptic="success" onPress={save} />
         </View>
-      </GlassCard>
+      </Disclosure>
 
       <SectionHeader title="Mis jugadas" />
       {state.plays.length === 0 ? (

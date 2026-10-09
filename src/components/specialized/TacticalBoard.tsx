@@ -61,6 +61,7 @@ export function TacticalBoard({ initialFrame, initialFormat = 'f11', initialForm
   const [format, setFormat] = useState<GameFormat>(initialFormat);
   const [formation, setFormation] = useState(initialFormation);
   const [showRival, setShowRival] = useState(!initialFrame);
+  const [more, setMore] = useState(false);
   const [tool, setTool] = useState<Tool>('mover');
   const [tokens, setTokens] = useState<Token[]>(() => initialFrame?.tokens ?? buildTokens(initialFormation, initialFormation));
   const [drawings, setDrawings] = useState<Drawing[]>(() => initialFrame?.drawings ?? []);
@@ -199,14 +200,16 @@ export function TacticalBoard({ initialFrame, initialFormat = 'f11', initialForm
 
       <View style={styles.actions}>
         <GlassButton label="Deshacer" icon="arrow.uturn.backward" size="compact" haptic="light" onPress={undo} />
-        <GlassButton label="Borrar trazos" icon="eraser" size="compact" haptic="light" onPress={clearDrawings} />
-        <GlassButton label="Balón" icon="soccerball" size="compact" haptic="light" onPress={() => addExtra('balon')} />
-        <GlassButton label="Cono" icon="triangle.fill" size="compact" haptic="light" onPress={() => addExtra('cono')} />
-        <GlassButton label={showRival ? 'Quitar rival' : 'Poner rival'} size="compact" haptic="light" onPress={toggleRival} />
+        <GlassButton label={more ? 'Menos' : 'Más'} size="compact" haptic="light" onPress={() => setMore((v) => !v)} />
       </View>
-      <AppText variant="caption" tone="secondary">
-        Mover: arrastra las fichas. Pase, carrera y conducción: dibuja un trazo con el dedo.
-      </AppText>
+      {more ? (
+        <View style={styles.actions}>
+          <GlassButton label="Borrar trazos" icon="eraser" size="compact" haptic="light" onPress={clearDrawings} />
+          <GlassButton label="Balón" icon="soccerball" size="compact" haptic="light" onPress={() => addExtra('balon')} />
+          <GlassButton label="Cono" icon="triangle.fill" size="compact" haptic="light" onPress={() => addExtra('cono')} />
+          <GlassButton label={showRival ? 'Quitar rival' : 'Poner rival'} size="compact" haptic="light" onPress={toggleRival} />
+        </View>
+      ) : null}
     </View>
   );
 }

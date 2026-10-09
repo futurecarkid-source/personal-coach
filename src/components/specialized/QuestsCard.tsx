@@ -42,7 +42,6 @@ export function QuestsCard({ state, date, onClaim }: QuestsCardProps): React.JSX
             </View>
             <View style={styles.flex}>
               <AppText variant="headline" tone={q.claimed ? 'secondary' : 'primary'}>{q.title}</AppText>
-              <AppText variant="caption" tone="secondary">{q.claimed ? 'Cobrada' : q.hint}</AppText>
             </View>
             {q.claimed ? null : q.done ? (
               <GlassButton label={`+${q.xp} XP`} variant="primary" size="compact" haptic="success" onPress={() => onClaim(q.key, q.xp)} />
@@ -57,7 +56,7 @@ export function QuestsCard({ state, date, onClaim }: QuestsCardProps): React.JSX
         <Icon name="shippingbox.fill" size={22} color={daily.bonusReady && !daily.bonusClaimed ? colors.accent : colors.textSecondary} />
         <View style={styles.flex}>
           <AppText variant="headline">Cofre del día</AppText>
-          <AppText variant="caption" tone="secondary">{daily.bonusClaimed ? 'Abierto. Vuelve mañana.' : 'Cobra las 3 misiones para abrirlo.'}</AppText>
+          <AppText variant="caption" tone="secondary">{daily.bonusClaimed ? 'Abierto' : '3 misiones'}</AppText>
         </View>
         {daily.bonusReady && !daily.bonusClaimed ? (
           <GlassButton
@@ -91,10 +90,8 @@ export function QuestsCard({ state, date, onClaim }: QuestsCardProps): React.JSX
             }}
           />
         ) : weekly.claimed ? (
-          <AppText variant="caption" tone="success">Reto cobrado. ¡Buena semana!</AppText>
-        ) : (
-          <AppText variant="caption" tone="secondary">Cumple tus sesiones para ganar +{weekly.xp} XP.</AppText>
-        )}
+          <AppText variant="caption" tone="success">Cobrado</AppText>
+        ) : null}
       </View>
     </GlassCard>
   );

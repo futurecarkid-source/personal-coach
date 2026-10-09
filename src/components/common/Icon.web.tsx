@@ -6,7 +6,7 @@ import type { IconName } from './Icon.types';
 const GLYPHS: Record<string, string> = {
   'arrow.counterclockwise': '↺', 'arrow.up': '↑', 'arrow.up.circle.fill': '⬆', 'arrow.uturn.backward': '↶',
   'bolt.fill': '⚡', 'bolt.heart.fill': '⚡', 'brain.head.profile': '🧠', 'bubble.left.fill': '💬', 'camera.fill': '📷',
-  checkmark: '✓', 'checkmark.shield': '✓', 'chevron.left': '‹', 'chevron.right': '›', 'circle.fill': '●',
+  checkmark: '✓', 'checkmark.shield': '✓', 'chevron.left': '‹', 'chevron.right': '›', 'chevron.up': '⌃', 'chevron.down': '⌄', 'circle.fill': '●',
   'cross.case.fill': '✚', 'crown.fill': '♛', 'dumbbell.fill': '🏋', 'figure.run': '🏃', 'flag.fill': '⚑', 'flame.fill': '🔥',
   'forward.fill': '⏭', 'heart.text.square.fill': '♥', 'house.fill': '⌂', 'leaf.fill': '🍃', 'lock.fill': '🔒',
   'moon.fill': '☾', 'moon.zzz.fill': '☾', 'pause.fill': '⏸', photo: '🖼', 'play.fill': '▶', 'play.rectangle.fill': '▶',

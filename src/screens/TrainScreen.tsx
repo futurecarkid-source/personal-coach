@@ -45,7 +45,7 @@ export function TrainScreen(): React.JSX.Element {
 
       {section === 'sesiones' ? (
         <View style={styles.list}>
-          <SectionHeader title="Próximos 7 días" subtitle="Plan por reglas según tu perfil, tus molestias y tus partidos" />
+          <SectionHeader title="Esta semana" />
           {week.map((session) => {
             const isToday = session.date === today;
             const rest = session.kind === 'descanso';

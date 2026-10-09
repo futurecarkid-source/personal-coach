@@ -36,7 +36,7 @@ export function HeroCard({ gamification, weekly, achievementCount, onPress }: { 
           <View style={styles.flex}>
             <AppText variant="label" style={styles.dim}>Rango</AppText>
             <AppText variant="largeTitle" style={styles.white}>{rank.name}</AppText>
-            <AppText variant="callout" style={styles.dim}>Nivel {progress.level} · {gamification.xp} XP</AppText>
+            <AppText variant="callout" style={styles.dim}>Nivel {progress.level}</AppText>
           </View>
           <View style={[styles.streak, { backgroundColor: colors.accent }]}>
             <Icon name="flame.fill" size={22} color="#FFFFFF" />
@@ -46,15 +46,11 @@ export function HeroCard({ gamification, weekly, achievementCount, onPress }: { 
         </View>
         <View style={styles.bar}>
           <ProgressBar fraction={progress.fraction} height={10} color={colors.volt} trackColor="rgba(255,255,255,0.16)" />
-          <View style={styles.row}>
-            <AppText variant="caption" style={styles.dim}>{needed} XP para el nivel {progress.level + 1}</AppText>
-            <AppText variant="caption" style={styles.dim}>{upcoming ? `Próximo rango: ${upcoming.name} (nv. ${upcoming.minLevel})` : 'Rango máximo'}</AppText>
-          </View>
+          <AppText variant="caption" style={styles.dim}>{needed} XP para el nivel {progress.level + 1}{upcoming ? ` · ${upcoming.name} en el nivel ${upcoming.minLevel}` : ''}</AppText>
         </View>
         <View style={styles.footer}>
-          <Icon name="trophy.fill" size={16} color={colors.volt} />
-          <AppText variant="caption" style={styles.white}>{achievementCount} logros · ver todos</AppText>
-          <Icon name="chevron.right" size={12} color="rgba(255,255,255,0.7)" />
+          <Icon name="trophy.fill" size={14} color={colors.volt} />
+          <AppText variant="caption" style={styles.white}>{achievementCount} logros</AppText>
         </View>
       </LinearGradient>
     </Pressable>

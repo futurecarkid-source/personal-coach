@@ -99,7 +99,7 @@ export function MatchScreen(): React.JSX.Element {
           <FaceRating label="Esfuerzo percibido" value={selected.rpe} onChange={(v) => update({ rpe: v })} />
         </GlassCard>
         <GlassCard>
-          <SectionHeader title="Revisión con IA" subtitle="Usa solo tus estadísticas etiquetadas (no el video)" />
+          <SectionHeader title="Revisión con IA" />
           <View style={styles.form}>
             <GlassButton label={reviewBusy ? 'Revisando…' : 'Revisar mi partido'} icon="sparkles" variant="primary" disabled={reviewBusy || selected.events.length === 0} haptic="medium" onPress={() => { void askReview(); }} />
             {selected.events.length === 0 ? <AppText variant="caption" tone="secondary">Registra algunas acciones primero.</AppText> : null}
@@ -122,7 +122,7 @@ export function MatchScreen(): React.JSX.Element {
   return (
     <Screen nativeHeader>
       <GlassCard>
-        <SectionHeader title="Nuevo partido" subtitle="Registra tus acciones mientras ves el partido o el video" />
+        <SectionHeader title="Nuevo partido" />
         <View style={styles.form}>
           <GlassSurface radius={radii.button} flat>
             <TextInput value={opponent} onChangeText={setOpponent} placeholder="Rival" placeholderTextColor={colors.textSecondary} maxLength={40} style={[styles.input, { color: colors.text }]} accessibilityLabel="Rival" />
