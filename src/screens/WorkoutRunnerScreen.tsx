@@ -69,6 +69,16 @@ export function WorkoutRunnerScreen(): React.JSX.Element {
 
   const sets = totalSets(exercises);
 
+  if (flow.stage === 'summary' && flow.setsDone === 0) {
+    return (
+      <Screen tabBarSpace={false}>
+        <AppText variant="largeTitle">Sin series completadas</AppText>
+        <AppText variant="body" tone="secondary">Saltaste todos los ejercicios, así que no se guarda la sesión ni se suma XP. Puedes volver cuando quieras.</AppText>
+        <GlassButton label="Salir" icon="chevron.left" onPress={() => router.back()} />
+      </Screen>
+    );
+  }
+
   if (flow.stage === 'summary') {
     const finish = (): void => {
       if (rpe === null) return;

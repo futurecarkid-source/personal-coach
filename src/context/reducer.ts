@@ -54,6 +54,12 @@ function isWeeklyStreak(state: AppState): boolean {
   return state.player ? isMinor(state.player.ageBand) : false;
 }
 
+/** Un gol registrado suma al marcador: de mi equipo a favor, del rival en contra. */
+function goalDelta(event: { type: string; side: string }): { for: number; against: number } {
+  if (event.type !== 'gol') return { for: 0, against: 0 };
+  return event.side === 'rival' ? { for: 0, against: 1 } : { for: 1, against: 0 };
+}
+
 export function appReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
     case 'HYDRATE':
@@ -119,13 +125,22 @@ export function appReducer(state: AppState, action: AppAction): AppState {
     case 'ADD_MATCH_EVENT':
       return {
         ...state,
-        matches: state.matches.map((m) => (m.id === action.matchId ? { ...m, events: [...m.events, action.event] } : m)),
+        matches: state.matches.map((m) => {
+          if (m.id !== action.matchId) return m;
+          const d = goalDelta(action.event);
+          return { ...m, events: [...m.events, action.event], goalsFor: m.goalsFor + d.for, goalsAgainst: m.goalsAgainst + d.against };
+        }),
       };
 
     case 'UNDO_MATCH_EVENT':
       return {
         ...state,
-        matches: state.matches.map((m) => (m.id === action.matchId ? { ...m, events: m.events.slice(0, -1) } : m)),
+        matches: state.matches.map((m) => {
+          if (m.id !== action.matchId) return m;
+          const last = m.events[m.events.length - 1];
+          const d = last ? goalDelta(last) : { for: 0, against: 0 };
+          return { ...m, events: m.events.slice(0, -1), goalsFor: Math.max(0, m.goalsFor - d.for), goalsAgainst: Math.max(0, m.goalsAgainst - d.against) };
+        }),
       };
 
     case 'DELETE_MATCH':

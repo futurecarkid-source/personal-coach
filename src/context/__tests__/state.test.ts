@@ -124,3 +124,16 @@ describe('persistence', () => {
     expect((await loadState(storage)).status).toBe('recovered');
   });
 });
+
+describe('match score follows goal events', () => {
+  it('adds my goals for me, rival goals against me, and undo reverses it', () => {
+    const base = createInitialState();
+    const match = { id: 'm1', date: '2026-10-09', opponent: 'Rival', kind: 'amistoso' as const, goalsFor: 0, goalsAgainst: 0, minutesPlayed: 0, selfRating: null, rpe: null, events: [] };
+    let s = appReducer(base, { type: 'UPSERT_MATCH', match } as never);
+    s = appReducer(s, { type: 'ADD_MATCH_EVENT', matchId: 'm1', event: { type: 'gol', atSeconds: 1, pos: null, shot: null, side: 'propio' } } as never);
+    s = appReducer(s, { type: 'ADD_MATCH_EVENT', matchId: 'm1', event: { type: 'gol', atSeconds: 2, pos: null, shot: null, side: 'rival' } } as never);
+    expect([s.matches[0]?.goalsFor, s.matches[0]?.goalsAgainst]).toEqual([1, 1]);
+    s = appReducer(s, { type: 'UNDO_MATCH_EVENT', matchId: 'm1' });
+    expect([s.matches[0]?.goalsFor, s.matches[0]?.goalsAgainst]).toEqual([1, 0]);
+  });
+});

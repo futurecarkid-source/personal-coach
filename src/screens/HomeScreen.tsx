@@ -97,7 +97,7 @@ export function HomeScreen(): React.JSX.Element {
           <View style={styles.row}>
             <Icon name="flame.fill" size={28} color={colors.accent} />
             <View>
-              <AppText variant="digits">{state.gamification.streak} {weekly ? 'semanas' : 'días'}</AppText>
+              <AppText variant="digits">{state.gamification.streak} {weekly ? (state.gamification.streak === 1 ? 'semana' : 'semanas') : state.gamification.streak === 1 ? 'día' : 'días'}</AppText>
               <AppText variant="caption" tone="secondary">Racha de compromiso · mejor {state.gamification.bestStreak}</AppText>
             </View>
           </View>

@@ -30,3 +30,14 @@ describe('formations', () => {
     expect(layoutFormation('x-y')).toEqual([]);
   });
 });
+
+describe('teams do not overlap at kickoff', () => {
+  it('keeps each team in its own half', () => {
+    for (const id of ['4-4-2', '4-3-3', '3-5-2']) {
+      const own = layoutFormation(id, 'propio');
+      const rival = layoutFormation(id, 'rival');
+      expect(Math.max(...own.map((p) => p.x))).toBeLessThan(0.5);
+      expect(Math.min(...rival.map((p) => p.x))).toBeGreaterThan(0.5);
+    }
+  });
+});

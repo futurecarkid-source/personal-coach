@@ -16,7 +16,11 @@ export interface MiniPitchProps {
 export function MiniPitch({ width, markers = [], selected, onSelect }: MiniPitchProps): React.JSX.Element {
   const height = (width * PITCH_W) / PITCH_L;
   const handle = (event: GestureResponderEvent): void => {
-    const { locationX, locationY } = event.nativeEvent;
+    const native = event.nativeEvent as GestureResponderEvent['nativeEvent'] & { offsetX?: number; offsetY?: number };
+    // En el navegador `locationX` puede no venir; se usa `offsetX`. Sin coordenadas válidas, no se marca nada.
+    const locationX = Number.isFinite(native.locationX) ? native.locationX : native.offsetX;
+    const locationY = Number.isFinite(native.locationY) ? native.locationY : native.offsetY;
+    if (locationX === undefined || locationY === undefined || !Number.isFinite(locationX) || !Number.isFinite(locationY)) return;
     const x = Math.max(0, Math.min(PITCH_L, (locationX / width) * PITCH_L));
     const y = Math.max(0, Math.min(PITCH_W, (locationY / height) * PITCH_W));
     triggerHaptic('selection');

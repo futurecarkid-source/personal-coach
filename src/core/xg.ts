@@ -27,6 +27,7 @@ export const PENALTY_XG = 0.76;
  */
 export function expectedGoals(pos: PitchPoint, ctx: ShotContext): number {
   if (ctx.situation === 'penalti') return PENALTY_XG;
+  if (!Number.isFinite(pos.x) || !Number.isFinite(pos.y)) return 0;
   const { distance, angle } = shotGeometry(pos);
   let z = -1.2 - 0.1 * distance + 1.0 * angle;
   if (ctx.bodyPart === 'cabeza') z -= 0.9;
