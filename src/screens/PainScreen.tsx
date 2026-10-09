@@ -196,7 +196,7 @@ export function PainScreen(): React.JSX.Element {
 
   return (
     <Screen tabBarSpace={false} plain>
-      <SectionHeader title="Reportar un dolor" subtitle="Unas preguntas rápidas para cuidar de ti" />
+      <SectionHeader title="Reportar un dolor" />
       <GlassCard>
         <AppText variant="caption" tone="secondary">¿Dónde duele?</AppText>
         <BodyMap

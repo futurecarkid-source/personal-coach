@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { AppText, Columns, GlassButton, GlassCard, Icon, Screen, SectionHeader, SegmentedControl } from '../components/common';
+import { AppText, Columns, GlassButton, HapticTouch, GlassCard, Icon, Screen, SectionHeader, SegmentedControl } from '../components/common';
 import { ExerciseFigure } from '../components/specialized/ExerciseFigure';
 import { IntervalTimer } from '../components/specialized/IntervalTimer';
 import { EXERCISES, EXERCISE_BY_ID, youtubeSearchUrl } from '../content/exercises';
@@ -18,6 +18,7 @@ const DAY_NAMES = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábad
 
 export function TrainScreen(): React.JSX.Element {
   const [section, setSection] = useState<Section>('sesiones');
+  const [openDay, setOpenDay] = useState<string | null>(null);
   const { state } = useAppState();
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -36,7 +37,7 @@ export function TrainScreen(): React.JSX.Element {
       <SegmentedControl
         options={[
           { value: 'sesiones', label: 'Sesiones' },
-          { value: 'temporizador', label: 'Temporizador' },
+          { value: 'temporizador', label: 'Tiempo' },
           { value: 'ejercicios', label: 'Ejercicios' },
         ]}
         value={section}
@@ -51,7 +52,8 @@ export function TrainScreen(): React.JSX.Element {
             const rest = session.kind === 'descanso';
             const done = state.sessionLogs.some((l) => l.date === session.date);
             return (
-              <GlassCard key={session.date}>
+              <HapticTouch key={session.date} haptic="selection" pressedScale={0.99} onPress={() => { if (!isToday && !rest) setOpenDay((d) => (d === session.date ? null : session.date)); }} accessibilityLabel={`${DAY_NAMES[weekdayMonday0(session.date)]}: ${session.title}`}>
+              <GlassCard>
                 <View style={styles.rowBetween}>
                   <View style={styles.flex}>
                     <AppText variant="label" tone={done ? 'success' : isToday ? 'accent' : 'secondary'}>
@@ -70,7 +72,7 @@ export function TrainScreen(): React.JSX.Element {
                     <Icon name={done ? 'checkmark' : rest ? 'moon.fill' : 'figure.run'} size={22} />
                   )}
                 </View>
-                {!rest ? (
+                {!rest && (isToday || openDay === session.date) ? (
                   <View style={styles.names}>
                     {session.exerciseIds.map((id) => (
                       <AppText key={id} variant="caption" tone="secondary">• {EXERCISE_BY_ID.get(id)?.name ?? id}</AppText>
@@ -78,6 +80,7 @@ export function TrainScreen(): React.JSX.Element {
                   </View>
                 ) : null}
               </GlassCard>
+              </HapticTouch>
             );
           })}
         </View>
