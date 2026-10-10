@@ -18,7 +18,7 @@ const variants: Record<TextVariant, TextStyle> = {
 
 export interface AppTextProps extends TextProps {
   variant?: TextVariant;
-  tone?: 'primary' | 'secondary' | 'accent' | 'onAccent' | 'danger' | 'success' | 'volt';
+  tone?: 'primary' | 'secondary' | 'accent' | 'onAccent' | 'danger' | 'success' | 'volt' | 'pitch';
   style?: StyleProp<TextStyle>;
 }
 
@@ -38,7 +38,9 @@ export function AppText({ variant = 'body', tone = 'primary', style, ...rest }: 
               ? colors.danger
               : tone === 'volt'
                 ? colors.volt
-                : colors.success;
+                : tone === 'pitch'
+                  ? colors.pitch
+                  : colors.success;
   return <Text maxFontSizeMultiplier={1.4} {...rest} style={[styles.base, variants[variant], { color }, style]} />;
 }
 

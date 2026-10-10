@@ -166,9 +166,9 @@ export function WorkoutRunnerScreen(): React.JSX.Element {
               <AppText variant="digitsLarge">{isTimed ? `${current.seconds}s` : `${current.reps}`}</AppText>
               <AppText variant="callout" tone="secondary">{isTimed ? 'Mantén el tiempo' : 'repeticiones'}</AppText>
               {isTimed ? (
-                <GlassButton label="Empezar serie" icon="play.fill" variant="primary" haptic="heavy" fullWidth onPress={() => send({ type: 'START_WORK' })} />
+                <GlassButton label="Empezar serie" icon="play.fill" variant="go" haptic="heavy" fullWidth onPress={() => send({ type: 'START_WORK' })} />
               ) : (
-                <GlassButton label="Hecho" icon="checkmark" variant="primary" haptic="medium" fullWidth onPress={() => send({ type: 'COMPLETE_SET' })} />
+                <GlassButton label="Hecho" icon="checkmark" variant="go" haptic="medium" fullWidth onPress={() => send({ type: 'COMPLETE_SET' })} />
               )}
             </GlassCard>
           )}

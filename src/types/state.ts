@@ -21,6 +21,8 @@ export const settingsSchema = z.object({
   lastOnlineAt: z.string().nullable().default(null),
   /** Recordatorios locales de entrenamiento y racha. */
   remindersEnabled: z.boolean().default(false),
+  /** Tiene Apple Watch, otro reloj o banda de pulso. */
+  wearable: z.enum(['ninguno', 'applewatch', 'otro']).default('ninguno'),
   reminderHour: z.number().int().min(0).max(23).default(18),
   /** Un adulto responsable autoriza la IA (obligatorio para menores). */
   guardianConsent: z.boolean().default(false),

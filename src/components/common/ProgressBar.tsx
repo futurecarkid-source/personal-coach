@@ -12,7 +12,7 @@ export function ProgressBar({ fraction, height = 8, color, trackColor }: { fract
   const fill = useAnimatedStyle(() => ({ width: `${value.value * 100}%` }));
   return (
     <View style={[styles.track, { height, borderRadius: height / 2, backgroundColor: trackColor ?? colors.surfaceStrong }]}>
-      <Animated.View style={[{ height, borderRadius: height / 2, backgroundColor: color ?? colors.accent }, fill]} />
+      <Animated.View style={[{ height, borderRadius: height / 2, backgroundColor: color ?? colors.pitch }, fill]} />
     </View>
   );
 }

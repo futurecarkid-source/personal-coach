@@ -96,7 +96,7 @@ export function HomeScreen(): React.JSX.Element {
                   ))}
                   {todaySession.exerciseIds.length > 4 ? <AppText variant="callout" tone="secondary">y {todaySession.exerciseIds.length - 4} más</AppText> : null}
                 </View>
-                <GlassButton label="Empezar" icon="play.fill" variant="primary" haptic="heavy" fullWidth onPress={() => router.push('/workout')} />
+                <GlassButton label="Empezar" icon="play.fill" variant="go" haptic="heavy" fullWidth onPress={() => router.push('/workout')} />
               </>
             )}
           </View>

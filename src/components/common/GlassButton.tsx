@@ -9,7 +9,7 @@ import { Icon, type IconName } from './Icon';
 export interface GlassButtonProps extends Omit<HapticTouchProps, 'children' | 'style'> {
   label: string;
   icon?: IconName;
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'go';
   size?: 'regular' | 'compact';
   fullWidth?: boolean;
   haptic?: HapticKind;
@@ -29,14 +29,14 @@ export function GlassButton({
 }: GlassButtonProps): React.JSX.Element {
   const { colors } = useTheme();
   const compact = size === 'compact';
-  const tint = variant === 'primary' ? colors.accent : variant === 'danger' ? colors.danger : undefined;
-  const textTone = variant === 'primary' ? 'accent' : variant === 'danger' ? 'danger' : variant === 'ghost' ? 'accent' : 'primary';
-  const iconColor = variant === 'primary' ? colors.accent : variant === 'danger' ? colors.danger : variant === 'ghost' ? colors.accent : colors.text;
+  const tint = variant === 'primary' ? colors.accent : variant === 'go' ? colors.pitch : variant === 'danger' ? colors.danger : undefined;
+  const textTone = variant === 'go' ? 'primary' : variant === 'primary' ? 'accent' : variant === 'danger' ? 'danger' : variant === 'ghost' ? 'accent' : 'primary';
+  const iconColor = variant === 'go' ? '#FFFFFF' : variant === 'primary' ? colors.accent : variant === 'danger' ? colors.danger : variant === 'ghost' ? colors.accent : colors.text;
 
   const inner = (
     <View style={[styles.row, { minHeight: 44, paddingVertical: compact ? spacing.sm : spacing.md, paddingHorizontal: compact ? spacing.md : spacing.lg }]}>
       {icon ? <Icon name={icon} size={compact ? 16 : 18} color={iconColor} /> : null}
-      <AppText variant={compact ? 'callout' : 'headline'} tone={textTone} numberOfLines={1} style={styles.label}>
+      <AppText variant={compact ? 'callout' : 'headline'} tone={textTone} numberOfLines={1} style={[styles.label, variant === 'go' ? styles.white : null]}>
         {label}
       </AppText>
     </View>
@@ -46,6 +46,8 @@ export function GlassButton({
     <HapticTouch haptic={haptic} accessibilityLabel={label} style={[fullWidth ? styles.full : styles.auto, style]} {...rest}>
       {variant === 'ghost' ? (
         inner
+      ) : variant === 'go' ? (
+        <View style={[styles.solid, { backgroundColor: colors.pitch, borderRadius: radii.button }]}>{inner}</View>
       ) : (
         <GlassSurface
           radius={radii.button}
@@ -65,7 +67,9 @@ export function GlassButton({
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
   label: { fontWeight: '600' },
+  white: { color: '#FFFFFF' },
   full: { alignSelf: 'stretch' },
   auto: { alignSelf: 'flex-start' },
   surface: { alignSelf: 'stretch' },
+  solid: { alignSelf: 'stretch', overflow: 'hidden' },
 });

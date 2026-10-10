@@ -89,7 +89,7 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps): React.
                 accessibilityState={{ selected: focused }}
                 style={[styles.item, { width: itemWidth }]}
               >
-                <Icon name={meta.icon} size={22} color={focused ? colors.accent : colors.textSecondary} />
+                <Icon name={meta.icon} size={22} color={focused ? colors.pitch : colors.textSecondary} />
                 <AppText variant="caption" tone={focused ? 'accent' : 'secondary'} numberOfLines={1}>
                   {meta.title}
                 </AppText>

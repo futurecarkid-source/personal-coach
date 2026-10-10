@@ -10,6 +10,7 @@ export const DEFAULT_SETTINGS: Settings = {
   aiConsentAt: null,
   lastOnlineAt: null,
   remindersEnabled: false,
+  wearable: 'ninguno',
   reminderHour: 18,
   guardianConsent: false,
   coachPersona: 'motivador',

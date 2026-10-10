@@ -14,6 +14,8 @@ export interface Palette {
   deepBlue: string;
   /** Toque de color: naranja oscuro para racha, XP, selecciones y pequeños destacados. */
   volt: string;
+  /** Color secundario: verde de cancha, para avanzar, empezar y progreso. */
+  pitch: string;
   /** Degradado de las tarjetas destacadas (arriba y abajo). */
   heroTop: string;
   heroBottom: string;
@@ -40,9 +42,10 @@ export const lightPalette: Palette = {
   graphite: '#23272E',
   deepBlue: '#4B5563',
   volt: '#C2491D',
+  pitch: '#12A868',
   heroTop: '#2E343D',
   heroBottom: '#171A1F',
-  success: '#1E9E5A',
+  success: '#12A868',
   warning: '#D99A00',
   danger: '#B3261E',
   glassBorder: 'rgba(255,255,255,0.7)',
@@ -65,9 +68,10 @@ export const darkPalette: Palette = {
   graphite: '#2A3039',
   deepBlue: '#8EA0B8',
   volt: '#E0663A',
+  pitch: '#32D583',
   heroTop: '#2E343D',
   heroBottom: '#14171B',
-  success: '#2FD070',
+  success: '#32D583',
   warning: '#F0B429',
   danger: '#F05A5A',
   glassBorder: 'rgba(255,255,255,0.2)',

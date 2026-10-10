@@ -67,7 +67,7 @@ export function TrainScreen(): React.JSX.Element {
                     ) : null}
                   </View>
                   {isToday && !rest && !done ? (
-                    <GlassButton label="Empezar" icon="play.fill" variant="primary" size="compact" haptic="heavy" onPress={() => router.push('/workout')} />
+                    <GlassButton label="Empezar" icon="play.fill" variant="go" size="compact" haptic="heavy" onPress={() => router.push('/workout')} />
                   ) : (
                     <Icon name={done ? 'checkmark' : rest ? 'moon.fill' : 'figure.run'} size={22} />
                   )}

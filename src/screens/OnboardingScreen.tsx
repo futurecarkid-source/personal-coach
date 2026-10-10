@@ -1,11 +1,15 @@
-import React, { useMemo, useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
-import { AppText, Chip, Disclosure, GlassButton, GlassCard, ProgressBar, Screen, Stepper, FieldSurface } from '../components/common';
-import { ATTRIBUTE_LABELS, BODY_ZONE_LABELS, LEVEL_LABELS, POSITION_LABELS } from '../content/attributeLabels';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import Animated, { FadeInDown, FadeInLeft, FadeInRight } from 'react-native-reanimated';
+import { AppText, FieldSurface, GlassButton, GlassSurface, Icon, ProgressBar, Screen } from '../components/common';
+import { Confetti } from '../components/specialized/Confetti';
+import { PlayerCard3D } from '../components/specialized/PlayerCard3D';
+import { ATTRIBUTE_LABELS, BODY_ZONE_LABELS, LEVEL_LABELS, POSITION_LABELS, flagEmoji } from '../content/attributeLabels';
 import { useAppDispatch } from '../context';
 import { newId } from '../core/dates';
 import { estimateAttributes, headlineKeys, type SelfAssessment } from '../core/ovr';
-import { haptics, spacing, useTheme } from '../theme';
+import { ensureNotificationPermission } from '../services/reminders';
+import { haptics, radii, spacing, useTheme } from '../theme';
 import {
   AGE_BANDS,
   BODY_ZONES,
@@ -63,129 +67,249 @@ const APTITUDE_QUESTIONS = [
   '¿Tienes una lesión de huesos o articulaciones que empeora con el ejercicio?',
 ] as const;
 
-const STEPS = ['Edad', 'Salud', 'Tu perfil', 'Entrenamiento', 'Autoevaluación'] as const;
+const GOAL_EMOJI: Record<Goal, string> = { subir_nivel: '🚀', prevenir_lesiones: '🛡️', mejorar_mentalidad: '🧠', mejorar_fisico: '💪', entender_juego: '♟️', llevar_estadisticas: '📊' };
+const EQUIPMENT_EMOJI: Record<Equipment, string> = { ninguno: '🙌', bandas: '🎗️', mancuernas: '🏋️', gimnasio: '🏢', balon: '⚽', conos: '🔶', escalera: '🪜' };
+const PERSONAS = [
+  { id: 'motivador', title: 'Motivador', text: 'Te anima y celebra cada paso.', emoji: '🔥' },
+  { id: 'exigente', title: 'Exigente', text: 'Directo, te exige más.', emoji: '🎯' },
+  { id: 'cientifico', title: 'Científico', text: 'Explica el porqué de todo.', emoji: '🔬' },
+  { id: 'calmado', title: 'Calmado', text: 'Sin presión, a tu ritmo.', emoji: '🌿' },
+] as const;
+type Persona = (typeof PERSONAS)[number]['id'];
+type Wearable = 'ninguno' | 'applewatch' | 'otro';
+
+const RATING_WORD = (v: number): string => (v <= 3 ? 'Por mejorar' : v <= 6 ? 'Normal' : v <= 8 ? 'Bueno' : 'De élite');
 
 function toggle<T>(list: readonly T[], item: T): T[] {
   return list.includes(item) ? list.filter((x) => x !== item) : [...list, item];
 }
 
+interface Step {
+  id: string;
+  /** Pasos de una sola opción avanzan solos al elegir. */
+  auto?: boolean;
+}
+
+/** Fila grande y tocable (vidrio), con muelle al pulsar y marca al estar elegida. */
+function OptionCard({ label, hint, emoji, selected, onPress, index = 0, compact = false }: { label: string; hint?: string; emoji?: string; selected: boolean; onPress: () => void; index?: number; compact?: boolean }): React.JSX.Element {
+  const { colors } = useTheme();
+  return (
+    <Animated.View entering={FadeInDown.delay(Math.min(index, 8) * 45).springify().damping(18)} style={compact ? styles.compactCell : undefined}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={{ selected }}
+        accessibilityLabel={label}
+        onPress={() => {
+          haptics.selection();
+          onPress();
+        }}
+        style={({ pressed }) => [pressed && styles.pressed]}
+      >
+        <GlassSurface radius={radii.card} flat tint={selected ? colors.pitch : undefined} interactive>
+          <View style={[styles.option, compact && styles.optionCompact, selected && { borderColor: colors.pitch }]}>
+            {emoji ? <AppText variant="title">{emoji}</AppText> : null}
+            <View style={styles.optionTexts}>
+              <AppText variant="headline">{label}</AppText>
+              {hint ? <AppText variant="caption" tone="secondary">{hint}</AppText> : null}
+            </View>
+            {selected ? <Icon name="checkmark" size={18} color={colors.pitch} /> : null}
+          </View>
+        </GlassSurface>
+      </Pressable>
+    </Animated.View>
+  );
+}
+
 /**
- * Cuestionario inicial corto: edad primero (define las salvaguardas), aviso de salud con preguntas de aptitud,
- * perfil, preferencias de entrenamiento y autoevaluación. No hay pantalla de pago al terminar.
+ * Cuestionario inicial: una pregunta por pantalla, con animaciones, vibración y opciones grandes de vidrio.
+ * Sin límite de preguntas porque cada una es un toque. Edad primero (define las salvaguardas) y sin pantalla de pago al final.
+ * La tarjeta se revela al terminar.
  */
 export function OnboardingScreen(): React.JSX.Element {
   const dispatch = useAppDispatch();
   const { colors } = useTheme();
-  const [step, setStep] = useState(0);
+  const [idx, setIdx] = useState(0);
+  const [dir, setDir] = useState<'fwd' | 'back'>('fwd');
   const [ageBand, setAgeBand] = useState<AgeBand | null>(null);
   const [answers, setAnswers] = useState<(boolean | null)[]>(APTITUDE_QUESTIONS.map(() => null));
-  const [ack, setAck] = useState(false);
   const [nickname, setNickname] = useState('');
   const [number, setNumber] = useState(10);
   const [country, setCountry] = useState<string>('CO');
-  const [position, setPosition] = useState<Position>('MC');
-  const [level, setLevel] = useState<Level>('amateur');
-  const [foot, setFoot] = useState<Foot>('derecho');
+  const [position, setPosition] = useState<Position | null>(null);
+  const [level, setLevel] = useState<Level | null>(null);
+  const [foot, setFoot] = useState<Foot | null>(null);
   const [days, setDays] = useState(3);
   const [minutes, setMinutes] = useState(40);
-  const [equipment, setEquipment] = useState<Equipment[]>(['ninguno']);
+  const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [zones, setZones] = useState<BodyZone[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [self, setSelf] = useState<SelfAssessment>({});
+  const [sleep, setSleep] = useState(8);
+  const [persona, setPersona] = useState<Persona>('motivador');
+  const [wearable, setWearable] = useState<Wearable | null>(null);
+  const [reminders, setReminders] = useState<boolean | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (timer.current) clearTimeout(timer.current);
+  }, []);
 
   const anyYes = answers.some((a) => a === true);
-  const allAnswered = answers.every((a) => a !== null);
   const headline = useMemo<OutfieldAttributeKey[]>(
-    () => (position === 'POR' ? [] : headlineKeys(position).filter((k): k is OutfieldAttributeKey => k in ATTRIBUTE_LABELS)),
+    () => (position === null || position === 'POR' ? [] : headlineKeys(position).filter((k): k is OutfieldAttributeKey => k in ATTRIBUTE_LABELS)),
     [position],
   );
+  const name = nickname.trim() || 'jugador';
 
-  const canContinue =
-    step === 0 ? ageBand !== null : step === 1 ? allAnswered && ack : step === 2 ? nickname.trim().length > 0 : true;
+  const steps = useMemo<Step[]>(
+    () => [
+      { id: 'bienvenida' },
+      { id: 'edad', auto: true },
+      ...APTITUDE_QUESTIONS.map((_, i) => ({ id: `salud${i}`, auto: true })),
+      { id: 'aviso' },
+      { id: 'apodo' },
+      { id: 'numero' },
+      { id: 'pais', auto: true },
+      { id: 'posicion', auto: true },
+      { id: 'pie', auto: true },
+      { id: 'nivel', auto: true },
+      { id: 'objetivos' },
+      { id: 'dias' },
+      { id: 'minutos' },
+      { id: 'equipo' },
+      { id: 'molestias' },
+      ...headline.map((k) => ({ id: `auto-${k}` })),
+      { id: 'sueno' },
+      { id: 'coach', auto: true },
+      { id: 'reloj', auto: true },
+      { id: 'avisos', auto: true },
+      { id: 'tarjeta' },
+    ],
+    [headline],
+  );
+  const step = steps[Math.min(idx, steps.length - 1)]!;
 
-  const finish = (): void => {
-    if (!ageBand) return;
-    const player: Player = {
-      id: newId('player'),
-      nickname: nickname.trim().slice(0, 24),
+  const go = (delta: 1 | -1): void => {
+    setDir(delta === 1 ? 'fwd' : 'back');
+    setIdx((i) => Math.max(0, Math.min(steps.length - 1, i + delta)));
+  };
+  const choose = (apply: () => void): void => {
+    apply();
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => go(1), 260);
+  };
+
+  const buildPlayer = (): Player | null => {
+    if (!ageBand || !position || !level) return null;
+    return {
+      id: 'preview',
+      nickname: name.slice(0, 24),
       number,
       country,
       position,
       secondaryPositions: [],
       level,
-      foot,
+      foot: foot ?? 'derecho',
       club: null,
       ageBand,
       attributes: estimateAttributes({ position, level, selfAssessment: self }),
       selfAssessment: Object.fromEntries(Object.entries(self).filter((e): e is [string, number] => typeof e[1] === 'number')),
       createdAt: new Date().toISOString(),
     };
-    dispatch({ type: 'SET_SETTINGS', patch: { healthNoticeAccepted: true } });
+  };
+
+  const finish = async (): Promise<void> => {
+    const preview = buildPlayer();
+    if (!preview) return;
+    const notify = reminders === true ? await ensureNotificationPermission() : false;
+    dispatch({ type: 'SET_SETTINGS', patch: { healthNoticeAccepted: true, sleepGoalHours: sleep, coachPersona: persona, wearable: wearable ?? 'ninguno', remindersEnabled: notify } });
     dispatch({
       type: 'SET_PLAN_PREFS',
       prefs: { daysPerWeek: days, minutesPerSession: minutes, equipment: equipment.length > 0 ? equipment : ['ninguno'], discomfortZones: zones, matchDates: [], goals },
     });
-    dispatch({ type: 'SET_PLAYER', player });
+    dispatch({ type: 'SET_PLAYER', player: { ...preview, id: newId('player') } });
     haptics.success();
   };
 
-  return (
-    <Screen tabBarSpace={false}>
-      <View style={styles.header}>
-        <AppText variant="caption" tone="secondary">Paso {step + 1} de {STEPS.length}</AppText>
-        <AppText variant="largeTitle">{STEPS[step]}</AppText>
-        <ProgressBar fraction={(step + 1) / STEPS.length} />
-      </View>
+  const blocked = ageBand === 'menor13';
+  const needsButton = !step.auto;
+  const canContinue =
+    step.id === 'edad' ? ageBand !== null && !blocked : step.id === 'apodo' ? nickname.trim().length > 0 : true;
+  const total = steps.length - 1;
+  const entering = dir === 'fwd' ? FadeInRight.springify().damping(20) : FadeInLeft.springify().damping(20);
 
-      {step === 0 ? (
-        <GlassCard>
-          <AppText variant="body" style={styles.paragraph}>Para cuidar de ti, primero dinos tu rango de edad.</AppText>
-          <View style={styles.wrap}>
-            {AGE_BANDS.map((band) => (
-              <Chip key={band} label={AGE_LABELS[band]} selected={ageBand === band} onPress={() => setAgeBand(band)} />
+  const title = ((): string => {
+    switch (step.id) {
+      case 'bienvenida': return '¡Hola! Vamos a crear tu tarjeta de jugador';
+      case 'edad': return '¿Cuántos años tienes?';
+      case 'aviso': return anyYes ? 'Cuida tu salud primero' : 'Todo claro';
+      case 'apodo': return '¿Cómo te llamamos?';
+      case 'numero': return `${name}, ¿qué número usas?`;
+      case 'pais': return '¿De dónde eres?';
+      case 'posicion': return `${name}, ¿en qué posición juegas?`;
+      case 'pie': return '¿Con qué pie pegas?';
+      case 'nivel': return '¿En qué nivel juegas?';
+      case 'objetivos': return '¿Qué quieres lograr?';
+      case 'dias': return '¿Cuántos días puedes entrenar?';
+      case 'minutos': return '¿Cuánto tiempo por sesión?';
+      case 'equipo': return '¿Con qué cuentas para entrenar?';
+      case 'molestias': return '¿Te molesta algo ahora?';
+      case 'sueno': return '¿Cuántas horas quieres dormir?';
+      case 'coach': return '¿Cómo prefieres a tu coach?';
+      case 'reloj': return '¿Tienes reloj o banda de pulso?';
+      case 'avisos': return '¿Te avisamos para cuidar tu racha?';
+      case 'tarjeta': return `¡Lista, ${name}!`;
+      default:
+        if (step.id.startsWith('salud')) return 'Una pregunta de salud';
+        if (step.id.startsWith('auto-')) return `¿Cómo te ves en ${ATTRIBUTE_LABELS[step.id.slice(5) as OutfieldAttributeKey].full.toLowerCase()}?`;
+        return '';
+    }
+  })();
+  const subtitle = ((): string | null => {
+    switch (step.id) {
+      case 'bienvenida': return 'Preguntas rápidas, de a una. Tarda unos 2 minutos.';
+      case 'edad': return 'Con esto cuidamos tu entrenamiento.';
+      case 'aviso': return 'Fulbito es una herramienta de entrenamiento, no un dispositivo médico: no diagnostica ni trata lesiones y no reemplaza a un médico o fisioterapeuta.';
+      case 'apodo': return 'Saldrá en tu tarjeta.';
+      case 'objetivos': return 'Elige los que quieras.';
+      case 'dias': return 'Por semana. Siempre puedes cambiarlo.';
+      case 'equipo': return 'Elige lo que tengas a mano.';
+      case 'molestias': return 'Evitaremos esa zona en tu plan.';
+      case 'sueno': return 'Tu meta de descanso cada noche.';
+      case 'tarjeta': return 'Esta es tu tarjeta inicial. Crece con cada sesión.';
+      default:
+        if (step.id.startsWith('auto-')) return 'Puntúate de 1 a 10. Se corrige luego con tus partidos.';
+        return null;
+    }
+  })();
+
+  const body = ((): React.JSX.Element | null => {
+    switch (step.id) {
+      case 'bienvenida':
+        return (
+          <Animated.View entering={FadeInDown.delay(150).springify()} style={styles.hero}>
+            <AppText variant="digitsLarge" style={styles.heroEmoji}>⚽</AppText>
+          </Animated.View>
+        );
+      case 'edad':
+        return (
+          <View style={styles.list}>
+            {AGE_BANDS.map((b, i) => (
+              <OptionCard key={b} index={i} label={AGE_LABELS_FULL[b]} selected={ageBand === b} onPress={() => (b === 'menor13' ? setAgeBand(b) : choose(() => setAgeBand(b)))} />
             ))}
+            {ageBand && isMinor(ageBand) && !blocked ? (
+              <AppText variant="callout" tone="secondary">Al ser menor de edad, algunas funciones (IA con fotos o video y compras) estarán desactivadas y se recomienda usar la app con un adulto responsable.</AppText>
+            ) : null}
+            {blocked ? <AppText variant="callout" tone="danger">Por ahora la app no está disponible para menores de 13 años: se necesita un flujo de permiso parental que aún no existe.</AppText> : null}
           </View>
-          {ageBand && isMinor(ageBand) ? (
-            <AppText variant="callout" tone="secondary" style={styles.paragraph}>
-              Al ser menor de edad, algunas funciones (IA con fotos o video, nutrición con objetivo de peso y compras) estarán desactivadas y se recomienda usar la app con un adulto responsable.
-            </AppText>
-          ) : null}
-          {ageBand === 'menor13' ? (
-            <AppText variant="callout" tone="danger" style={styles.paragraph}>
-              Por ahora la app no está disponible para menores de 13 años: se necesita un flujo de permiso parental que aún no existe.
-            </AppText>
-          ) : null}
-        </GlassCard>
-      ) : null}
-
-      {step === 1 ? (
-        <GlassCard>
-          <AppText variant="callout" style={styles.paragraph}>
-            Fulbito es una herramienta de entrenamiento, no un dispositivo médico: no diagnostica ni trata lesiones y no reemplaza a un médico o fisioterapeuta.
-          </AppText>
-          {APTITUDE_QUESTIONS.map((question, i) => (
-            <View key={question} style={styles.question}>
-              <AppText variant="callout">{question}</AppText>
-              <View style={styles.wrap}>
-                <Chip label="Sí" selected={answers[i] === true} onPress={() => setAnswers((a) => a.map((v, j) => (j === i ? true : v)))} />
-                <Chip label="No" selected={answers[i] === false} onPress={() => setAnswers((a) => a.map((v, j) => (j === i ? false : v)))} />
-              </View>
-            </View>
-          ))}
-          {anyYes ? (
-            <AppText variant="callout" tone="danger" style={styles.paragraph}>
-              Por tus respuestas, consulta con un profesional de la salud antes de entrenar. Si te mareas, sientes dolor fuerte o falta de aire, para y busca atención.
-            </AppText>
-          ) : null}
-          <View style={styles.wrap}>
-            <Chip label="Entiendo y acepto" selected={ack} onPress={() => setAck((v) => !v)} />
-          </View>
-        </GlassCard>
-      ) : null}
-
-      {step === 2 ? (
-        <GlassCard>
-          <AppText variant="caption" tone="secondary">Apodo en la tarjeta</AppText>
+        );
+      case 'aviso':
+        return anyYes ? (
+          <AppText variant="body" tone="danger">Por tus respuestas, consulta con un profesional de la salud antes de entrenar. Si te mareas, sientes dolor fuerte o falta de aire, para y busca atención.</AppText>
+        ) : (
+          <AppText variant="body" tone="secondary">Si algo te duele o te sientes mal, para y consulta a un profesional.</AppText>
+        );
+      case 'apodo':
+        return (
           <FieldSurface>
             <TextInput
               value={nickname}
@@ -195,111 +319,222 @@ export function OnboardingScreen(): React.JSX.Element {
               maxLength={24}
               autoCapitalize="words"
               autoCorrect={false}
-              style={[styles.input, { color: colors.text }]}
+              autoFocus
+              returnKeyType="next"
+              onSubmitEditing={() => nickname.trim() && go(1)}
+              style={[styles.bigInput, { color: colors.text }]}
               accessibilityLabel="Apodo en la tarjeta"
             />
           </FieldSurface>
-          <View style={styles.spacer} />
-          <Stepper label="Número" value={number} min={0} max={99} onChange={setNumber} />
-          <AppText variant="caption" tone="secondary" style={styles.label}>País</AppText>
-          <View style={styles.wrap}>
-            {COUNTRIES.map((c) => (
-              <Chip key={c} label={c} selected={country === c} onPress={() => setCountry(c)} />
+        );
+      case 'numero':
+        return <BigStepper value={number} min={1} max={99} onChange={setNumber} unit="" />;
+      case 'pais':
+        return (
+          <View style={styles.grid}>
+            {COUNTRIES.map((c, i) => (
+              <OptionCard key={c} compact index={i} emoji={flagEmoji(c)} label={c} selected={country === c} onPress={() => choose(() => setCountry(c))} />
             ))}
           </View>
-          <AppText variant="caption" tone="secondary" style={styles.label}>Posición principal</AppText>
-          <View style={styles.wrap}>
-            {POSITIONS.map((p) => (
-              <Chip key={p} label={`${p} · ${POSITION_LABELS[p]}`} selected={position === p} onPress={() => setPosition(p)} />
+        );
+      case 'posicion':
+        return (
+          <View style={styles.list}>
+            {POSITIONS.map((p, i) => (
+              <OptionCard key={p} index={i} label={`${p} · ${POSITION_LABELS[p]}`} selected={position === p} onPress={() => choose(() => setPosition(p))} />
             ))}
           </View>
-          <AppText variant="caption" tone="secondary" style={styles.label}>Categoría o nivel</AppText>
-          <View style={styles.wrap}>
-            {LEVELS.map((l) => (
-              <Chip key={l} label={LEVEL_LABELS[l]} selected={level === l} onPress={() => setLevel(l)} />
+        );
+      case 'pie':
+        return (
+          <View style={styles.list}>
+            {FEET.map((f, i) => (
+              <OptionCard key={f} index={i} label={FOOT_LABELS[f]} selected={foot === f} onPress={() => choose(() => setFoot(f))} />
             ))}
           </View>
-          <AppText variant="caption" tone="secondary" style={styles.label}>Pie dominante</AppText>
-          <View style={styles.wrap}>
-            {FEET.map((f) => (
-              <Chip key={f} label={FOOT_LABELS[f]} selected={foot === f} onPress={() => setFoot(f)} />
+        );
+      case 'nivel':
+        return (
+          <View style={styles.list}>
+            {LEVELS.map((l, i) => (
+              <OptionCard key={l} index={i} label={LEVEL_LABELS[l]} selected={level === l} onPress={() => choose(() => setLevel(l))} />
             ))}
           </View>
-        </GlassCard>
-      ) : null}
-
-      {step === 3 ? (
-        <GlassCard>
-          <AppText variant="caption" tone="secondary" style={styles.label}>Tus objetivos (elige los que quieras)</AppText>
-          <View style={styles.wrap}>
-            {GOALS.map((g) => (
-              <Chip key={g} label={GOAL_LABELS[g]} selected={goals.includes(g)} onPress={() => setGoals((list) => toggle(list, g))} />
+        );
+      case 'objetivos':
+        return (
+          <View style={styles.list}>
+            {GOALS.map((g, i) => (
+              <OptionCard key={g} index={i} emoji={GOAL_EMOJI[g]} label={GOAL_LABELS[g]} selected={goals.includes(g)} onPress={() => setGoals((l) => toggle(l, g))} />
             ))}
           </View>
-          <View style={styles.spacer} />
-          <Stepper label="Días de entrenamiento por semana" value={days} min={1} max={7} onChange={setDays} />
-          <View style={styles.spacer} />
-          <Stepper label="Tiempo por sesión" value={minutes} min={15} max={90} step={5} unit="min" onChange={setMinutes} />
-          <View style={styles.spacer} />
-          <Disclosure title="Equipo y molestias" summary="Opcional" nested>
-          <AppText variant="caption" tone="secondary" style={styles.label}>Equipamiento disponible</AppText>
-          <View style={styles.wrap}>
-            {EQUIPMENT.map((e) => (
-              <Chip key={e} label={EQUIPMENT_LABELS[e]} selected={equipment.includes(e)} onPress={() => setEquipment((list) => toggle(list, e))} />
+        );
+      case 'dias':
+        return <BigStepper value={days} min={1} max={7} onChange={setDays} unit="días" />;
+      case 'minutos':
+        return <BigStepper value={minutes} min={15} max={90} step={5} onChange={setMinutes} unit="min" />;
+      case 'equipo':
+        return (
+          <View style={styles.list}>
+            {EQUIPMENT.map((e, i) => (
+              <OptionCard key={e} index={i} emoji={EQUIPMENT_EMOJI[e]} label={EQUIPMENT_LABELS[e]} selected={equipment.includes(e)} onPress={() => setEquipment((l) => toggle(l, e))} />
             ))}
           </View>
-          <AppText variant="caption" tone="secondary" style={styles.label}>¿Alguna zona con molestia ahora? (la evitamos en tu plan)</AppText>
-          <View style={styles.wrap}>
-            {BODY_ZONES.map((z) => (
-              <Chip key={z} label={BODY_ZONE_LABELS[z]} selected={zones.includes(z)} onPress={() => setZones((list) => toggle(list, z))} />
+        );
+      case 'molestias':
+        return (
+          <View style={styles.grid}>
+            {BODY_ZONES.map((z, i) => (
+              <OptionCard key={z} compact index={i} label={BODY_ZONE_LABELS[z]} selected={zones.includes(z)} onPress={() => setZones((l) => toggle(l, z))} />
             ))}
           </View>
-          </Disclosure>
-        </GlassCard>
-      ) : null}
-
-      {step === 4 ? (
-        <GlassCard>
-          <AppText variant="callout" tone="secondary" style={styles.paragraph}>
-            Puntúate de 1 a 10 (5 es normal para tu nivel). Se corrige luego con tus partidos.
-          </AppText>
-          {position === 'POR' ? (
-            <AppText variant="callout">Para porteros, la tarjeta inicial se calcula con tu nivel. Podrás ajustar cada cifra desde el perfil.</AppText>
-          ) : (
-            headline.map((key) => (
-              <View key={key} style={styles.question}>
-                <Stepper
-                  label={ATTRIBUTE_LABELS[key].full}
-                  value={self[key] ?? 5}
-                  min={1}
-                  max={10}
-                  onChange={(v) => setSelf((s) => ({ ...s, [key]: v }))}
-                />
+        );
+      case 'sueno':
+        return <BigStepper value={sleep} min={5} max={12} step={0.5} onChange={setSleep} unit="h" />;
+      case 'coach':
+        return (
+          <View style={styles.list}>
+            {PERSONAS.map((p, i) => (
+              <OptionCard key={p.id} index={i} emoji={p.emoji} label={p.title} hint={p.text} selected={persona === p.id} onPress={() => choose(() => setPersona(p.id))} />
+            ))}
+          </View>
+        );
+      case 'reloj':
+        return (
+          <View style={styles.list}>
+            <OptionCard index={0} emoji="⌚" label="Apple Watch" selected={wearable === 'applewatch'} onPress={() => choose(() => setWearable('applewatch'))} />
+            <OptionCard index={1} emoji="📿" label="Otro reloj o banda" selected={wearable === 'otro'} onPress={() => choose(() => setWearable('otro'))} />
+            <OptionCard index={2} emoji="🙅" label="No tengo" selected={wearable === 'ninguno'} onPress={() => choose(() => setWearable('ninguno'))} />
+          </View>
+        );
+      case 'avisos':
+        return (
+          <View style={styles.list}>
+            <OptionCard index={0} emoji="🔔" label="Sí, avísame" hint="Un aviso al día y otro si tu racha está en riesgo." selected={reminders === true} onPress={() => choose(() => setReminders(true))} />
+            <OptionCard index={1} emoji="🔕" label="Ahora no" selected={reminders === false} onPress={() => choose(() => setReminders(false))} />
+          </View>
+        );
+      case 'tarjeta': {
+        const p = buildPlayer();
+        return p ? (
+          <View style={styles.reveal}>
+            <PlayerCard3D player={p} effect={2} maxWidth={300} />
+          </View>
+        ) : null;
+      }
+      default:
+        if (step.id.startsWith('salud')) {
+          const i = Number(step.id.slice(5));
+          return (
+            <View style={styles.list}>
+              <AppText variant="title">{APTITUDE_QUESTIONS[i]}</AppText>
+              <OptionCard index={0} emoji="👍" label="No" selected={answers[i] === false} onPress={() => choose(() => setAnswers((a) => a.map((v, j) => (j === i ? false : v))))} />
+              <OptionCard index={1} emoji="⚠️" label="Sí" selected={answers[i] === true} onPress={() => choose(() => setAnswers((a) => a.map((v, j) => (j === i ? true : v))))} />
+            </View>
+          );
+        }
+        if (step.id.startsWith('auto-')) {
+          const key = step.id.slice(5) as OutfieldAttributeKey;
+          const v = self[key] ?? 5;
+          return (
+            <View style={styles.ratingBox}>
+              <AppText variant="digitsLarge" tone="pitch">{v}</AppText>
+              <AppText variant="headline" tone="secondary">{RATING_WORD(v)}</AppText>
+              <View style={styles.dots}>
+                {Array.from({ length: 10 }, (_, k) => k + 1).map((n) => (
+                  <Pressable
+                    key={n}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${n}`}
+                    onPress={() => {
+                      haptics.selection();
+                      setSelf((s0) => ({ ...s0, [key]: n }));
+                    }}
+                    style={[styles.dot, { backgroundColor: n <= v ? colors.pitch : colors.surfaceStrong }]}
+                  />
+                ))}
               </View>
-            ))
-          )}
-        </GlassCard>
-      ) : null}
+            </View>
+          );
+        }
+        return null;
+    }
+  })();
 
-      <View style={styles.footer}>
-        {step > 0 ? <GlassButton label="Atrás" icon="chevron.left" haptic="light" onPress={() => setStep((s) => s - 1)} /> : <View />}
-        {step < STEPS.length - 1 ? (
-          <GlassButton label="Siguiente" icon="chevron.right" variant="primary" disabled={!canContinue || ageBand === 'menor13'} onPress={() => setStep((s) => s + 1)} />
-        ) : (
-          <GlassButton label="Crear mi tarjeta" icon="checkmark" variant="primary" haptic="success" onPress={finish} />
-        )}
+  const cta = ((): { label: string; variant: 'go' | 'primary'; disabled: boolean; onPress: () => void } => {
+    if (step.id === 'bienvenida') return { label: 'Empezar', variant: 'go', disabled: false, onPress: () => go(1) };
+    if (step.id === 'tarjeta') return { label: 'Entrar a Fulbito', variant: 'go', disabled: false, onPress: () => { void finish(); } };
+    if (step.id === 'aviso') return { label: 'Entiendo', variant: 'go', disabled: false, onPress: () => go(1) };
+    return { label: step.id === 'molestias' && zones.length === 0 ? 'Nada, estoy bien' : 'Continuar', variant: 'go', disabled: !canContinue, onPress: () => go(1) };
+  })();
+
+  return (
+    <Screen tabBarSpace={false} scroll={false}>
+      <View style={styles.topBar}>
+        {idx > 0 && step.id !== 'tarjeta' ? (
+          <Pressable accessibilityRole="button" accessibilityLabel="Atrás" onPress={() => { haptics.light(); go(-1); }} hitSlop={10}>
+            <GlassSurface radius={radii.pill} flat interactive>
+              <View style={styles.back}><Icon name="chevron.left" size={16} color={colors.text} /></View>
+            </GlassSurface>
+          </Pressable>
+        ) : <View style={styles.back} />}
+        <View style={styles.progress}><ProgressBar fraction={idx / total} height={6} /></View>
       </View>
+      <ScrollView style={styles.flex} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+        <Animated.View key={step.id} entering={entering} style={styles.stepBox}>
+          <AppText variant="largeTitle">{title}</AppText>
+          {subtitle ? <AppText variant="body" tone="secondary">{subtitle}</AppText> : null}
+          {body}
+        </Animated.View>
+        {step.id === 'tarjeta' ? <Confetti trigger={1} /> : null}
+      </ScrollView>
+      {needsButton ? (
+        <View style={styles.bottom}>
+          <GlassButton label={cta.label} variant={cta.variant} haptic="medium" fullWidth disabled={cta.disabled} onPress={cta.onPress} />
+        </View>
+      ) : null}
     </Screen>
   );
 }
 
+const AGE_LABELS_FULL: Record<AgeBand, string> = AGE_LABELS;
+
+/** Número grande con botones grandes de vidrio; mantén pulsado un botón para cambiar más rápido (se repite cada toque). */
+function BigStepper({ value, min, max, step = 1, onChange, unit }: { value: number; min: number; max: number; step?: number; onChange: (v: number) => void; unit: string }): React.JSX.Element {
+  return (
+    <Animated.View entering={FadeInDown.springify()} style={styles.bigStepper}>
+      <GlassButton label="−" size="regular" haptic="selection" disabled={value <= min} onPress={() => onChange(Math.max(min, value - step))} accessibilityLabel="Menos" />
+      <View style={styles.bigValue}>
+        <AppText variant="digitsLarge">{value}</AppText>
+        {unit ? <AppText variant="headline" tone="secondary">{unit}</AppText> : null}
+      </View>
+      <GlassButton label="+" size="regular" haptic="selection" disabled={value >= max} onPress={() => onChange(Math.min(max, value + step))} accessibilityLabel="Más" />
+    </Animated.View>
+  );
+}
+
 const styles = StyleSheet.create({
-  header: { gap: spacing.sm },
-  paragraph: { marginVertical: spacing.sm },
-  wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  question: { gap: spacing.sm, marginTop: spacing.md },
-  label: { marginTop: spacing.lg, marginBottom: spacing.sm },
-  spacer: { height: spacing.md },
-  input: { fontSize: 17, paddingHorizontal: spacing.lg, paddingVertical: spacing.md },
-  footer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  flex: { flex: 1 },
+  topBar: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingTop: spacing.sm },
+  back: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+  progress: { flex: 1 },
+  content: { paddingTop: spacing.xl, paddingBottom: spacing.xxl, flexGrow: 1, width: '100%', maxWidth: 560, alignSelf: 'center' },
+  stepBox: { gap: spacing.lg },
+  list: { gap: spacing.md },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  compactCell: { minWidth: 100 },
+  option: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, minHeight: 60, borderRadius: radii.card, borderWidth: 2, borderColor: 'transparent' },
+  optionCompact: { minHeight: 52, paddingHorizontal: spacing.md },
+  optionTexts: { flex: 1, gap: 2 },
+  pressed: { opacity: 0.85 },
+  bottom: { paddingTop: spacing.md, paddingBottom: spacing.md },
+  hero: { alignItems: 'center', paddingVertical: spacing.xxl },
+  heroEmoji: { fontSize: 96, lineHeight: 110 },
+  bigInput: { fontSize: 28, fontWeight: '700', paddingHorizontal: spacing.lg, paddingVertical: spacing.lg },
+  bigStepper: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: spacing.xl },
+  bigValue: { alignItems: 'center' },
+  ratingBox: { alignItems: 'center', gap: spacing.md, paddingVertical: spacing.lg },
+  dots: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
+  dot: { width: 26, height: 26, borderRadius: 13 },
+  reveal: { alignItems: 'center', paddingVertical: spacing.md },
 });

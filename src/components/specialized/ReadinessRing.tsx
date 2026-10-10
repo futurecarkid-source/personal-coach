@@ -30,7 +30,7 @@ export function ReadinessRing({ readiness }: { readiness: Readiness }): React.JS
     progress.set(withSpring(readiness.score / 100, springs.smooth));
   }, [readiness.score, progress]);
   const props = useAnimatedProps(() => ({ strokeDashoffset: C * (1 - progress.get()) }));
-  const color = readiness.level === 'listo' ? colors.success : readiness.level === 'moderado' ? colors.warning : colors.danger;
+  const color = readiness.level === 'listo' ? colors.pitch : readiness.level === 'moderado' ? colors.warning : colors.danger;
   const m = readiness.metrics;
 
   return (
