@@ -9,6 +9,8 @@ export const DEFAULT_SETTINGS: Settings = {
   aiGatewayUrl: '',
   aiConsentAt: null,
   lastOnlineAt: null,
+  remindersEnabled: false,
+  reminderHour: 18,
   guardianConsent: false,
   coachPersona: 'motivador',
   readinessSensitivity: 'equilibrado',

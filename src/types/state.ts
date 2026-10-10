@@ -19,6 +19,9 @@ export const settingsSchema = z.object({
   aiConsentAt: z.string().nullable().default(null),
   /** Última vez que se confirmó conexión con el servicio (regla de 72 h). */
   lastOnlineAt: z.string().nullable().default(null),
+  /** Recordatorios locales de entrenamiento y racha. */
+  remindersEnabled: z.boolean().default(false),
+  reminderHour: z.number().int().min(0).max(23).default(18),
   /** Un adulto responsable autoriza la IA (obligatorio para menores). */
   guardianConsent: z.boolean().default(false),
   coachPersona: z.enum(['exigente', 'motivador', 'cientifico', 'calmado']).default('motivador'),

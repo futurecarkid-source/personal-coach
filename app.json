@@ -21,7 +21,8 @@
           "cameraPermission": "Fulbito usa la cámara para que puedas fotografiar una zona que te duele. La foto se queda en tu dispositivo.",
           "photosPermission": "Fulbito accede a tus fotos solo si eliges una para marcar una zona que te duele."
         }
-      ]
+      ],
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true

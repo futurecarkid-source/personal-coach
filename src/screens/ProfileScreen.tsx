@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Alert, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { CONSENT_TEXT, describeAiError, refineScouting } from '../ai';
 import { useAiAccess } from '../ai/useAi';
 import { AppText, Chip, Columns, Disclosure, GlassButton, GlassCard, GlassSurface, Screen, SectionHeader, Stepper } from '../components/common';
 import { NativeSegmented, NativeToggle } from '../components/native/NativeControls';
+import { ensureNotificationPermission, refreshReminders } from '../services/reminders';
+import { shareCard } from '../services/share';
 import { PlayerCard3D } from '../components/specialized/PlayerCard3D';
 import { ATTRIBUTE_LABELS, LEVEL_LABELS, POSITION_LABELS } from '../content/attributeLabels';
 import { useAppDispatch, useAppState } from '../context';
+import { toISODate } from '../core/dates';
 import { levelProgress } from '../core/gamification';
 import { computeOvr, headlineKeys } from '../core/ovr';
 import { rankFor } from '../core/progression';
@@ -27,6 +30,13 @@ export function ProfileScreen(): React.JSX.Element {
   const [code, setCode] = useState('');
   const [aiNote, setAiNote] = useState<string | null>(null);
   const [aiBusy, setAiBusy] = useState(false);
+  const cardRef = useRef<View>(null);
+  const plan = { enabled: settings.remindersEnabled, hour: settings.reminderHour, activeToday: state.gamification.lastActiveDate === toISODate(new Date()), streak: state.gamification.streak };
+  useEffect(() => {
+    void refreshReminders(plan);
+    // Se reprograma cuando cambia algo relevante.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [plan.enabled, plan.hour, plan.activeToday, plan.streak]);
   if (!player) return <Screen><AppText variant="body">Crea tu tarjeta para empezar.</AppText></Screen>;
 
   const ovr = computeOvr(player.position, player.attributes);
@@ -102,7 +112,16 @@ export function ProfileScreen(): React.JSX.Element {
 
   const left = (
     <>
-      <PlayerCard3D player={player} effect={settings.cardEffect} reduceMotion={settings.reduceMotion} />
+      <View ref={cardRef} collapsable={false}>
+        <PlayerCard3D player={player} effect={settings.cardEffect} reduceMotion={settings.reduceMotion} />
+      </View>
+      <GlassButton
+        label="Compartir tarjeta"
+        icon="square.and.arrow.up"
+        size="compact"
+        haptic="light"
+        onPress={() => { void shareCard(cardRef.current, `Soy ${rankFor(progress.level).name} (nivel ${progress.level}) en Fulbito, con ${state.gamification.streak} de racha. ¿Me alcanzas?`); }}
+      />
 
       <GlassCard>
         <SectionHeader title={`${POSITION_LABELS[player.position]} · ${ovr}`} subtitle={`${LEVEL_LABELS[player.level]} · pie ${player.foot} · #${player.number}`} />
@@ -139,6 +158,16 @@ export function ProfileScreen(): React.JSX.Element {
             />
           </View>
           <Stepper label="Horas de sueño que quieres dormir" value={settings.sleepGoalHours} min={5} max={12} step={0.5} unit="h" onChange={(v) => dispatch({ type: 'SET_SETTINGS', patch: { sleepGoalHours: v } })} />
+          <NativeToggle
+            label="Recordatorios"
+            description="Un aviso diario y otro si tu racha está en riesgo."
+            value={settings.remindersEnabled}
+            onChange={(v) => {
+              if (!v) return dispatch({ type: 'SET_SETTINGS', patch: { remindersEnabled: false } });
+              void ensureNotificationPermission().then((ok) => dispatch({ type: 'SET_SETTINGS', patch: { remindersEnabled: ok } }));
+            }}
+          />
+          {settings.remindersEnabled ? <Stepper label="Hora del recordatorio" value={settings.reminderHour} min={5} max={22} unit="h" onChange={(v) => dispatch({ type: 'SET_SETTINGS', patch: { reminderHour: v } })} /> : null}
           <NativeToggle
             label="Háptica"
             description={isHapticsSupported() ? 'Vibraciones finas en cada interacción.' : 'Este dispositivo (iPad) no tiene motor de vibración.'}

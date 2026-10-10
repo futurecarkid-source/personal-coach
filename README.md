@@ -43,4 +43,6 @@ El reporte de dolor tiene **mapa del cuerpo** (frente y espalda, lado izquierdo 
 
 **Juego:** rangos (Cantera a Leyenda), misiones diarias, cofre del día, reto semanal, 17 logros con celebración (confeti y vibración) y pantalla de Logros. La lógica está en `src/core/progression.ts`. Gestos: deslizar filas para borrar, deslizar el ejercicio para cambiarlo, hojas con tiradores y escala con muelle al tocar. En iPad, Inicio usa dos columnas.
 
+Siguientes pasos: ver `docs/HOJA_DE_RUTA.md`.
+
 Pendiente (ver inventario): análisis de la foto por IA (hoy nunca se envía), publicar el servicio de IA y suscripciones, video de partidos, simulador, nutrición, varios jugadores, y el resto de módulos. Los textos de lesiones y ejercicios deben revisarlos profesionales del deporte antes de publicar.
