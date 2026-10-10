@@ -2,7 +2,7 @@ import React, { createContext, useCallback, useContext, useMemo, useState } from
 import { ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
-import { spacing, useTheme } from '../../theme';
+import { spacing } from '../../theme';
 import { useInsets } from '../../theme/useInsets';
 import { AppText } from './AppText';
 import { GlassButton } from './GlassButton';
@@ -94,7 +94,7 @@ export function Screen({ children, scroll = true, tabBarSpace = true, nativeHead
             {body}
           </ScrollView>
         ) : (
-          <View style={styles.scrollContent}>{body}</View>
+          <View style={[styles.scrollContent, styles.fill]}>{body}</View>
         )}
         {plain ? null : <View pointerEvents="none" style={styles.behind}><Aurora /></View>}
         {Platform.OS === 'web' && insets.top > 0 && !(title && scrolled) ? (
@@ -126,6 +126,7 @@ const styles = StyleSheet.create({
   compactGlass: { paddingVertical: spacing.md },
   compactTitle: { textAlign: 'center' },
   webHeader: { gap: spacing.sm, alignItems: 'flex-start' },
+  fill: { flex: 1 },
   scrollContent: { flexGrow: 1, alignItems: 'center' },
   inner: { width: '100%', paddingHorizontal: spacing.lg, gap: spacing.lg },
 });

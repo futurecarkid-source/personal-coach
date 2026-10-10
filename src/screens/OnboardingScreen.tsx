@@ -4,10 +4,12 @@ import Animated, { FadeInDown, FadeInLeft, FadeInRight } from 'react-native-rean
 import type { IconName } from '../components/common/Icon';
 import { AppText, FieldSurface, GlassButton, GlassSurface, Icon, ProgressBar, Screen } from '../components/common';
 import { Confetti } from '../components/specialized/Confetti';
+import { PlanCreated } from '../components/specialized/PlanCreated';
 import { PlayerCard3D } from '../components/specialized/PlayerCard3D';
 import { ATTRIBUTE_LABELS, BODY_ZONE_LABELS, LEVEL_LABELS, POSITION_LABELS } from '../content/attributeLabels';
 import { useAppDispatch } from '../context';
-import { newId } from '../core/dates';
+import { newId, toISODate } from '../core/dates';
+import { planDays } from '../core/planner';
 import { estimateAttributes, headlineKeys, type SelfAssessment } from '../core/ovr';
 import { ensureNotificationPermission } from '../services/reminders';
 import { haptics, radii, spacing, useTheme } from '../theme';
@@ -154,6 +156,7 @@ export function OnboardingScreen(): React.JSX.Element {
   const [persona, setPersona] = useState<Persona>('motivador');
   const [wearable, setWearable] = useState<Wearable | null>(null);
   const [reminders, setReminders] = useState<boolean | null>(null);
+  const [planReady, setPlanReady] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => () => {
     if (timer.current) clearTimeout(timer.current);
@@ -188,6 +191,7 @@ export function OnboardingScreen(): React.JSX.Element {
       { id: 'coach', auto: true },
       { id: 'reloj', auto: true },
       { id: 'avisos', auto: true },
+      { id: 'plan' },
       { id: 'tarjeta' },
     ],
     [headline],
@@ -262,6 +266,7 @@ export function OnboardingScreen(): React.JSX.Element {
       case 'coach': return '¿Cómo prefieres a tu coach?';
       case 'reloj': return '¿Tienes reloj o banda de pulso?';
       case 'avisos': return '¿Te avisamos para cuidar tu racha?';
+      case 'plan': return '';
       case 'tarjeta': return `¡Lista, ${name}!`;
       default:
         if (step.id.startsWith('salud')) return 'Una pregunta de salud';
@@ -295,6 +300,19 @@ export function OnboardingScreen(): React.JSX.Element {
             <Icon name="soccerball" size={110} color={colors.text} />
             <AppText variant="caption" tone="secondary" style={styles.copyright}>© {new Date().getFullYear()} Fulbito. Todos los derechos reservados.</AppText>
           </Animated.View>
+        );
+      case 'plan':
+        return (
+          <PlanCreated
+            week={planDays({ startDate: toISODate(new Date()), days: 7, daysPerWeek: days, minutesPerSession: minutes, equipment: equipment.length > 0 ? equipment : ['ninguno'], discomfortZones: zones, matchDates: [] })}
+            tasks={[
+              `Ajustando a ${days} ${days === 1 ? 'día' : 'días'} por semana`,
+              `Sesiones de unos ${minutes} minutos`,
+              zones.length > 0 ? 'Evitando las zonas que te molestan' : 'Combinando fuerza, velocidad y técnica',
+              goals.includes('prevenir_lesiones') ? 'Sumando prevención de lesiones' : 'Eligiendo ejercicios con tu equipo',
+            ]}
+            onReady={() => setPlanReady(true)}
+          />
         );
       case 'edad':
         return (
@@ -468,13 +486,14 @@ export function OnboardingScreen(): React.JSX.Element {
 
   const cta = ((): { label: string; variant: 'go' | 'primary'; disabled: boolean; onPress: () => void } => {
     if (step.id === 'bienvenida') return { label: 'Empezar', variant: 'go', disabled: false, onPress: () => go(1) };
+    if (step.id === 'plan') return { label: 'Ver mi tarjeta', variant: 'go', disabled: !planReady, onPress: () => go(1) };
     if (step.id === 'tarjeta') return { label: 'Entrar a Fulbito', variant: 'go', disabled: false, onPress: () => { void finish(); } };
     if (step.id === 'aviso') return { label: 'Entiendo', variant: 'go', disabled: false, onPress: () => go(1) };
     return { label: step.id === 'molestias' && zones.length === 0 ? 'Nada, estoy bien' : 'Continuar', variant: 'go', disabled: !canContinue, onPress: () => go(1) };
   })();
 
   return (
-    <Screen tabBarSpace={false} scroll={false}>
+    <Screen tabBarSpace={false} scroll={false} contentStyle={styles.flex}>
       <View style={styles.topBar}>
         {idx > 0 && step.id !== 'tarjeta' ? (
           <Pressable accessibilityRole="button" accessibilityLabel="Atrás" onPress={() => { haptics.light(); go(-1); }} hitSlop={10}>
@@ -487,7 +506,7 @@ export function OnboardingScreen(): React.JSX.Element {
       </View>
       <ScrollView style={styles.flex} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         <Animated.View key={step.id} entering={entering} style={styles.stepBox}>
-          <AppText variant="largeTitle">{title}</AppText>
+          {title ? <AppText variant="largeTitle">{title}</AppText> : null}
           {subtitle ? <AppText variant="body" tone="secondary">{subtitle}</AppText> : null}
           {body}
         </Animated.View>

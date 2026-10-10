@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Modal, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { describeAiError, requestAiPlan } from '../ai';
 import { useAiAccess } from '../ai/useAi';
 import { AppText, Columns, GlassButton, GlassCard, Icon, Screen } from '../components/common';
+import { PlanCreated } from '../components/specialized/PlanCreated';
 import { HydrationCard } from '../components/specialized/HydrationCard';
 import { HeroCard } from '../components/specialized/HeroCard';
 import { PainFollowUpCard } from '../components/specialized/PainFollowUpCard';
@@ -39,6 +40,9 @@ export function HomeScreen(): React.JSX.Element {
   const readiness = useReadiness();
   const [aiBusy, setAiBusy] = useState(false);
   const [aiMessage, setAiMessage] = useState<string | null>(null);
+  const [planModal, setPlanModal] = useState<string | null>(null);
+  const [planModalReady, setPlanModalReady] = useState(false);
+  const theme = useTheme();
   const player = state.player;
   const weekly = player ? isMinor(player.ageBand) : false;
 
@@ -53,6 +57,8 @@ export function HomeScreen(): React.JSX.Element {
       const { plan } = await requestAiPlan(access.config, state, today, todaySession, new Date().toISOString());
       dispatch({ type: 'SET_AI_PLAN', plan });
       setAiMessage(plan.rationale || 'Plan con IA listo.');
+      setPlanModalReady(false);
+      setPlanModal(plan.rationale || '');
     } catch (e) {
       setAiMessage(describeAiError(e));
     } finally {
@@ -168,6 +174,21 @@ export function HomeScreen(): React.JSX.Element {
         <GlassButton label="Coach" icon="bubble.left.fill" size="compact" haptic="medium" onPress={() => router.push('/coach')} />
       </View>
       <Columns left={left} right={right} />
+      <Modal visible={planModal !== null} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setPlanModal(null)}>
+        <View style={[styles.sheet, { backgroundColor: theme.colors.background }]}>
+          <ScrollView contentContainerStyle={styles.sheetContent} showsVerticalScrollIndicator={false}>
+            <PlanCreated
+              week={week}
+              note={planModal || undefined}
+              tasks={['Leyendo tu historial y tus check-ins', 'Revisando tus molestias y dolores', 'Armando 7 días de entrenamiento', 'Validando que sea seguro para ti']}
+              onReady={() => setPlanModalReady(true)}
+            />
+          </ScrollView>
+          <View style={styles.sheetCta}>
+            <GlassButton label="Ver mi plan" variant="go" haptic="success" fullWidth disabled={!planModalReady} onPress={() => setPlanModal(null)} />
+          </View>
+        </View>
+      </Modal>
     </Screen>
   );
 }
@@ -185,6 +206,9 @@ function DayDot({ session, isToday, done }: { session: PlannedSession; isToday: 
 }
 
 const styles = StyleSheet.create({
+  sheet: { flex: 1 },
+  sheetContent: { padding: spacing.lg, paddingBottom: spacing.xl },
+  sheetCta: { padding: spacing.lg, paddingBottom: spacing.xl },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
   flex: { flex: 1 },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },

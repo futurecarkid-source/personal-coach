@@ -12,7 +12,7 @@ export const VIEW_W = 100;
 export const FLOOR = 90;
 export const ANCHOR_X = 50;
 export const FOOT_ANCHOR_X = 46;
-const STROKE_HALF = 1.5;
+const STROKE_HALF = 3;
 
 export const LEN = { torso: 26, headGap: 8, ua: 13, fa: 12, th: 21, sh: 21, ft: 8 } as const;
 export const HEAD_R = 5.5;
