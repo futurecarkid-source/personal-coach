@@ -10,12 +10,11 @@ import { withAlpha } from './GlassSurface';
  */
 export function Aurora(): React.JSX.Element {
   const { colors, isDark } = useTheme();
-  const a = isDark ? 0.34 : 0.26;
+  const a = isDark ? 0.16 : 0.12;
   return (
     <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: colors.background, overflow: 'hidden' }]}>
-      <View style={[styles.blob, { top: -140, left: -120, backgroundColor: withAlpha(isDark ? '#32D583' : '#12A868', a) }]} />
-      <View style={[styles.blob, { top: 260, right: -200, width: 440, height: 440, borderRadius: 220, backgroundColor: withAlpha(isDark ? '#0A84FF' : '#4AA3FF', a * 0.9) }]} />
-      <View style={[styles.blob, { bottom: -160, left: -100, width: 380, height: 380, borderRadius: 190, backgroundColor: withAlpha(isDark ? '#32D583' : '#12A868', a * 0.7) }]} />
+      <View style={[styles.blob, { top: -200, left: -80, backgroundColor: withAlpha(isDark ? '#32D583' : '#12A868', a) }]} />
+      <View style={[styles.blob, { bottom: -160, left: -100, width: 380, height: 380, borderRadius: 190, backgroundColor: withAlpha(isDark ? '#32D583' : '#12A868', a) }]} />
       <BlurView intensity={isDark ? 90 : 70} tint={isDark ? 'dark' : 'light'} style={StyleSheet.absoluteFill} />
     </View>
   );
