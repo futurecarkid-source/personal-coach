@@ -63,7 +63,6 @@ export function Screen({ children, scroll = true, tabBarSpace = true, nativeHead
   const insets = useInsets();
   const maxWidth = wide ? 1100 : 760;
   const [locked, setLocked] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const lock = useCallback(() => setLocked(true), []);
   const unlock = useCallback(() => setLocked(false), []);
   const scrollLock = useMemo<ScrollLock>(() => ({ lock, unlock }), [lock, unlock]);
@@ -82,8 +81,6 @@ export function Screen({ children, scroll = true, tabBarSpace = true, nativeHead
         {scroll ? (
           <ScrollView
             scrollEnabled={!locked}
-            onScroll={Platform.OS === 'web' && title ? (e) => setScrolled(e.nativeEvent.contentOffset.y > 56) : undefined}
-            scrollEventThrottle={32}
             contentInsetAdjustmentBehavior={nativeHeader ? 'automatic' : 'never'}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
@@ -97,21 +94,13 @@ export function Screen({ children, scroll = true, tabBarSpace = true, nativeHead
           <View style={[styles.scrollContent, styles.fill]}>{body}</View>
         )}
         {plain ? null : <View pointerEvents="none" style={styles.behind}><Aurora /></View>}
-        {Platform.OS === 'web' && insets.top > 0 && !(title && scrolled) ? (
+        {Platform.OS === 'web' && insets.top > 0 ? (
           <View pointerEvents="none" style={[styles.statusScrim, { height: insets.top }]}>
             <GlassSurface radius={0} variant="regular" flat style={StyleSheet.absoluteFill}>
               <View style={StyleSheet.absoluteFill} />
             </GlassSurface>
           </View>
         ) : null}
-        {Platform.OS === 'web' && title && scrolled ? (
-          <View pointerEvents="none" style={[styles.compact, { paddingTop: insets.top }]}>
-            <GlassSurface radius={0} variant="regular" flat style={styles.compactGlass}>
-              <AppText variant="headline" style={styles.compactTitle}>{title}</AppText>
-            </GlassSurface>
-          </View>
-        ) : null}
-
       </View>
     </ScrollLockContext.Provider>
   );
@@ -122,9 +111,6 @@ const styles = StyleSheet.create({
   behind: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: -1 },
   stripe: { position: 'absolute', borderRadius: 28, transform: [{ rotate: '-24deg' }] },
   statusScrim: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 4 },
-  compact: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 5 },
-  compactGlass: { paddingVertical: spacing.md },
-  compactTitle: { textAlign: 'center' },
   webHeader: { gap: spacing.sm, alignItems: 'flex-start' },
   fill: { flex: 1 },
   scrollContent: { flexGrow: 1, alignItems: 'center' },

@@ -48,8 +48,8 @@ const SHAPES: Record<string, readonly Part[]> = {
   'dumbbell.fill': [f('M2.5 9.5h2v5h-2zM5 7h2.5v10H5zM16.5 7H19v10h-2.5zM19.5 9.5h2v5h-2zM7.5 11h9v2h-9z')],
   'eraser': [s('M4 15l8-9 7 6-6 7H8zM9 20h11')],
   'exclamationmark.triangle.fill': [f('M12 3.5l10 17.5H2zM11 10h2v5h-2zM11 16.5h2v2h-2z')],
-  'figure.run': [c(15, 4.5, 2.2), s('M8 21l3-6 3 2 1.5 4M11 15l-1-5 4-2 3 3 3 1M10 10L6.5 11.5')],
-  'figure.core.training': [c(15, 4.5, 2.2), s('M8 21l3-6 3 2 1.5 4M11 15l-1-5 4-2 3 3 3 1M10 10L6.5 11.5')],
+  'figure.run': [c(15.2, 4.6, 2.3), s('M13.2 8.6l-3 5.6M13.4 9.2l3.600 2.600 2.600-.9M12.600 9.400L8.800 9.800 7 12.400M10.200 14.200l3.800 2.200-.8 4.600M10.200 14.200l-3.600 3.400-2.400-.6')],
+  'figure.core.training': [c(15.2, 4.6, 2.3), s('M13.2 8.6l-3 5.6M13.4 9.2l3.600 2.600 2.600-.9M12.600 9.400L8.800 9.800 7 12.400M10.200 14.200l3.800 2.200-.8 4.600M10.200 14.200l-3.600 3.400-2.400-.6')],
   'flag.fill': [f('M5 3h1.8v18H5zM8 4h11l-3 4.5 3 4.5H8z')],
   'flame.fill': [f('M12 2.5c.6 3.2 5.8 5.8 5.8 11A5.8 5.8 0 0 1 12 19.3 5.8 5.8 0 0 1 6.2 13.5c0-2 .9-3.4 1.9-4.4.2 1.6.9 2.4 1.7 2.8C9.4 8.6 10 5 12 2.5z')],
   'forward.fill': [f('M3 6l9 6-9 6zM12 6l9 6-9 6z')],
@@ -107,7 +107,7 @@ export function Icon({ name, size = 22, color }: IconProps): React.JSX.Element {
   const scheme = useColorScheme();
   const ink = (color ?? (scheme === 'dark' ? '#FFFFFF' : '#1C1C1E')) as string;
   const parts = SHAPES[name] ?? [c(12, 12, 6)];
-  const stroke = name === 'checkmark' || name.startsWith('chevron') || name === 'plus' || name === 'xmark' ? 2.6 : 1.9;
+  const stroke = name.startsWith('figure.') ? 2.5 : name === 'checkmark' || name.startsWith('chevron') || name === 'plus' || name === 'xmark' ? 2.6 : 1.9;
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" accessibilityElementsHidden>
       {parts.map((p, i) => {
