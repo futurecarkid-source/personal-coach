@@ -10,3 +10,4 @@ export * from './PainScreen';
 export * from './MindScreen';
 export * from './InjuriesScreen';
 export * from './AchievementsScreen';
+export * from './AiSetupScreen';

@@ -49,7 +49,7 @@ export function HomeScreen(): React.JSX.Element {
   const generateAiPlan = async (): Promise<void> => {
     setAiMessage(null);
     if (!access.config) {
-      setAiMessage(access.gate.allowed ? 'La IA no está disponible.' : access.gate.message);
+      router.push('/ia');
       return;
     }
     setAiBusy(true);
@@ -108,7 +108,7 @@ export function HomeScreen(): React.JSX.Element {
           </View>
         ) : null}
         <View style={styles.block}>
-          <GlassButton label={aiBusy ? 'Creando tu plan…' : usingAi ? 'Plan con IA activo' : 'Plan con IA'} icon="sparkles" variant="ghost" size="compact" haptic="medium" disabled={aiBusy} onPress={() => { void generateAiPlan(); }} />
+          <GlassButton label={aiBusy ? 'Creando tu plan…' : usingAi ? 'Plan con IA activo' : access.config ? 'Plan con IA' : 'Activar la IA'} icon="sparkles" variant="ghost" size="compact" haptic="medium" disabled={aiBusy} onPress={() => { void generateAiPlan(); }} />
           {aiMessage ? <AppText variant="caption" tone="secondary">{aiMessage}</AppText> : null}
         </View>
       </GlassCard>

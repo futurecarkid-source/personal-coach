@@ -73,6 +73,11 @@ function violatesMinorRule(input: unknown, guardianConsent: boolean | undefined)
  */
 export async function handleRequest(req: HttpRequestLike, env: Env, deps: HandlerDeps): Promise<HttpResponseLike> {
   if (req.path === '/health') return { status: 200, body: { ok: true } };
+  if (req.path === '/v1/ping') {
+    // Comprobación de la conexión desde la app: valida el código sin llamar al modelo ni gastar saldo.
+    const who = authenticate(req.authorization, env);
+    return who ? { status: 200, body: { ok: true, plan: who.plan } } : fail('unauthorized', 'El código de acceso no es válido.');
+  }
   if (req.path !== '/v1/run') return { status: 404, body: { ok: false, error: { code: 'bad_request', message: 'Ruta desconocida.' } } };
   if (req.method !== 'POST') return { status: 405, body: { ok: false, error: { code: 'bad_request', message: 'Método no permitido.' } } };
   if (req.bodyText.length > INPUT_LIMITS.maxBodyBytes) return fail('bad_request', 'La consulta es demasiado grande.');

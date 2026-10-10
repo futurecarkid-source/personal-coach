@@ -37,6 +37,12 @@ describe('gateway handler', () => {
     expect((await handleRequest(request({ method: 'GET' }), env(), deps())).status).toBe(405);
   });
 
+  it('ping checks the access code without calling the model', async () => {
+    const ok = await handleRequest(request({ path: '/v1/ping', method: 'GET', authorization: 'Bearer ' + env().OWNER_ACCESS_CODE }), env(), deps());
+    expect(ok.status).toBe(200);
+    expect((await handleRequest(request({ path: '/v1/ping', method: 'GET', authorization: 'Bearer mal' }), env(), deps())).status).toBe(401);
+  });
+
   it('requires a valid access code', async () => {
     for (const authorization of [null, 'Bearer mal', 'Basic abc']) {
       const res = await handleRequest(request({ authorization }), env(), deps());

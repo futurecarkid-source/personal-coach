@@ -32,6 +32,7 @@ function RootNavigator(): React.JSX.Element {
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="workout" options={{ presentation: 'modal', gestureEnabled: true }} />
           <Stack.Screen name="mind" options={{ headerShown: Platform.OS !== 'web', title: 'Mente', headerLargeTitle: true, headerTransparent: true, headerBlurEffect: 'systemMaterial' }} />
+          <Stack.Screen name="ia" options={{ headerShown: Platform.OS !== 'web', title: 'Conectar la IA', headerLargeTitle: true, headerTransparent: true, headerBlurEffect: 'systemMaterial' }} />
           <Stack.Screen name="logros" options={{ headerShown: Platform.OS !== 'web', title: 'Logros', headerLargeTitle: true, headerTransparent: true, headerBlurEffect: 'systemMaterial' }} />
           <Stack.Screen name="injuries" options={{ headerShown: Platform.OS !== 'web', title: 'Lesiones', headerLargeTitle: true, headerTransparent: true, headerBlurEffect: 'systemMaterial' }} />
           <Stack.Screen

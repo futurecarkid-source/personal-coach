@@ -22,7 +22,10 @@ Conviene medir calidad y costo antes de bajar de modelo. Se envía `fallbacks: "
 3. En GitHub > Settings > Secrets > Actions: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `ANTHROPIC_API_KEY` y `OWNER_ACCESS_CODE` (inventa un código largo).
 4. (Opcional, recomendado) crear un KV llamado `USAGE` y pegar su id en `wrangler.toml` para que los límites persistan.
 5. Actions > "Publicar servicio de IA" > Run workflow.
-6. En la app: Perfil > IA y Coach > pega la dirección del Worker y el código de acceso.
+6. Arma tu **enlace de conexión**: la dirección del Worker + `#` + tu código, por ejemplo `https://dorsal.tu-usuario.workers.dev/#mi-codigo-largo`.
+7. En la app: Perfil > IA y Coach > Conectar la IA > pega el enlace y toca "Conectar y probar". La app comprueba la conexión de verdad (ruta `/v1/ping`, sin gastar saldo de IA).
+
+El servicio ya responde los permisos CORS que necesita la versión web (PWA).
 
 ## Pendiente (etapa de suscripciones)
 Verificación de suscriptores Pro (RevenueCat) en `src/auth.ts`, y video (solo Gemini; Claude no acepta video).

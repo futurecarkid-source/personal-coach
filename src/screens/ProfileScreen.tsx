@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, StyleSheet, TextInput, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { CONSENT_TEXT, describeAiError, refineScouting } from '../ai';
+import { describeAiError, refineScouting } from '../ai';
 import { useAiAccess } from '../ai/useAi';
-import { AppText, Chip, Columns, Disclosure, GlassButton, GlassCard, Screen, SectionHeader, Stepper, FieldSurface } from '../components/common';
+import { AppText, Chip, Columns, Disclosure, GlassButton, GlassCard, Screen, SectionHeader, Stepper } from '../components/common';
 import { NativeSegmented, NativeToggle } from '../components/native/NativeControls';
 import { ensureNotificationPermission, refreshReminders } from '../services/reminders';
 import { shareCard } from '../services/share';
@@ -14,8 +14,8 @@ import { toISODate } from '../core/dates';
 import { levelProgress } from '../core/gamification';
 import { computeOvr, headlineKeys } from '../core/ovr';
 import { rankFor } from '../core/progression';
-import { isHapticsSupported, spacing, useTheme } from '../theme';
-import { isMinor, type AttributeKey } from '../types';
+import { isHapticsSupported, spacing } from '../theme';
+import type { AttributeKey } from '../types';
 
 const SOURCE_LABEL = { estimado: 'Estimado', medido: 'Medido', ajustado: 'Ajustado' } as const;
 
@@ -23,11 +23,9 @@ export function ProfileScreen(): React.JSX.Element {
   const { state } = useAppState();
   const dispatch = useAppDispatch();
   const { player, settings } = state;
-  const { colors } = useTheme();
   const router = useRouter();
   const progress = levelProgress(state.gamification.xp);
   const access = useAiAccess();
-  const [code, setCode] = useState('');
   const [aiNote, setAiNote] = useState<string | null>(null);
   const [aiBusy, setAiBusy] = useState(false);
   const cardRef = useRef<View>(null);
@@ -42,19 +40,6 @@ export function ProfileScreen(): React.JSX.Element {
   const ovr = computeOvr(player.position, player.attributes);
   const main = headlineKeys(player.position);
   const others = (Object.keys(player.attributes) as AttributeKey[]).filter((k) => !main.includes(k));
-
-  const consent = (): void => {
-    Alert.alert('Antes de usar la IA', CONSENT_TEXT, [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Acepto', onPress: () => access.acceptConsent() },
-    ]);
-  };
-
-  const saveCode = async (): Promise<void> => {
-    const ok = await access.saveAccessCode(code);
-    setAiNote(ok ? (code.trim() ? 'Código guardado en el llavero de tu dispositivo.' : 'Código borrado.') : 'No se pudo guardar el código.');
-    if (ok) setCode('');
-  };
 
   const refine = async (): Promise<void> => {
     setAiNote(null);
@@ -199,51 +184,7 @@ export function ProfileScreen(): React.JSX.Element {
       <Disclosure title="IA y Coach" summary={access.config ? 'Conectada' : 'Sin conectar'}>
         <View style={styles.list}>
           <AppText variant="callout" tone="secondary">Sin IA, el coach local sigue funcionando.</AppText>
-          <AppText variant="caption" tone="secondary">Dirección del servicio de IA</AppText>
-          <FieldSurface>
-            <TextInput
-              value={settings.aiGatewayUrl}
-              onChangeText={(v) => dispatch({ type: 'SET_SETTINGS', patch: { aiGatewayUrl: v } })}
-              placeholder="https://…"
-              placeholderTextColor={colors.textSecondary}
-              autoCapitalize="none"
-              autoCorrect={false}
-              keyboardType="url"
-              style={[styles.input, { color: colors.text }]}
-              accessibilityLabel="Dirección del servicio de IA"
-            />
-          </FieldSurface>
-          <AppText variant="caption" tone="secondary">Código de acceso {access.hasAccessCode ? '(guardado)' : '(no guardado)'}</AppText>
-          <FieldSurface>
-            <TextInput
-              value={code}
-              onChangeText={setCode}
-              placeholder="Pega tu código"
-              placeholderTextColor={colors.textSecondary}
-              secureTextEntry
-              autoCapitalize="none"
-              autoCorrect={false}
-              style={[styles.input, { color: colors.text }]}
-              accessibilityLabel="Código de acceso a la IA"
-            />
-          </FieldSurface>
-          <View style={styles.wrapRow}>
-            <GlassButton label={code.trim() ? 'Guardar código' : 'Borrar código'} size="compact" haptic="medium" disabled={!code.trim() && !access.hasAccessCode} onPress={() => { void saveCode(); }} />
-            {settings.aiConsentAt ? (
-              <GlassButton label="Retirar permiso" size="compact" haptic="warning" onPress={() => access.withdrawConsent()} />
-            ) : (
-              <GlassButton label="Revisar y aceptar qué se envía" size="compact" variant="primary" haptic="medium" onPress={consent} />
-            )}
-          </View>
-          {isMinor(player.ageBand) ? (
-            <View style={styles.settingRow}>
-              <View style={styles.flex}>
-                <AppText variant="headline">Permiso de un adulto</AppText>
-                <AppText variant="caption" tone="secondary">Por tu edad, la IA solo se usa con el permiso de un padre, madre o tutor. Nunca se envían fotos ni video.</AppText>
-              </View>
-              <Chip label={settings.guardianConsent ? 'Sí' : 'No'} selected={settings.guardianConsent} onPress={() => dispatch({ type: 'SET_SETTINGS', patch: { guardianConsent: !settings.guardianConsent } })} />
-            </View>
-          ) : null}
+          <GlassButton label={access.config ? 'Ver la conexión de la IA' : 'Conectar la IA'} icon="sparkles" variant={access.config ? 'secondary' : 'go'} haptic="medium" onPress={() => router.push('/ia')} />
           <AppText variant="caption" tone="secondary">Tono del coach</AppText>
           <View style={styles.wrapRow}>
             {(['exigente', 'motivador', 'cientifico', 'calmado'] as const).map((p) => (

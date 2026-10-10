@@ -5,6 +5,9 @@ import { handleRequest } from './handler';
 /** Punto de entrada del Worker de Cloudflare. */
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
+    // La app web (PWA) vive en otro dominio, así que el navegador exige estos permisos (CORS). La seguridad la da el código de acceso.
+    const cors = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'authorization, content-type', 'access-control-allow-methods': 'GET, POST, OPTIONS', 'access-control-max-age': '86400' };
+    if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
     const url = new URL(request.url);
     const bodyText = request.method === 'POST' ? await request.text() : '';
     const result = await handleRequest(
@@ -14,7 +17,7 @@ export default {
     );
     return new Response(JSON.stringify(result.body), {
       status: result.status,
-      headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+      headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', ...cors },
     });
   },
 };

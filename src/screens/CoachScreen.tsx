@@ -142,7 +142,7 @@ export function CoachScreen(): React.JSX.Element {
         {busy ? <AppText variant="callout" tone="secondary">El coach está pensando…</AppText> : null}
         {error ? <AppText variant="callout" tone="danger">{error}</AppText> : null}
         {!access.gate.allowed && access.loaded ? (
-          <GlassButton label="Configurar la IA en Perfil" icon="sparkles" size="compact" haptic="light" onPress={() => router.dismissTo('/perfil')} />
+          <GlassButton label="Conectar la IA" icon="sparkles" size="compact" variant="go" haptic="light" onPress={() => router.push('/ia')} />
         ) : null}
       </ScrollView>
 
