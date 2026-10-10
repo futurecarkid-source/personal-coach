@@ -7,6 +7,12 @@ import type { Exercise } from '../../types';
 import { AppText } from '../common/AppText';
 import { ExerciseFigure } from './ExerciseFigure';
 
+/**
+ * Las fotos de Free Exercise DB son de distintas personas y gimnasios, lo que se ve poco uniforme.
+ * Se dejan apagadas hasta tener clips propios con la misma persona y fondo; para encenderlas, poner true.
+ */
+const USE_STOCK_PHOTOS = false;
+
 export interface ExerciseMediaProps {
   exercise: Pick<Exercise, 'id' | 'pattern' | 'name'>;
   maxWidth?: number;
@@ -19,7 +25,7 @@ export interface ExerciseMediaProps {
 export function ExerciseMedia({ exercise, maxWidth = 320 }: ExerciseMediaProps): React.JSX.Element {
   const { colors } = useTheme();
   const reduce = useReducedMotion();
-  const photos = EXERCISE_PHOTOS[exercise.id];
+  const photos = USE_STOCK_PHOTOS ? EXERCISE_PHOTOS[exercise.id] : undefined;
   const k = useSharedValue(0);
 
   useEffect(() => {
