@@ -51,7 +51,7 @@ export function InjuriesScreen(): React.JSX.Element {
   const list = INJURIES.filter((i) => (onlyGrowth ? i.growing === true : true));
 
   return (
-    <Screen tabBarSpace={false} nativeHeader>
+    <Screen tabBarSpace={false} nativeHeader title="Lesiones" back>
       <AppText variant="caption" tone="secondary">{INJURIES_DISCLAIMER}</AppText>
       {minor ? (
         <Chip label="Zonas de crecimiento" selected={onlyGrowth} onPress={() => setOnlyGrowth((v) => !v)} />

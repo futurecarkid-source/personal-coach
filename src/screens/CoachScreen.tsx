@@ -144,7 +144,7 @@ export function CoachScreen(): React.JSX.Element {
       </ScrollView>
 
       <View style={styles.inputRow}>
-        <FieldSurface>
+        <FieldSurface style={styles.field}>
           <TextInput
             value={text}
             onChangeText={setText}
@@ -154,7 +154,17 @@ export function CoachScreen(): React.JSX.Element {
             maxLength={1500}
             multiline
             accessibilityLabel="Mensaje para el coach"
+            returnKeyType="send"
+            blurOnSubmit={false}
             onSubmitEditing={() => { void send(); }}
+            onKeyPress={(e) => {
+              // En el navegador, Enter envía (Mayús + Enter hace salto de línea).
+              const ev = e.nativeEvent as unknown as { key: string; shiftKey?: boolean };
+              if (Platform.OS === 'web' && ev.key === 'Enter' && !ev.shiftKey) {
+                (e as unknown as { preventDefault?: () => void }).preventDefault?.();
+                void send();
+              }
+            }}
           />
         </FieldSurface>
         <HapticTouch haptic="medium" onPress={() => { void send(); }} disabled={busy || text.trim().length === 0} accessibilityLabel="Enviar">
@@ -192,6 +202,7 @@ function Bubble({ message, showActions, onAction }: { message: CoachMessage; sho
 }
 
 const styles = StyleSheet.create({
+  field: { flex: 1 },
   root: { flex: 1, paddingTop: spacing.lg },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingBottom: spacing.md },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },

@@ -154,7 +154,7 @@ export function HomeScreen(): React.JSX.Element {
   );
 
   return (
-    <Screen nativeHeader wide>
+    <Screen nativeHeader wide title="Hoy">
       <View style={styles.rowBetween}>
         <View style={styles.flex}>
           <AppText variant="caption" tone="secondary">
@@ -174,7 +174,7 @@ function DayDot({ session, isToday, done }: { session: PlannedSession; isToday: 
   return (
     <View style={styles.day}>
       <AppText variant="caption" tone="secondary">{DAY_LETTERS[weekdayMonday0(session.date)]}</AppText>
-      <View style={[styles.dot, { backgroundColor: done ? colors.success : isToday ? colors.accent : colors.surfaceStrong }]}>
+      <View style={[styles.dot, { backgroundColor: done ? colors.success : isToday ? colors.volt : colors.surfaceStrong }]}>
         <Icon name={done ? 'checkmark' : KIND_ICON[session.kind]} size={16} color={done || isToday ? colors.textOnAccent : colors.textSecondary} />
       </View>
     </View>

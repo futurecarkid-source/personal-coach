@@ -1,4 +1,5 @@
 import React from 'react';
+import { Platform } from 'react-native';
 import { Stack } from 'expo-router';
 import { useTheme } from '../theme';
 
@@ -11,6 +12,7 @@ export function TabStack({ title, screen = 'index' }: { title: string; screen?: 
   return (
     <Stack
       screenOptions={{
+        headerShown: Platform.OS !== 'web',
         headerTransparent: true,
         headerLargeTitle: true,
         headerLargeTitleShadowVisible: false,

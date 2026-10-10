@@ -31,13 +31,13 @@ export function QuestsCard({ state, date, onClaim }: QuestsCardProps): React.JSX
           <AppText variant="label" tone="secondary">Misiones de hoy</AppText>
           <AppText variant="title">{doneCount} de {daily.quests.length}</AppText>
         </View>
-        <Icon name="target" size={26} color={colors.accent} />
+        <Icon name="target" size={26} color={colors.volt} />
       </View>
 
       <View style={styles.list}>
         {daily.quests.map((q) => (
           <View key={q.key} style={styles.quest}>
-            <View style={[styles.icon, { backgroundColor: q.claimed ? colors.success : q.done ? colors.accent : colors.surfaceStrong }]}>
+            <View style={[styles.icon, { backgroundColor: q.claimed ? colors.success : q.done ? colors.volt : colors.surfaceStrong }]}>
               <Icon name={q.claimed ? 'checkmark' : q.icon} size={18} color={q.claimed || q.done ? '#FFFFFF' : colors.textSecondary} />
             </View>
             <View style={styles.flex}>
@@ -53,7 +53,7 @@ export function QuestsCard({ state, date, onClaim }: QuestsCardProps): React.JSX
       </View>
 
       <View style={[styles.chest, { borderColor: colors.separator }]}>
-        <Icon name="shippingbox.fill" size={22} color={daily.bonusReady && !daily.bonusClaimed ? colors.accent : colors.textSecondary} />
+        <Icon name="shippingbox.fill" size={22} color={daily.bonusReady && !daily.bonusClaimed ? colors.volt : colors.textSecondary} />
         <View style={styles.flex}>
           <AppText variant="headline">Cofre del día</AppText>
           <AppText variant="caption" tone="secondary">{daily.bonusClaimed ? 'Abierto' : '3 misiones'}</AppText>
@@ -77,7 +77,7 @@ export function QuestsCard({ state, date, onClaim }: QuestsCardProps): React.JSX
           <AppText variant="label" tone="secondary">Reto de la semana</AppText>
           <AppText variant="caption" tone="secondary">{weekly.done} de {weekly.goal} sesiones</AppText>
         </View>
-        <ProgressBar fraction={weekly.done / weekly.goal} height={10} color={weekly.complete ? colors.success : colors.accent} />
+        <ProgressBar fraction={weekly.done / weekly.goal} height={10} color={weekly.complete ? colors.success : colors.volt} />
         {weekly.complete && !weekly.claimed ? (
           <GlassButton
             label={`Cobrar reto +${weekly.xp} XP`}

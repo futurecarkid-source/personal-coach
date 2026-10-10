@@ -34,7 +34,7 @@ export function GlassButton({
   const iconColor = variant === 'primary' ? colors.accent : variant === 'danger' ? colors.danger : variant === 'ghost' ? colors.accent : colors.text;
 
   const inner = (
-    <View style={[styles.row, { paddingVertical: compact ? spacing.sm : spacing.md, paddingHorizontal: compact ? spacing.md : spacing.lg }]}>
+    <View style={[styles.row, { minHeight: 44, paddingVertical: compact ? spacing.sm : spacing.md, paddingHorizontal: compact ? spacing.md : spacing.lg }]}>
       {icon ? <Icon name={icon} size={compact ? 16 : 18} color={iconColor} /> : null}
       <AppText variant={compact ? 'callout' : 'headline'} tone={textTone} numberOfLines={1} style={styles.label}>
         {label}

@@ -97,7 +97,7 @@ function CelebrationCard({ item, burst, onClose }: { item: Celebration | null; b
             <Confetti trigger={burst} />
             <GlassSurface radius={radii.sheet} variant="regular" style={styles.card}>
               <View style={styles.inner}>
-                <View style={[styles.badge, { backgroundColor: colors.accent }]}>
+                <View style={[styles.badge, { backgroundColor: colors.volt }]}>
                   <Icon name={item.icon} size={38} color="#FFFFFF" />
                 </View>
                 <AppText variant="label" tone="accent">{item.kind === 'logro' ? 'Logro desbloqueado' : item.kind === 'nivel' ? 'Subiste de nivel' : 'Misión cumplida'}</AppText>

@@ -11,14 +11,21 @@ export interface DisclosureProps {
   /** Texto corto a la derecha del título cuando está cerrado (por ejemplo, un estado). */
   summary?: string;
   defaultOpen?: boolean;
+  /** Sin tarjeta propia: para usar dentro de otra tarjeta. */
+  nested?: boolean;
   children: React.ReactNode;
 }
 
 /** Bloque plegable: deja a la vista solo el título y abre el detalle cuando hace falta (menos ruido en pantalla). */
-export function Disclosure({ title, summary, defaultOpen = false, children }: DisclosureProps): React.JSX.Element {
+function NestedWrap({ children }: { children: React.ReactNode }): React.JSX.Element {
+  return <View>{children}</View>;
+}
+
+export function Disclosure({ title, summary, defaultOpen = false, nested = false, children }: DisclosureProps): React.JSX.Element {
   const [open, setOpen] = useState(defaultOpen);
+  const Wrap = nested ? NestedWrap : GlassCard;
   return (
-    <GlassCard>
+    <Wrap>
       <HapticTouch haptic="selection" onPress={() => setOpen((v) => !v)} accessibilityLabel={title} accessibilityState={{ expanded: open }} pressedScale={0.99}>
         <View style={styles.head}>
           <AppText variant="headline" style={styles.flex}>{title}</AppText>
@@ -27,7 +34,7 @@ export function Disclosure({ title, summary, defaultOpen = false, children }: Di
         </View>
       </HapticTouch>
       {open ? <View style={styles.body}>{children}</View> : null}
-    </GlassCard>
+    </Wrap>
   );
 }
 

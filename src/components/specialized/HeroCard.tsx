@@ -38,7 +38,7 @@ export function HeroCard({ gamification, weekly, achievementCount, onPress }: { 
             <AppText variant="largeTitle" style={styles.white}>{rank.name}</AppText>
             <AppText variant="callout" style={styles.dim}>Nivel {progress.level}</AppText>
           </View>
-          <View style={[styles.streak, { backgroundColor: colors.accent }]}>
+          <View style={[styles.streak, { backgroundColor: colors.volt }]}>
             <Icon name="flame.fill" size={22} color="#FFFFFF" />
             <AppText variant="digits" style={styles.white}>{gamification.streak}</AppText>
             <AppText variant="label" style={styles.white}>{unit}</AppText>

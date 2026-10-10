@@ -29,7 +29,7 @@ export function TrainScreen(): React.JSX.Element {
   };
 
   return (
-    <Screen nativeHeader wide>
+    <Screen nativeHeader wide title="Entrenar">
       <View style={styles.shortcuts}>
         <GlassButton label="Mente" icon="brain.head.profile" size="compact" haptic="light" onPress={() => router.push('/mind')} />
         <GlassButton label="Lesiones" icon="cross.case.fill" size="compact" haptic="light" onPress={() => router.push('/injuries')} />

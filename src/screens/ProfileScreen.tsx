@@ -262,7 +262,7 @@ export function ProfileScreen(): React.JSX.Element {
   );
 
   return (
-    <Screen nativeHeader wide>
+    <Screen nativeHeader wide title="Perfil">
       <Columns left={left} right={right} />
     </Screen>
   );

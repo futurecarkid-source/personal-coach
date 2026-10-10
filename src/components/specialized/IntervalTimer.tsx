@@ -149,7 +149,7 @@ function IntervalsPanel({ savedPresets, onSavePreset, onDeletePreset }: Required
     setPlan((p) => ({ ...p, ...patch }));
   };
 
-  const phaseColor = state.phase === 'work' ? colors.accent : state.phase === 'rest' ? colors.deepBlue : colors.textSecondary;
+  const phaseColor = state.phase === 'work' ? colors.volt : state.phase === 'rest' ? colors.deepBlue : colors.textSecondary;
   const fraction = state.phase === 'done' ? 1 : state.phaseDurationMs > 0 ? state.phaseElapsedMs / state.phaseDurationMs : 0;
   const display = started ? formatClock(Math.ceil(state.phaseRemainingMs / 1000) * 1000) : formatClock(plan.workSeconds * 1000);
 
@@ -241,7 +241,7 @@ function CountdownPanel(): React.JSX.Element {
   return (
     <GlassCard contentStyle={styles.center}>
       <View style={styles.ringBox}>
-        <Ring fraction={fraction} color={colors.accent} />
+        <Ring fraction={fraction} color={colors.volt} />
         <View style={styles.ringCenter} pointerEvents="none">
           <AppText variant="digitsLarge">{formatClock(Math.ceil(remaining / 1000) * 1000)}</AppText>
         </View>

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
-import { AppText, Chip, GlassButton, GlassCard, ProgressBar, Screen, Stepper, FieldSurface } from '../components/common';
+import { AppText, Chip, Disclosure, GlassButton, GlassCard, ProgressBar, Screen, Stepper, FieldSurface } from '../components/common';
 import { ATTRIBUTE_LABELS, BODY_ZONE_LABELS, LEVEL_LABELS, POSITION_LABELS } from '../content/attributeLabels';
 import { useAppDispatch } from '../context';
 import { newId } from '../core/dates';
@@ -161,7 +161,7 @@ export function OnboardingScreen(): React.JSX.Element {
       {step === 1 ? (
         <GlassCard>
           <AppText variant="callout" style={styles.paragraph}>
-            Fulbito es una herramienta de entrenamiento y bienestar. No es un dispositivo médico, no diagnostica ni trata lesiones o enfermedades y no reemplaza a un médico, fisioterapeuta o nutricionista. Consulta a un profesional antes de empezar o cambiar tu entrenamiento, sobre todo si tienes una lesión, una condición médica o eres menor de edad.
+            Fulbito es una herramienta de entrenamiento, no un dispositivo médico: no diagnostica ni trata lesiones y no reemplaza a un médico o fisioterapeuta.
           </AppText>
           {APTITUDE_QUESTIONS.map((question, i) => (
             <View key={question} style={styles.question}>
@@ -240,6 +240,8 @@ export function OnboardingScreen(): React.JSX.Element {
           <Stepper label="Días de entrenamiento por semana" value={days} min={1} max={7} onChange={setDays} />
           <View style={styles.spacer} />
           <Stepper label="Tiempo por sesión" value={minutes} min={15} max={90} step={5} unit="min" onChange={setMinutes} />
+          <View style={styles.spacer} />
+          <Disclosure title="Equipo y molestias" summary="Opcional" nested>
           <AppText variant="caption" tone="secondary" style={styles.label}>Equipamiento disponible</AppText>
           <View style={styles.wrap}>
             {EQUIPMENT.map((e) => (
@@ -252,13 +254,14 @@ export function OnboardingScreen(): React.JSX.Element {
               <Chip key={z} label={BODY_ZONE_LABELS[z]} selected={zones.includes(z)} onPress={() => setZones((list) => toggle(list, z))} />
             ))}
           </View>
+          </Disclosure>
         </GlassCard>
       ) : null}
 
       {step === 4 ? (
         <GlassCard>
           <AppText variant="callout" tone="secondary" style={styles.paragraph}>
-            Puntúate de 1 a 10 (5 es normal para tu nivel). Con esto calculamos tu tarjeta inicial; se corrige con tus partidos y pruebas.
+            Puntúate de 1 a 10 (5 es normal para tu nivel). Se corrige luego con tus partidos.
           </AppText>
           {position === 'POR' ? (
             <AppText variant="callout">Para porteros, la tarjeta inicial se calcula con tu nivel. Podrás ajustar cada cifra desde el perfil.</AppText>

@@ -34,5 +34,5 @@ export function Chip({ label, selected = false, onPress, disabled }: ChipProps):
 }
 
 const styles = StyleSheet.create({
-  label: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, fontWeight: '600' },
+  label: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm + 2, fontWeight: '600' },
 });

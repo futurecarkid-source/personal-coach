@@ -80,10 +80,19 @@ export const DAILY_BONUS_XP = 50;
 /** Misiones del día: sesión, check-in y una rotativa. Se completan solas; tú las reclamas. */
 export function dailyQuests(state: AppState, date: string): { quests: Quest[]; bonusKey: string; bonusReady: boolean; bonusClaimed: boolean } {
   const ids = ['sesion', 'checkin', pick(date)];
+  const first = state.sessionLogs.length === 0;
   const quests = ids.map((id) => {
     const def = DEFS[id]!;
     const key = `${date}:${id}`;
-    return { key, id, title: def.title, hint: def.hint, xp: def.xp, icon: def.icon, done: def.done(state, date), claimed: state.questClaims.includes(key) };
+    // Primer día: la misión de sesión es más generosa y se llama distinto, para que el primer paso se sienta como un juego.
+    const special = id === 'sesion' && first;
+    return {
+      key, id,
+      title: special ? 'Tu primera sesión' : def.title,
+      hint: special ? 'Unos minutos bastan. Suma tu primer XP.' : def.hint,
+      xp: special ? 60 : def.xp,
+      icon: def.icon, done: def.done(state, date), claimed: state.questClaims.includes(key),
+    };
   });
   const bonusKey = `${date}:bonus`;
   return { quests, bonusKey, bonusReady: quests.every((q) => q.claimed), bonusClaimed: state.questClaims.includes(bonusKey) };
@@ -116,6 +125,7 @@ const matchGoals = (s: AppState): number[] => s.matches.map((m) => m.events.filt
 const cap = (value: number, goal: number): { value: number; goal: number } => ({ value: Math.min(value, goal), goal });
 
 export const ACHIEVEMENTS: readonly AchievementDef[] = [
+  { id: 'bienvenida', title: 'Bienvenido a Fulbito', description: 'Creaste tu tarjeta de jugador.', xp: 25, icon: 'star.fill', progress: (s) => cap(s.player ? 1 : 0, 1) },
   { id: 'primera-sesion', title: 'Primer paso', description: 'Completa tu primera sesión.', xp: 30, icon: 'figure.run', progress: (s) => cap(s.sessionLogs.length, 1) },
   { id: 'sesiones-5', title: 'Calentando motores', description: 'Completa 5 sesiones.', xp: 50, icon: 'flame.fill', progress: (s) => cap(s.sessionLogs.length, 5) },
   { id: 'sesiones-25', title: 'Máquina', description: 'Completa 25 sesiones.', xp: 150, icon: 'bolt.heart.fill', progress: (s) => cap(s.sessionLogs.length, 25) },

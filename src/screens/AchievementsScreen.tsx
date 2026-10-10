@@ -23,7 +23,7 @@ export function AchievementsScreen(): React.JSX.Element {
     return (
       <View key={a.def.id} style={styles.cell}>
         <GlassCard padding={spacing.md} contentStyle={styles.cardInner}>
-          <View style={[styles.badge, { backgroundColor: done ? colors.accent : colors.surfaceStrong }]}>
+          <View style={[styles.badge, { backgroundColor: done ? colors.volt : colors.surfaceStrong }]}>
             <Icon name={(done ? a.def.icon : 'lock.fill') as IconName} size={24} color={done ? '#FFFFFF' : colors.textSecondary} />
           </View>
           <AppText variant="headline" style={styles.center} tone={done ? 'primary' : 'secondary'}>{a.def.title}</AppText>
@@ -42,7 +42,7 @@ export function AchievementsScreen(): React.JSX.Element {
   };
 
   return (
-    <Screen tabBarSpace={false} nativeHeader>
+    <Screen tabBarSpace={false} nativeHeader title="Logros" back>
       <GlassCard>
         <AppText variant="label" tone="secondary">Tu rango</AppText>
         <AppText variant="largeTitle">{rank.name}</AppText>

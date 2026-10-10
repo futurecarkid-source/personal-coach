@@ -15,7 +15,7 @@ const TICK_MS = 50;
 export function MindScreen(): React.JSX.Element {
   const [panel, setPanel] = useState<Panel>('respirar');
   return (
-    <Screen tabBarSpace={false} nativeHeader>
+    <Screen tabBarSpace={false} nativeHeader title="Mente" back>
       <SegmentedControl
         options={[
           { value: 'respirar', label: 'Respirar' },
@@ -88,7 +88,7 @@ function BreathPanel(): React.JSX.Element {
     <>
       <GlassCard>
         <View style={styles.orbArea}>
-          <View style={[styles.orb, { width: orb, height: orb, borderRadius: orb / 2, backgroundColor: colors.accentSoft, borderColor: colors.accent }]}>
+          <View style={[styles.orb, { width: orb, height: orb, borderRadius: orb / 2, backgroundColor: colors.accentSoft, borderColor: colors.volt }]}>
             <AppText variant="title" tone="accent">
               {running ? PHASE_LABEL[st.phase] : finished ? 'Listo' : 'Respira'}
             </AppText>

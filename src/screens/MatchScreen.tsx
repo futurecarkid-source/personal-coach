@@ -66,7 +66,7 @@ export function MatchScreen(): React.JSX.Element {
     const addEvent = (event: NewMatchEvent): void =>
       dispatch({ type: 'ADD_MATCH_EVENT', matchId: selected.id, event: { ...event, id: newId('ev'), matchId: selected.id } });
     return (
-      <Screen nativeHeader>
+      <Screen nativeHeader title="Partido">
         <View style={styles.rowBetween}>
           <GlassButton label="Partidos" icon="chevron.left" size="compact" haptic="light" onPress={() => setSelectedId(null)} />
           <GlassButton
@@ -120,7 +120,7 @@ export function MatchScreen(): React.JSX.Element {
   }
 
   return (
-    <Screen nativeHeader>
+    <Screen nativeHeader title="Partido">
       <GlassCard>
         <SectionHeader title="Nuevo partido" />
         <View style={styles.form}>

@@ -369,7 +369,7 @@ function DraggableToken({ token, width, height, enabled, onCommit }: DraggableTo
   }));
 
   const bg =
-    token.team === 'propio' ? colors.accent : token.team === 'rival' ? colors.deepBlue : token.team === 'balon' ? '#FFFFFF' : '#FFC857';
+    token.team === 'propio' ? colors.volt : token.team === 'rival' ? colors.deepBlue : token.team === 'balon' ? '#FFFFFF' : '#E4E8ED';
 
   return (
     <GestureDetector gesture={gesture}>

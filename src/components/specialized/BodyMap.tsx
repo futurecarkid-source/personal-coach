@@ -78,14 +78,14 @@ export function BodyMap({ zone, side, view, onViewChange, onSelect, height = 340
   const { colors } = useTheme();
   const regions = view === 'frente' ? FRONT_REGIONS : BACK_REGIONS;
   const body = colors.surfaceStrong;
-  const selectedFill = colors.accent;
+  const selectedFill = colors.volt;
 
   const isSelected = (r: Region): boolean => r.zone === zone && (r.half === 'centro' || side === 'centro' || sideFromHalf(r.half, view) === side);
 
   const props = (r: Region): Record<string, unknown> => ({
     fill: isSelected(r) ? selectedFill : colors.surface,
     fillOpacity: isSelected(r) ? 0.9 : 0.85,
-    stroke: isSelected(r) ? colors.accent : colors.separator,
+    stroke: isSelected(r) ? colors.volt : colors.separator,
     strokeWidth: 0.8,
     onPress: () => onSelect(r.zone, sideFromHalf(r.half, view)),
   });
@@ -125,7 +125,7 @@ export function BodyMap({ zone, side, view, onViewChange, onSelect, height = 340
           return <Rect key={key} x={r.shape.x} y={r.shape.y} width={r.shape.w} height={r.shape.h} rx={r.shape.r ?? 0} {...p} />;
         })}
       </Svg>
-      <AppText variant="headline" tone="accent">{label}</AppText>
+      <AppText variant="headline" tone="volt">{label}</AppText>
       <AppText variant="caption" tone="secondary">Toca la zona. Izquierda y derecha son las de tu cuerpo, no las de la pantalla.</AppText>
     </View>
   );

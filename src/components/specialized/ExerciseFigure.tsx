@@ -102,9 +102,9 @@ export function ExerciseFigure({ exercise, maxWidth = 320 }: ExerciseFigureProps
         <Segment t={t} tracks={tracks} from="an1" to="to1" color={near} width={3.6} />
         <Segment t={t} tracks={tracks} from="neck" to="el1" color={near} width={3} />
         <Segment t={t} tracks={tracks} from="el1" to="wr1" color={near} width={3} />
-        {def.band ? <Segment t={t} tracks={tracks} from={def.band.from} to={def.band.to} color={colors.accent} width={0.9} /> : null}
-        <Dot t={t} xs={tracks.x.head} ys={tracks.y.head} r={HEAD_R} color={colors.accent} samples={tracks.samples} />
-        {tracks.ball ? <Dot t={t} xs={tracks.ball.x} ys={tracks.ball.y} r={tracks.ball.r} color={tracks.ball.kind === 'rodillo' ? colors.textSecondary : colors.accent} samples={tracks.samples} /> : null}
+        {def.band ? <Segment t={t} tracks={tracks} from={def.band.from} to={def.band.to} color={colors.volt} width={0.9} /> : null}
+        <Dot t={t} xs={tracks.x.head} ys={tracks.y.head} r={HEAD_R} color={colors.volt} samples={tracks.samples} />
+        {tracks.ball ? <Dot t={t} xs={tracks.ball.x} ys={tracks.ball.y} r={tracks.ball.r} color={tracks.ball.kind === 'rodillo' ? colors.textSecondary : colors.volt} samples={tracks.samples} /> : null}
       </Svg>
     </View>
   );

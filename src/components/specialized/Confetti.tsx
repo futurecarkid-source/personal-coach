@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 
-const COLORS = ['#F23D14', '#FF7A33', '#D4FF3A', '#FFFFFF', '#FFC857', '#2FD070'];
+const COLORS = ['#C2491D', '#E0663A', '#E4E8ED', '#FFFFFF', '#9AA3AE', '#C2491D'];
 
 /** Número pseudoaleatorio estable (para que cada pieza tenga su propia trayectoria sin depender del azar en cada render). */
 function seeded(i: number, salt: number): number {
