@@ -6,6 +6,7 @@ import { spacing, useTheme } from '../../theme';
 import { useInsets } from '../../theme/useInsets';
 import { AppText } from './AppText';
 import { GlassButton } from './GlassButton';
+import { Aurora } from './Aurora';
 import { GlassSurface } from './GlassSurface';
 import { FLOATING_TAB_BAR_CLEARANCE } from '../../navigation/constants';
 
@@ -59,7 +60,6 @@ function WebHeader({ title, back }: { title: string; back: boolean }): React.JSX
 }
 
 export function Screen({ children, scroll = true, tabBarSpace = true, nativeHeader = false, plain = false, wide = false, title, back = false, contentStyle }: ScreenProps): React.JSX.Element {
-  const { colors } = useTheme();
   const insets = useInsets();
   const maxWidth = wide ? 1100 : 760;
   const [locked, setLocked] = useState(false);
@@ -77,7 +77,7 @@ export function Screen({ children, scroll = true, tabBarSpace = true, nativeHead
 
   return (
     <ScrollLockContext.Provider value={scrollLock}>
-      <View style={[styles.root, { backgroundColor: plain ? 'transparent' : colors.background }]}>
+      <View style={[styles.root, { backgroundColor: 'transparent' }]}>
         {/* El ScrollView va primero: así iOS lo reconoce para el título grande y el ajuste automático del espacio. */}
         {scroll ? (
           <ScrollView
@@ -96,6 +96,7 @@ export function Screen({ children, scroll = true, tabBarSpace = true, nativeHead
         ) : (
           <View style={styles.scrollContent}>{body}</View>
         )}
+        {plain ? null : <View pointerEvents="none" style={styles.behind}><Aurora /></View>}
         {Platform.OS === 'web' && insets.top > 0 && !(title && scrolled) ? (
           <View pointerEvents="none" style={[styles.statusScrim, { height: insets.top }]}>
             <GlassSurface radius={0} variant="regular" flat style={StyleSheet.absoluteFill}>
@@ -110,19 +111,15 @@ export function Screen({ children, scroll = true, tabBarSpace = true, nativeHead
             </GlassSurface>
           </View>
         ) : null}
-        {plain ? null : (
-          <>
-            <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.behind, { backgroundColor: colors.background }]} />
-          </>
-        )}
+
       </View>
     </ScrollLockContext.Provider>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, overflow: 'hidden' },
-  behind: { zIndex: -1 },
+  root: { flex: 1, overflow: 'hidden', zIndex: 0 },
+  behind: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: -1 },
   stripe: { position: 'absolute', borderRadius: 28, transform: [{ rotate: '-24deg' }] },
   statusScrim: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 4 },
   compact: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 5 },

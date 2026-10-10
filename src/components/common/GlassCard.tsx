@@ -14,7 +14,7 @@ export interface GlassCardProps extends Omit<GlassSurfaceProps, 'radius'> {
  * Tarjeta de contenido. En iOS 26 el contenido va sobre superficies sólidas y el Liquid Glass se reserva para
  * lo que flota y se toca (botones, barra de pestañas, selectores), así que por defecto es sólida.
  */
-export function GlassCard({ children, padding = spacing.lg, style, contentStyle, glass = false, tint, ...rest }: GlassCardProps): React.JSX.Element {
+export function GlassCard({ children, padding = spacing.lg, style, contentStyle, glass = true, tint, ...rest }: GlassCardProps): React.JSX.Element {
   const { colors } = useTheme();
   if (glass || tint) {
     return (
