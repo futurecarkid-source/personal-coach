@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { dictationSupported, startDictation } from '../services/dictation';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { AiError, AI_LABEL, CRISIS_MESSAGE, EATING_MESSAGE, askCoach, buildProfileContext, buildSnapshot, describeAiError, detectSensitive, localCoachReply, type CoachChatOutput } from '../ai';
@@ -35,6 +36,8 @@ export function CoachScreen(): React.JSX.Element {
   const access = useAiAccess();
   const { today, todaySession } = useWeekPlan();
   const [text, setText] = useState('');
+  const [listening, setListening] = useState(false);
+  const stopRef = useRef<(() => void) | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [actions, setActions] = useState<Action[]>([]);
@@ -167,6 +170,24 @@ export function CoachScreen(): React.JSX.Element {
             }}
           />
         </FieldSurface>
+        {dictationSupported() ? (
+          <HapticTouch
+            haptic="light"
+            accessibilityLabel={listening ? 'Detener dictado' : 'Dictar por voz'}
+            onPress={() => {
+              if (listening) {
+                stopRef.current?.();
+                return;
+              }
+              setListening(true);
+              stopRef.current = startDictation((t) => setText((cur) => (cur ? `${cur} ${t}` : t)), () => setListening(false));
+            }}
+          >
+            <GlassSurface radius={radii.pill} tint={listening ? colors.volt : undefined} interactive flat style={styles.send}>
+              <Icon name="mic.fill" size={20} color={listening ? colors.volt : colors.text} />
+            </GlassSurface>
+          </HapticTouch>
+        ) : null}
         <HapticTouch haptic="medium" onPress={() => { void send(); }} disabled={busy || text.trim().length === 0} accessibilityLabel="Enviar">
           <GlassSurface radius={radii.pill} tint={colors.accent} interactive flat style={styles.send}>
             <Icon name="arrow.up" size={20} color={colors.accent} />

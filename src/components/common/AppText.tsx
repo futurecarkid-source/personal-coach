@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, type StyleProp, type TextProps, type TextStyle } from 'react-native';
+import { Platform, StyleSheet, Text, type StyleProp, type TextProps, type TextStyle } from 'react-native';
 import { useTheme } from '../../theme';
 
 export type TextVariant = 'largeTitle' | 'title' | 'headline' | 'body' | 'callout' | 'caption' | 'digits' | 'digitsLarge' | 'label';
@@ -43,5 +43,5 @@ export function AppText({ variant = 'body', tone = 'primary', style, ...rest }: 
 }
 
 const styles = StyleSheet.create({
-  base: { includeFontPadding: false },
+  base: { includeFontPadding: false, ...(Platform.OS === 'web' ? { fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, sans-serif' } : {}) },
 });

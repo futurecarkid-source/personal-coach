@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { spacing, useTheme } from '../../theme';
 import { AppText } from './AppText';
 import { GlassButton } from './GlassButton';
+import { GlassSurface } from './GlassSurface';
 import { FLOATING_TAB_BAR_CLEARANCE } from '../../navigation/constants';
 
 interface ScrollLock {
@@ -62,6 +63,7 @@ export function Screen({ children, scroll = true, tabBarSpace = true, nativeHead
   const insets = useSafeAreaInsets();
   const maxWidth = wide ? 1100 : 760;
   const [locked, setLocked] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const lock = useCallback(() => setLocked(true), []);
   const unlock = useCallback(() => setLocked(false), []);
   const scrollLock = useMemo<ScrollLock>(() => ({ lock, unlock }), [lock, unlock]);
@@ -80,6 +82,8 @@ export function Screen({ children, scroll = true, tabBarSpace = true, nativeHead
         {scroll ? (
           <ScrollView
             scrollEnabled={!locked}
+            onScroll={Platform.OS === 'web' && title ? (e) => setScrolled(e.nativeEvent.contentOffset.y > 56) : undefined}
+            scrollEventThrottle={32}
             contentInsetAdjustmentBehavior={nativeHeader ? 'automatic' : 'never'}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
@@ -92,6 +96,13 @@ export function Screen({ children, scroll = true, tabBarSpace = true, nativeHead
         ) : (
           <View style={styles.scrollContent}>{body}</View>
         )}
+        {Platform.OS === 'web' && title && scrolled ? (
+          <View pointerEvents="none" style={[styles.compact, { paddingTop: insets.top }]}>
+            <GlassSurface radius={0} variant="regular" flat style={styles.compactGlass}>
+              <AppText variant="headline" style={styles.compactTitle}>{title}</AppText>
+            </GlassSurface>
+          </View>
+        ) : null}
         {plain ? null : (
           <>
             <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.behind, { backgroundColor: colors.background }]} />
@@ -106,6 +117,9 @@ const styles = StyleSheet.create({
   root: { flex: 1, overflow: 'hidden' },
   behind: { zIndex: -1 },
   stripe: { position: 'absolute', borderRadius: 28, transform: [{ rotate: '-24deg' }] },
+  compact: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 5 },
+  compactGlass: { paddingVertical: spacing.md },
+  compactTitle: { textAlign: 'center' },
   webHeader: { gap: spacing.sm, alignItems: 'flex-start' },
   scrollContent: { flexGrow: 1, alignItems: 'center' },
   inner: { width: '100%', paddingHorizontal: spacing.lg, gap: spacing.lg },

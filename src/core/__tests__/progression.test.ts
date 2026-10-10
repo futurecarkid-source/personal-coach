@@ -86,3 +86,27 @@ describe('achievements', () => {
     expect(ids).toContain('primer-gol');
   });
 });
+
+describe('water quest and season', () => {
+  it('water quest completes at the goal', () => {
+    let s: AppState = createInitialState();
+    s = appReducer(s, { type: 'SET_WATER', date: '2026-10-09', glasses: 5 });
+    const q = (st: AppState) => dailyQuests(st, '2026-10-12').quests;
+    // 2026-10-12 rota a la misión de agua según la fecha; se comprueba el estado con la fecha que corresponda.
+    const days = ['2026-10-09', '2026-10-10', '2026-10-11', '2026-10-12', '2026-10-13'];
+    const waterDay = days.find((d) => dailyQuests(s, d).quests[2]!.id === 'agua')!;
+    s = appReducer(s, { type: 'SET_WATER', date: waterDay, glasses: 5 });
+    expect(dailyQuests(s, waterDay).quests[2]!.done).toBe(false);
+    s = appReducer(s, { type: 'SET_WATER', date: waterDay, glasses: 6 });
+    expect(dailyQuests(s, waterDay).quests[2]!.done).toBe(true);
+    expect(q(s)).toHaveLength(3);
+  });
+
+  it('season counts distinct session days this month', () => {
+    let s: AppState = createInitialState();
+    for (let d = 1; d <= 12; d += 1) s = appReducer(s, { type: 'LOG_SESSION', log: log(`2026-10-${String(d).padStart(2, '0')}`) });
+    const { seasonProgress } = jest.requireActual('../progression') as typeof import('../progression');
+    expect(seasonProgress(s, '2026-10-15')).toMatchObject({ done: 12, complete: true, name: 'Temporada de octubre' });
+    expect(seasonProgress(s, '2026-11-02').done).toBe(0);
+  });
+});

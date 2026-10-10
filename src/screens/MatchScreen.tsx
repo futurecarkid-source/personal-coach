@@ -3,7 +3,7 @@ import { StyleSheet, TextInput, View } from 'react-native';
 import { describeAiError, reviewMatch, type MatchReviewOutput } from '../ai';
 import { useAiAccess } from '../ai/useAi';
 import { EXERCISE_BY_ID } from '../content/exercises';
-import { AppText, Chip, FaceRating, GlassButton, GlassCard, Screen, SectionHeader, Stepper, SwipeRow, FieldSurface } from '../components/common';
+import { AppText, Chip, FaceRating, GlassButton, GlassCard, Screen, SectionHeader, Stepper, SwipeRow, FieldSurface, HapticTouch, showActionSheet } from '../components/common';
 import { MatchTracker, type NewMatchEvent } from '../components/specialized/MatchTracker';
 import { useAppDispatch, useAppState } from '../context';
 import { newId, toISODate } from '../core/dates';
@@ -169,6 +169,12 @@ export function MatchScreen(): React.JSX.Element {
       ) : (
         [...state.matches].reverse().map((m) => (
           <SwipeRow key={m.id} onDelete={() => dispatch({ type: 'DELETE_MATCH', matchId: m.id })}>
+            <HapticTouch
+              haptic="none"
+              pressedScale={0.99}
+              accessibilityLabel={`Partido contra ${m.opponent}. Mantén pulsado para ver opciones.`}
+              onLongPress={() => showActionSheet({ title: `vs ${m.opponent}`, options: [{ label: 'Abrir', onPress: () => setSelectedId(m.id) }, { label: 'Borrar partido', destructive: true, onPress: () => dispatch({ type: 'DELETE_MATCH', matchId: m.id }) }] })}
+            >
             <GlassCard>
               <View style={styles.rowBetween}>
                 <View style={styles.flex}>
@@ -178,6 +184,7 @@ export function MatchScreen(): React.JSX.Element {
                 <GlassButton label="Abrir" size="compact" haptic="light" onPress={() => setSelectedId(m.id)} />
               </View>
             </GlassCard>
+            </HapticTouch>
           </SwipeRow>
         ))
       )}

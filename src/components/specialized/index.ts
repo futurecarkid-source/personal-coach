@@ -15,3 +15,4 @@ export * from './CelebrationHost';
 export * from './HeroCard';
 export * from './QuestsCard';
 export * from './QuickCheckIn';
+export * from './HydrationCard';

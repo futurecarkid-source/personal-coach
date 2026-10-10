@@ -118,6 +118,8 @@ export const appStateSchema = z.object({
   sleepLogs: z.array(sleepLogSchema).default([]),
   reflexLogs: z.array(reflexLogSchema).default([]),
   mindLogs: z.array(mindLogSchema).default([]),
+  /** Vasos de agua por día. */
+  waterLogs: z.array(z.object({ date: z.string(), glasses: z.number().int().min(0).max(30) })).default([]),
   achievements: z.array(z.object({ id: z.string(), at: z.string() })).default([]),
   /** Misiones y retos ya cobrados (clave `fecha:id` o `week-N`). */
   questClaims: z.array(z.string()).default([]),
@@ -146,6 +148,7 @@ export type AppAction =
   | { type: 'LOG_SLEEP'; log: SleepLog }
   | { type: 'LOG_REFLEX'; log: ReflexLog }
   | { type: 'LOG_MIND'; log: MindLog }
+  | { type: 'SET_WATER'; date: string; glasses: number }
   | { type: 'CLAIM_QUEST'; key: string; xp: number }
   | { type: 'UNLOCK_ACHIEVEMENT'; id: string; at: string; xp: number }
   | { type: 'ACK_LEVEL'; level: number }

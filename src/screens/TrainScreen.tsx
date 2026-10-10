@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { AppText, Columns, GlassButton, HapticTouch, GlassCard, Icon, Screen, SectionHeader, SegmentedControl } from '../components/common';
+import { AppText, Columns, GlassButton, HapticTouch, showActionSheet, GlassCard, Icon, Screen, SectionHeader, SegmentedControl } from '../components/common';
 import { ExerciseFigure } from '../components/specialized/ExerciseFigure';
 import { IntervalTimer } from '../components/specialized/IntervalTimer';
 import { EXERCISES, EXERCISE_BY_ID, youtubeSearchUrl } from '../content/exercises';
@@ -111,6 +111,12 @@ function ExerciseRow({ exercise }: { exercise: Exercise }): React.JSX.Element {
   const [open, setOpen] = useState(false);
   const work = exercise.seconds !== null ? `${exercise.sets} × ${exercise.seconds}s` : `${exercise.sets} × ${exercise.reps}`;
   return (
+    <HapticTouch
+      haptic="none"
+      pressedScale={0.99}
+      accessibilityLabel={`${exercise.name}. Mantén pulsado para ver opciones.`}
+      onLongPress={() => showActionSheet({ title: exercise.name, options: [{ label: open ? 'Cerrar detalle' : 'Ver detalle', onPress: () => setOpen((v) => !v) }, { label: 'Ver en YouTube', onPress: () => { Linking.openURL(youtubeSearchUrl(exercise.youtubeQuery)).catch(() => undefined); } }] })}
+    >
     <GlassCard>
       <View style={styles.rowBetween}>
         <View style={styles.flex}>
@@ -130,6 +136,7 @@ function ExerciseRow({ exercise }: { exercise: Exercise }): React.JSX.Element {
         </View>
       ) : null}
     </GlassCard>
+    </HapticTouch>
   );
 }
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { AppText } from '../common/AppText';
-import { Chip } from '../common/Chip';
+import { IOSSwitch } from '../common/IOSSwitch';
 import { SegmentedControl } from '../common/SegmentedControl';
 
 /** Vista previa en navegador: sin SwiftUI, se usan los controles hechos con React Native. */
@@ -12,7 +12,7 @@ export function NativeToggle({ label, description, value, onChange }: { label: s
         <View style={styles.flex}>
           <AppText variant="headline">{label}</AppText>
         </View>
-        <Chip label={value ? 'Sí' : 'No'} selected={value} onPress={() => onChange(!value)} />
+        <IOSSwitch label={label} value={value} onChange={onChange} />
       </View>
       {description ? <AppText variant="caption" tone="secondary">{description}</AppText> : null}
     </View>

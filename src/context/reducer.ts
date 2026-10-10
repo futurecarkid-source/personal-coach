@@ -44,6 +44,7 @@ export function createInitialState(): AppState {
     sleepLogs: [],
     reflexLogs: [],
     mindLogs: [],
+    waterLogs: [],
     achievements: [],
     questClaims: [],
   };
@@ -181,6 +182,12 @@ export function appReducer(state: AppState, action: AppAction): AppState {
     case 'LOG_MIND': {
       const day = action.log.at.slice(0, 10);
       return { ...state, mindLogs: [...state.mindLogs, action.log].slice(-200), gamification: touchStreak(state.gamification, day, isWeeklyStreak(state)) };
+    }
+
+    case 'SET_WATER': {
+      const glasses = Math.max(0, Math.min(30, action.glasses));
+      const waterLogs = [...state.waterLogs.filter((w) => w.date !== action.date), { date: action.date, glasses }].slice(-60);
+      return { ...state, waterLogs };
     }
 
     case 'CLAIM_QUEST':

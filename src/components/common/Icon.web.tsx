@@ -13,7 +13,7 @@ const GLYPHS: Record<string, string> = {
   'person.fill': '●', 'person.crop.square': '▢', 'person.crop.square.fill': '▣', 'rectangle.and.pencil.and.ellipsis': '✎',
   'shield.fill': '⛨', 'shippingbox.fill': '🎁', soccerball: '⚽', 'sportscourt.fill': '▭', 'square.and.arrow.down': '⤓',
   'square.grid.3x3': '▦', 'square.grid.3x3.fill': '▦', 'star.circle.fill': '★', 'star.fill': '★', sparkles: '✦', target: '◎',
-  'trash.fill': '🗑', 'square.and.arrow.up': '⤴', 'triangle.fill': '▲', 'trophy.fill': '🏆', wind: '≋', 'figure.core.training': '🏃',
+  'trash.fill': '🗑', 'drop.fill': '💧', mic: '🎙', 'mic.fill': '🎙', 'square.and.arrow.up': '⤴', 'triangle.fill': '▲', 'trophy.fill': '🏆', wind: '≋', 'figure.core.training': '🏃',
 };
 
 export interface IconProps {

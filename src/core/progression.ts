@@ -33,7 +33,7 @@ export function nextRank(level: number): Rank | null {
 
 // ---------- Misiones ----------
 
-export type QuestIcon = 'figure.run' | 'heart.text.square.fill' | 'moon.zzz.fill' | 'wind' | 'bolt.fill' | 'cross.case.fill';
+export type QuestIcon = 'drop.fill' | 'figure.run' | 'heart.text.square.fill' | 'moon.zzz.fill' | 'wind' | 'bolt.fill' | 'cross.case.fill';
 
 export interface Quest {
   /** Clave única del día, por ejemplo `2026-10-09:sesion`. */
@@ -47,6 +47,7 @@ export interface Quest {
   claimed: boolean;
 }
 
+export const WATER_GOAL = 6;
 const dayOf = (iso: string): string => iso.slice(0, 10);
 
 interface QuestDef {
@@ -64,11 +65,12 @@ const DEFS: Record<string, QuestDef> = {
   sueno: { id: 'sueno', title: 'Registra tu sueño', hint: 'Horas y calidad de anoche.', xp: 15, icon: 'moon.zzz.fill', done: (s, d) => s.sleepLogs.some((l) => l.date === d) },
   respirar: { id: 'respirar', title: 'Respira 3 minutos', hint: 'Una sesión de respiración guiada.', xp: 20, icon: 'wind', done: (s, d) => s.mindLogs.some((l) => dayOf(l.at) === d && l.seconds >= 180) },
   reflejos: { id: 'reflejos', title: 'Test de reflejos', hint: 'Mide tu tiempo de reacción.', xp: 20, icon: 'bolt.fill', done: (s, d) => s.reflexLogs.some((l) => dayOf(l.at) === d) },
+  agua: { id: 'agua', title: 'Hidrátate', hint: 'Toma 6 vasos de agua hoy.', xp: 15, icon: 'drop.fill', done: (s, d) => (s.waterLogs.find((w) => w.date === d)?.glasses ?? 0) >= WATER_GOAL },
   cuidado: { id: 'cuidado', title: 'Cuida tu cuerpo', hint: 'Lee una ficha de lesiones o haz un seguimiento.', xp: 15, icon: 'cross.case.fill', done: (s, d) => s.painReports.some((r) => r.followUps.some((f) => dayOf(f.at) === d)) },
 };
 
 /** Una misión rotativa distinta cada día. */
-const ROTATING = ['sueno', 'respirar', 'reflejos'] as const;
+const ROTATING = ['sueno', 'respirar', 'reflejos', 'agua'] as const;
 
 function pick(date: string): (typeof ROTATING)[number] {
   const n = Number.parseInt(date.replaceAll('-', ''), 10);
@@ -165,4 +167,18 @@ export function achievementStatuses(state: AppState): AchievementStatus[] {
 /** Logros que ya se cumplen pero todavía no se han registrado. */
 export function newlyMet(state: AppState): AchievementDef[] {
   return achievementStatuses(state).filter((a) => a.met && a.unlockedAt === null).map((a) => a.def);
+}
+
+// ---------- Temporada (mensual) ----------
+
+export const SEASON_GOAL = 12;
+export const SEASON_XP = 250;
+
+/** Temporada del mes: cumple 12 sesiones en el mes para cobrar la recompensa. */
+export function seasonProgress(state: AppState, date: string): { key: string; name: string; goal: number; done: number; complete: boolean; claimed: boolean; xp: number } {
+  const month = date.slice(0, 7);
+  const days = new Set(state.sessionLogs.filter((l) => l.date.startsWith(month)).map((l) => l.date));
+  const names = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  const key = `season-${month}`;
+  return { key, name: `Temporada de ${names[Number.parseInt(month.slice(5, 7), 10) - 1] ?? month}`, goal: SEASON_GOAL, done: Math.min(SEASON_GOAL, days.size), complete: days.size >= SEASON_GOAL, claimed: state.questClaims.includes(key), xp: SEASON_XP };
 }

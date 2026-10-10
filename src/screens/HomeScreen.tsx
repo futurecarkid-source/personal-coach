@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { describeAiError, requestAiPlan } from '../ai';
 import { useAiAccess } from '../ai/useAi';
 import { AppText, Columns, GlassButton, GlassCard, Icon, Screen } from '../components/common';
+import { HydrationCard } from '../components/specialized/HydrationCard';
 import { HeroCard } from '../components/specialized/HeroCard';
 import { PainFollowUpCard } from '../components/specialized/PainFollowUpCard';
 import { QuestsCard } from '../components/specialized/QuestsCard';
@@ -115,6 +116,8 @@ export function HomeScreen(): React.JSX.Element {
       <QuestsCard state={state} date={today} onClaim={(key, xp) => dispatch({ type: 'CLAIM_QUEST', key, xp })} />
 
       <QuickCheckIn today={today} />
+
+      <HydrationCard glasses={state.waterLogs.find((w) => w.date === today)?.glasses ?? 0} onChange={(g) => dispatch({ type: 'SET_WATER', date: today, glasses: g })} />
 
       <GlassCard>
         <View style={styles.rowBetween}>

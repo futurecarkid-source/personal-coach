@@ -4,7 +4,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { OnlineGate } from '@/components/common';
+import { ActionSheetHost, OnlineGate } from '@/components/common';
 import { CelebrationHost } from '@/components/specialized/CelebrationHost';
 import { AppProvider, useAppState } from '@/context';
 import { TabsModeProvider } from '@/navigation';
@@ -60,6 +60,7 @@ export default function RootLayout(): React.JSX.Element {
             <OnlineGate>
               <CelebrationHost>
                 <RootNavigator />
+                <ActionSheetHost />
               </CelebrationHost>
             </OnlineGate>
           </TabsModeProvider>

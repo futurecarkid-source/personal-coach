@@ -16,3 +16,5 @@ export * from './Columns';
 export * from './SwipeRow';
 export * from './Disclosure';
 export * from './FieldSurface';
+export * from './IOSSwitch';
+export * from './ActionSheet';

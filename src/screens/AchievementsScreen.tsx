@@ -1,16 +1,21 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { AppText, GlassCard, Icon, ProgressBar, Screen } from '../components/common';
+import { AppText, GlassButton, GlassCard, Icon, ProgressBar, Screen } from '../components/common';
 import type { IconName } from '../components/common/Icon';
-import { useAppState } from '../context';
+import { useAppDispatch, useAppState } from '../context';
 import { levelFromXp } from '../core/gamification';
-import { achievementStatuses, nextRank, rankFor } from '../core/progression';
+import { achievementStatuses, nextRank, rankFor, seasonProgress } from '../core/progression';
+import { toISODate } from '../core/dates';
+import { useCelebrate } from '../components/specialized/CelebrationHost';
 import { spacing, useTheme } from '../theme';
 
 /** Vitrina de logros: los desbloqueados en color y los pendientes con su progreso. */
 export function AchievementsScreen(): React.JSX.Element {
   const { state } = useAppState();
+  const dispatch = useAppDispatch();
+  const { celebrate } = useCelebrate();
   const { colors } = useTheme();
+  const season = seasonProgress(state, toISODate(new Date()));
   const list = achievementStatuses(state);
   const unlocked = list.filter((a) => a.unlockedAt !== null);
   const locked = list.filter((a) => a.unlockedAt === null);
@@ -50,6 +55,29 @@ export function AchievementsScreen(): React.JSX.Element {
           Nivel {level} · {unlocked.length} de {list.length} logros{upcoming ? ` · próximo rango: ${upcoming.name} en el nivel ${upcoming.minLevel}` : ''}
         </AppText>
       </GlassCard>
+      <GlassCard>
+        <AppText variant="label" tone="secondary">{season.name}</AppText>
+        <AppText variant="title">{season.done} de {season.goal} sesiones</AppText>
+        <View style={styles.seasonBar}>
+          <ProgressBar fraction={season.done / season.goal} height={10} color={season.complete ? colors.success : colors.volt} />
+        </View>
+        {season.complete && !season.claimed ? (
+          <GlassButton
+            label={`Cobrar temporada +${season.xp} XP`}
+            variant="primary"
+            haptic="success"
+            fullWidth
+            onPress={() => {
+              dispatch({ type: 'CLAIM_QUEST', key: season.key, xp: season.xp });
+              celebrate({ id: `temporada:${season.key}`, kind: 'mision', title: '¡Temporada cumplida!', subtitle: `Completaste ${season.goal} sesiones este mes.`, icon: 'trophy.fill', xp: season.xp });
+            }}
+          />
+        ) : season.claimed ? (
+          <AppText variant="caption" tone="success">Recompensa cobrada</AppText>
+        ) : (
+          <AppText variant="caption" tone="secondary">Cumple {season.goal} sesiones este mes para ganar +{season.xp} XP.</AppText>
+        )}
+      </GlassCard>
       {unlocked.length > 0 ? <AppText variant="title">Desbloqueados</AppText> : null}
       <View style={styles.grid}>{unlocked.map(card)}</View>
       <AppText variant="title">Por conseguir</AppText>
@@ -59,6 +87,7 @@ export function AchievementsScreen(): React.JSX.Element {
 }
 
 const styles = StyleSheet.create({
+  seasonBar: { marginVertical: spacing.md },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
   cell: { width: '47.5%', flexGrow: 1 },
   cardInner: { alignItems: 'center', gap: spacing.sm },
