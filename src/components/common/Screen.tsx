@@ -2,8 +2,8 @@ import React, { createContext, useCallback, useContext, useMemo, useState } from
 import { ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { spacing, useTheme } from '../../theme';
+import { useInsets } from '../../theme/useInsets';
 import { AppText } from './AppText';
 import { GlassButton } from './GlassButton';
 import { GlassSurface } from './GlassSurface';
@@ -60,7 +60,7 @@ function WebHeader({ title, back }: { title: string; back: boolean }): React.JSX
 
 export function Screen({ children, scroll = true, tabBarSpace = true, nativeHeader = false, plain = false, wide = false, title, back = false, contentStyle }: ScreenProps): React.JSX.Element {
   const { colors } = useTheme();
-  const insets = useSafeAreaInsets();
+  const insets = useInsets();
   const maxWidth = wide ? 1100 : 760;
   const [locked, setLocked] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -70,7 +70,7 @@ export function Screen({ children, scroll = true, tabBarSpace = true, nativeHead
   const paddingBottom = (tabBarSpace ? FLOATING_TAB_BAR_CLEARANCE : 0) + insets.bottom + spacing.lg;
 
   const body = (
-    <View style={[styles.inner, { maxWidth, paddingBottom, paddingTop: nativeHeader ? spacing.md : plain ? spacing.lg : insets.top + spacing.md }, contentStyle]}>{Platform.OS === 'web' && title ? <WebHeader title={title} back={back} /> : null}
+    <View style={[styles.inner, { maxWidth, paddingBottom, paddingTop: nativeHeader && Platform.OS !== 'web' ? spacing.md : plain ? spacing.lg : insets.top + spacing.md }, contentStyle]}>{Platform.OS === 'web' && title ? <WebHeader title={title} back={back} /> : null}
       {children}
     </View>
   );
@@ -96,6 +96,13 @@ export function Screen({ children, scroll = true, tabBarSpace = true, nativeHead
         ) : (
           <View style={styles.scrollContent}>{body}</View>
         )}
+        {Platform.OS === 'web' && insets.top > 0 && !(title && scrolled) ? (
+          <View pointerEvents="none" style={[styles.statusScrim, { height: insets.top }]}>
+            <GlassSurface radius={0} variant="regular" flat style={StyleSheet.absoluteFill}>
+              <View style={StyleSheet.absoluteFill} />
+            </GlassSurface>
+          </View>
+        ) : null}
         {Platform.OS === 'web' && title && scrolled ? (
           <View pointerEvents="none" style={[styles.compact, { paddingTop: insets.top }]}>
             <GlassSurface radius={0} variant="regular" flat style={styles.compactGlass}>
@@ -117,6 +124,7 @@ const styles = StyleSheet.create({
   root: { flex: 1, overflow: 'hidden' },
   behind: { zIndex: -1 },
   stripe: { position: 'absolute', borderRadius: 28, transform: [{ rotate: '-24deg' }] },
+  statusScrim: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 4 },
   compact: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 5 },
   compactGlass: { paddingVertical: spacing.md },
   compactTitle: { textAlign: 'center' },

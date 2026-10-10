@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import type { BottomTabBarProps } from 'expo-router/tabs';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useInsets } from '../theme/useInsets';
 import { AppText } from '../components/common/AppText';
 import { GlassSurface } from '../components/common/GlassSurface';
 import { HapticTouch } from '../components/common/HapticTouch';
@@ -20,7 +20,7 @@ const BAR_PADDING = 6;
  */
 export function FloatingTabBar({ state, navigation }: BottomTabBarProps): React.JSX.Element {
   const { colors } = useTheme();
-  const insets = useSafeAreaInsets();
+  const insets = useInsets();
   const { width: windowWidth } = useWindowDimensions();
   const barWidth = Math.min(windowWidth - 32, 560);
   const count = state.routes.length;
