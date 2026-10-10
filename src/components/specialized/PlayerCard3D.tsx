@@ -14,7 +14,7 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
-import { ATTRIBUTE_LABELS, POSITION_LABELS, flagEmoji } from '../../content/attributeLabels';
+import { ATTRIBUTE_LABELS, POSITION_LABELS } from '../../content/attributeLabels';
 import { computeOvr, headlineKeys, rarityFromOvr } from '../../core/ovr';
 import { rarityGradients, springs, triggerHaptic, useTheme } from '../../theme';
 import type { Player, Rarity } from '../../types';
@@ -172,7 +172,7 @@ export function PlayerCard3D({ player, effect, reduceMotion = false, rarityOverr
               <AppText variant="headline" style={{ color: textColor, letterSpacing: 1 }}>{player.position}</AppText>
             </View>
             <View style={styles.flagBox}>
-              <AppText style={{ fontSize: 24, lineHeight: 30 }}>{flagEmoji(player.country)}</AppText>
+              <View style={[styles.country, { borderColor: textColor }]}><AppText variant="caption" style={{ color: textColor, fontWeight: '700', letterSpacing: 1 }}>{player.country.toUpperCase()}</AppText></View>
               <AppText variant="caption" style={{ color: textColor }}>#{player.number}</AppText>
             </View>
           </View>
@@ -215,6 +215,7 @@ export function PlayerCard3D({ player, effect, reduceMotion = false, rarityOverr
 const FILL = { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 } as const;
 
 const styles = StyleSheet.create({
+  country: { borderWidth: 1.5, borderRadius: 6, paddingHorizontal: 6, paddingVertical: 1, opacity: 0.9 },
   card: { borderRadius: 28, overflow: 'hidden', alignSelf: 'center' },
   ring: { position: 'absolute', borderRadius: 999, borderWidth: 2 },
   photoLayer: { ...FILL, alignItems: 'center', justifyContent: 'center', paddingTop: 30 },

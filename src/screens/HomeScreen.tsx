@@ -102,7 +102,7 @@ export function HomeScreen(): React.JSX.Element {
           </View>
         ) : null}
         <View style={styles.block}>
-          <GlassButton label={aiBusy ? 'Creando tu plan…' : usingAi ? 'Plan con IA ✓' : 'Plan con IA'} icon="sparkles" variant="ghost" size="compact" haptic="medium" disabled={aiBusy} onPress={() => { void generateAiPlan(); }} />
+          <GlassButton label={aiBusy ? 'Creando tu plan…' : usingAi ? 'Plan con IA activo' : 'Plan con IA'} icon="sparkles" variant="ghost" size="compact" haptic="medium" disabled={aiBusy} onPress={() => { void generateAiPlan(); }} />
           {aiMessage ? <AppText variant="caption" tone="secondary">{aiMessage}</AppText> : null}
         </View>
       </GlassCard>

@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import Animated, { FadeInDown, FadeInLeft, FadeInRight } from 'react-native-reanimated';
+import type { IconName } from '../components/common/Icon';
 import { AppText, FieldSurface, GlassButton, GlassSurface, Icon, ProgressBar, Screen } from '../components/common';
 import { Confetti } from '../components/specialized/Confetti';
 import { PlayerCard3D } from '../components/specialized/PlayerCard3D';
-import { ATTRIBUTE_LABELS, BODY_ZONE_LABELS, LEVEL_LABELS, POSITION_LABELS, flagEmoji } from '../content/attributeLabels';
+import { ATTRIBUTE_LABELS, BODY_ZONE_LABELS, LEVEL_LABELS, POSITION_LABELS } from '../content/attributeLabels';
 import { useAppDispatch } from '../context';
 import { newId } from '../core/dates';
 import { estimateAttributes, headlineKeys, type SelfAssessment } from '../core/ovr';
@@ -37,6 +38,7 @@ const AGE_LABELS: Record<AgeBand, string> = {
   adulto: '18 años o más',
 };
 
+const COUNTRY_NAMES: Record<string, string> = { CO: 'Colombia', MX: 'México', AR: 'Argentina', CL: 'Chile', PE: 'Perú', EC: 'Ecuador', VE: 'Venezuela', UY: 'Uruguay', PY: 'Paraguay', BO: 'Bolivia', CR: 'Costa Rica', PA: 'Panamá', DO: 'Rep. Dominicana', GT: 'Guatemala', HN: 'Honduras', SV: 'El Salvador', NI: 'Nicaragua', ES: 'España', US: 'Estados Unidos', BR: 'Brasil' };
 const COUNTRIES = ['CO', 'MX', 'AR', 'CL', 'PE', 'EC', 'VE', 'UY', 'PY', 'BO', 'CR', 'PA', 'DO', 'GT', 'HN', 'SV', 'NI', 'ES', 'US', 'BR'] as const;
 
 const EQUIPMENT_LABELS: Record<Equipment, string> = {
@@ -67,13 +69,13 @@ const APTITUDE_QUESTIONS = [
   '¿Tienes una lesión de huesos o articulaciones que empeora con el ejercicio?',
 ] as const;
 
-const GOAL_EMOJI: Record<Goal, string> = { subir_nivel: '🚀', prevenir_lesiones: '🛡️', mejorar_mentalidad: '🧠', mejorar_fisico: '💪', entender_juego: '♟️', llevar_estadisticas: '📊' };
-const EQUIPMENT_EMOJI: Record<Equipment, string> = { ninguno: '🙌', bandas: '🎗️', mancuernas: '🏋️', gimnasio: '🏢', balon: '⚽', conos: '🔶', escalera: '🪜' };
+const GOAL_ICON: Record<Goal, IconName> = { subir_nivel: 'paperplane.fill', prevenir_lesiones: 'shield.fill', mejorar_mentalidad: 'brain.head.profile', mejorar_fisico: 'figure.run', entender_juego: 'sportscourt.fill', llevar_estadisticas: 'chart.bar.fill' };
+const EQUIPMENT_ICON: Record<Equipment, IconName> = { ninguno: 'hand.raised.fill', bandas: 'lasso', mancuernas: 'dumbbell.fill', gimnasio: 'building.2.fill', balon: 'soccerball', conos: 'triangle.fill', escalera: 'line.3.horizontal' };
 const PERSONAS = [
-  { id: 'motivador', title: 'Motivador', text: 'Te anima y celebra cada paso.', emoji: '🔥' },
-  { id: 'exigente', title: 'Exigente', text: 'Directo, te exige más.', emoji: '🎯' },
-  { id: 'cientifico', title: 'Científico', text: 'Explica el porqué de todo.', emoji: '🔬' },
-  { id: 'calmado', title: 'Calmado', text: 'Sin presión, a tu ritmo.', emoji: '🌿' },
+  { id: 'motivador', title: 'Motivador', text: 'Te anima y celebra cada paso.', icon: 'flame.fill' },
+  { id: 'exigente', title: 'Exigente', text: 'Directo, te exige más.', icon: 'target' },
+  { id: 'cientifico', title: 'Científico', text: 'Explica el porqué de todo.', icon: 'atom' },
+  { id: 'calmado', title: 'Calmado', text: 'Sin presión, a tu ritmo.', icon: 'leaf.fill' },
 ] as const;
 type Persona = (typeof PERSONAS)[number]['id'];
 type Wearable = 'ninguno' | 'applewatch' | 'otro';
@@ -91,7 +93,7 @@ interface Step {
 }
 
 /** Fila grande y tocable (vidrio), con muelle al pulsar y marca al estar elegida. */
-function OptionCard({ label, hint, emoji, selected, onPress, index = 0, compact = false }: { label: string; hint?: string; emoji?: string; selected: boolean; onPress: () => void; index?: number; compact?: boolean }): React.JSX.Element {
+function OptionCard({ label, hint, icon, badge, tint, selected, onPress, index = 0, compact = false }: { label: string; hint?: string; icon?: IconName; badge?: string; tint?: string; selected: boolean; onPress: () => void; index?: number; compact?: boolean }): React.JSX.Element {
   const { colors } = useTheme();
   return (
     <Animated.View entering={FadeInDown.delay(Math.min(index, 8) * 45).springify().damping(18)} style={compact ? styles.compactCell : undefined}>
@@ -107,7 +109,11 @@ function OptionCard({ label, hint, emoji, selected, onPress, index = 0, compact 
       >
         <GlassSurface radius={radii.card} flat tint={selected ? colors.pitch : undefined} interactive>
           <View style={[styles.option, compact && styles.optionCompact, selected && { borderColor: colors.pitch }]}>
-            {emoji ? <AppText variant="title">{emoji}</AppText> : null}
+            {icon || badge ? (
+              <View style={[styles.tile, { backgroundColor: tint ?? (selected ? colors.pitch : colors.surfaceStrong) }]}>
+                {icon ? <Icon name={icon} size={18} color={tint || selected ? '#FFFFFF' : colors.text} /> : <AppText variant="caption" style={{ color: selected ? '#FFFFFF' : colors.text, fontWeight: '700' }}>{badge}</AppText>}
+              </View>
+            ) : null}
             <View style={styles.optionTexts}>
               <AppText variant="headline">{label}</AppText>
               {hint ? <AppText variant="caption" tone="secondary">{hint}</AppText> : null}
@@ -286,7 +292,7 @@ export function OnboardingScreen(): React.JSX.Element {
       case 'bienvenida':
         return (
           <Animated.View entering={FadeInDown.delay(150).springify()} style={styles.hero}>
-            <AppText variant="digitsLarge" style={styles.heroEmoji}>⚽</AppText>
+            <Icon name="soccerball" size={110} color={colors.text} />
             <AppText variant="caption" tone="secondary" style={styles.copyright}>© {new Date().getFullYear()} Fulbito. Todos los derechos reservados.</AppText>
           </Animated.View>
         );
@@ -332,7 +338,7 @@ export function OnboardingScreen(): React.JSX.Element {
         return (
           <View style={styles.grid}>
             {COUNTRIES.map((c, i) => (
-              <OptionCard key={c} compact index={i} emoji={flagEmoji(c)} label={c} selected={country === c} onPress={() => choose(() => setCountry(c))} />
+              <OptionCard key={c} compact index={i} badge={c} label={COUNTRY_NAMES[c] ?? c} selected={country === c} onPress={() => choose(() => setCountry(c))} />
             ))}
           </View>
         );
@@ -364,7 +370,7 @@ export function OnboardingScreen(): React.JSX.Element {
         return (
           <View style={styles.list}>
             {GOALS.map((g, i) => (
-              <OptionCard key={g} index={i} emoji={GOAL_EMOJI[g]} label={GOAL_LABELS[g]} selected={goals.includes(g)} onPress={() => setGoals((l) => toggle(l, g))} />
+              <OptionCard key={g} index={i} icon={GOAL_ICON[g]} label={GOAL_LABELS[g]} selected={goals.includes(g)} onPress={() => setGoals((l) => toggle(l, g))} />
             ))}
           </View>
         );
@@ -376,7 +382,7 @@ export function OnboardingScreen(): React.JSX.Element {
         return (
           <View style={styles.list}>
             {EQUIPMENT.map((e, i) => (
-              <OptionCard key={e} index={i} emoji={EQUIPMENT_EMOJI[e]} label={EQUIPMENT_LABELS[e]} selected={equipment.includes(e)} onPress={() => setEquipment((l) => toggle(l, e))} />
+              <OptionCard key={e} index={i} icon={EQUIPMENT_ICON[e]} label={EQUIPMENT_LABELS[e]} selected={equipment.includes(e)} onPress={() => setEquipment((l) => toggle(l, e))} />
             ))}
           </View>
         );
@@ -394,23 +400,23 @@ export function OnboardingScreen(): React.JSX.Element {
         return (
           <View style={styles.list}>
             {PERSONAS.map((p, i) => (
-              <OptionCard key={p.id} index={i} emoji={p.emoji} label={p.title} hint={p.text} selected={persona === p.id} onPress={() => choose(() => setPersona(p.id))} />
+              <OptionCard key={p.id} index={i} icon={p.icon} label={p.title} hint={p.text} selected={persona === p.id} onPress={() => choose(() => setPersona(p.id))} />
             ))}
           </View>
         );
       case 'reloj':
         return (
           <View style={styles.list}>
-            <OptionCard index={0} emoji="⌚" label="Apple Watch" selected={wearable === 'applewatch'} onPress={() => choose(() => setWearable('applewatch'))} />
-            <OptionCard index={1} emoji="📿" label="Otro reloj o banda" selected={wearable === 'otro'} onPress={() => choose(() => setWearable('otro'))} />
-            <OptionCard index={2} emoji="🙅" label="No tengo" selected={wearable === 'ninguno'} onPress={() => choose(() => setWearable('ninguno'))} />
+            <OptionCard index={0} icon="applewatch" label="Apple Watch" selected={wearable === 'applewatch'} onPress={() => choose(() => setWearable('applewatch'))} />
+            <OptionCard index={1} icon="figure.run" label="Otro reloj o banda" selected={wearable === 'otro'} onPress={() => choose(() => setWearable('otro'))} />
+            <OptionCard index={2} icon="xmark" label="No tengo" selected={wearable === 'ninguno'} onPress={() => choose(() => setWearable('ninguno'))} />
           </View>
         );
       case 'avisos':
         return (
           <View style={styles.list}>
-            <OptionCard index={0} emoji="🔔" label="Sí, avísame" hint="Un aviso al día y otro si tu racha está en riesgo." selected={reminders === true} onPress={() => choose(() => setReminders(true))} />
-            <OptionCard index={1} emoji="🔕" label="Ahora no" selected={reminders === false} onPress={() => choose(() => setReminders(false))} />
+            <OptionCard index={0} icon="bell.fill" label="Sí, avísame" hint="Un aviso al día y otro si tu racha está en riesgo." selected={reminders === true} onPress={() => choose(() => setReminders(true))} />
+            <OptionCard index={1} icon="bell.slash.fill" label="Ahora no" selected={reminders === false} onPress={() => choose(() => setReminders(false))} />
           </View>
         );
       case 'tarjeta': {
@@ -427,8 +433,8 @@ export function OnboardingScreen(): React.JSX.Element {
           return (
             <View style={styles.list}>
               <AppText variant="title">{APTITUDE_QUESTIONS[i]}</AppText>
-              <OptionCard index={0} emoji="👍" label="No" selected={answers[i] === false} onPress={() => choose(() => setAnswers((a) => a.map((v, j) => (j === i ? false : v))))} />
-              <OptionCard index={1} emoji="⚠️" label="Sí" selected={answers[i] === true} onPress={() => choose(() => setAnswers((a) => a.map((v, j) => (j === i ? true : v))))} />
+              <OptionCard index={0} icon="checkmark.circle.fill" tint={colors.pitch} label="No" selected={answers[i] === false} onPress={() => choose(() => setAnswers((a) => a.map((v, j) => (j === i ? false : v))))} />
+              <OptionCard index={1} icon="exclamationmark.triangle.fill" tint={colors.volt} label="Sí" selected={answers[i] === true} onPress={() => choose(() => setAnswers((a) => a.map((v, j) => (j === i ? true : v))))} />
             </View>
           );
         }
@@ -522,6 +528,7 @@ const styles = StyleSheet.create({
   stepBox: { gap: spacing.lg },
   list: { gap: spacing.md },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  tile: { width: 34, height: 34, borderRadius: 9, alignItems: 'center', justifyContent: 'center' },
   compactCell: { minWidth: 100 },
   option: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, minHeight: 60, borderRadius: radii.card, borderWidth: 2, borderColor: 'transparent' },
   optionCompact: { minHeight: 52, paddingHorizontal: spacing.md },
@@ -529,7 +536,6 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.85 },
   bottom: { paddingTop: spacing.md, paddingBottom: spacing.md },
   hero: { alignItems: 'center', paddingVertical: spacing.xxl },
-  heroEmoji: { fontSize: 96, lineHeight: 110 },
   bigInput: { fontSize: 28, fontWeight: '700', paddingHorizontal: spacing.lg, paddingVertical: spacing.lg },
   bigStepper: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: spacing.xl },
   bigValue: { alignItems: 'center' },
