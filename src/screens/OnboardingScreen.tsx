@@ -1,11 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
-import { AppText, Chip, GlassButton, GlassCard, GlassSurface, ProgressBar, Screen, Stepper } from '../components/common';
+import { AppText, Chip, GlassButton, GlassCard, ProgressBar, Screen, Stepper, FieldSurface } from '../components/common';
 import { ATTRIBUTE_LABELS, BODY_ZONE_LABELS, LEVEL_LABELS, POSITION_LABELS } from '../content/attributeLabels';
 import { useAppDispatch } from '../context';
 import { newId } from '../core/dates';
 import { estimateAttributes, headlineKeys, type SelfAssessment } from '../core/ovr';
-import { haptics, radii, spacing, useTheme } from '../theme';
+import { haptics, spacing, useTheme } from '../theme';
 import {
   AGE_BANDS,
   BODY_ZONES,
@@ -186,7 +186,7 @@ export function OnboardingScreen(): React.JSX.Element {
       {step === 2 ? (
         <GlassCard>
           <AppText variant="caption" tone="secondary">Apodo en la tarjeta</AppText>
-          <GlassSurface radius={radii.button} flat>
+          <FieldSurface>
             <TextInput
               value={nickname}
               onChangeText={setNickname}
@@ -198,7 +198,7 @@ export function OnboardingScreen(): React.JSX.Element {
               style={[styles.input, { color: colors.text }]}
               accessibilityLabel="Apodo en la tarjeta"
             />
-          </GlassSurface>
+          </FieldSurface>
           <View style={styles.spacer} />
           <Stepper label="Número" value={number} min={0} max={99} onChange={setNumber} />
           <AppText variant="caption" tone="secondary" style={styles.label}>País</AppText>

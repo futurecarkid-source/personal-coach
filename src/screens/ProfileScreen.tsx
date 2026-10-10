@@ -3,7 +3,7 @@ import { Alert, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { CONSENT_TEXT, describeAiError, refineScouting } from '../ai';
 import { useAiAccess } from '../ai/useAi';
-import { AppText, Chip, Columns, Disclosure, GlassButton, GlassCard, GlassSurface, Screen, SectionHeader, Stepper } from '../components/common';
+import { AppText, Chip, Columns, Disclosure, GlassButton, GlassCard, Screen, SectionHeader, Stepper, FieldSurface } from '../components/common';
 import { NativeSegmented, NativeToggle } from '../components/native/NativeControls';
 import { ensureNotificationPermission, refreshReminders } from '../services/reminders';
 import { shareCard } from '../services/share';
@@ -14,7 +14,7 @@ import { toISODate } from '../core/dates';
 import { levelProgress } from '../core/gamification';
 import { computeOvr, headlineKeys } from '../core/ovr';
 import { rankFor } from '../core/progression';
-import { isHapticsSupported, radii, spacing, useTheme } from '../theme';
+import { isHapticsSupported, spacing, useTheme } from '../theme';
 import { isMinor, type AttributeKey } from '../types';
 
 const SOURCE_LABEL = { estimado: 'Estimado', medido: 'Medido', ajustado: 'Ajustado' } as const;
@@ -200,7 +200,7 @@ export function ProfileScreen(): React.JSX.Element {
         <View style={styles.list}>
           <AppText variant="callout" tone="secondary">Sin IA, el coach local sigue funcionando.</AppText>
           <AppText variant="caption" tone="secondary">Dirección del servicio de IA</AppText>
-          <GlassSurface radius={radii.button} flat>
+          <FieldSurface>
             <TextInput
               value={settings.aiGatewayUrl}
               onChangeText={(v) => dispatch({ type: 'SET_SETTINGS', patch: { aiGatewayUrl: v } })}
@@ -212,9 +212,9 @@ export function ProfileScreen(): React.JSX.Element {
               style={[styles.input, { color: colors.text }]}
               accessibilityLabel="Dirección del servicio de IA"
             />
-          </GlassSurface>
+          </FieldSurface>
           <AppText variant="caption" tone="secondary">Código de acceso {access.hasAccessCode ? '(guardado)' : '(no guardado)'}</AppText>
-          <GlassSurface radius={radii.button} flat>
+          <FieldSurface>
             <TextInput
               value={code}
               onChangeText={setCode}
@@ -226,7 +226,7 @@ export function ProfileScreen(): React.JSX.Element {
               style={[styles.input, { color: colors.text }]}
               accessibilityLabel="Código de acceso a la IA"
             />
-          </GlassSurface>
+          </FieldSurface>
           <View style={styles.wrapRow}>
             <GlassButton label={code.trim() ? 'Guardar código' : 'Borrar código'} size="compact" haptic="medium" disabled={!code.trim() && !access.hasAccessCode} onPress={() => { void saveCode(); }} />
             {settings.aiConsentAt ? (

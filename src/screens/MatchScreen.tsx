@@ -3,11 +3,11 @@ import { StyleSheet, TextInput, View } from 'react-native';
 import { describeAiError, reviewMatch, type MatchReviewOutput } from '../ai';
 import { useAiAccess } from '../ai/useAi';
 import { EXERCISE_BY_ID } from '../content/exercises';
-import { AppText, Chip, FaceRating, GlassButton, GlassCard, GlassSurface, Screen, SectionHeader, Stepper, SwipeRow } from '../components/common';
+import { AppText, Chip, FaceRating, GlassButton, GlassCard, Screen, SectionHeader, Stepper, SwipeRow, FieldSurface } from '../components/common';
 import { MatchTracker, type NewMatchEvent } from '../components/specialized/MatchTracker';
 import { useAppDispatch, useAppState } from '../context';
 import { newId, toISODate } from '../core/dates';
-import { radii, spacing, useTheme } from '../theme';
+import { spacing, useTheme } from '../theme';
 import type { Match } from '../types';
 
 export function MatchScreen(): React.JSX.Element {
@@ -124,12 +124,12 @@ export function MatchScreen(): React.JSX.Element {
       <GlassCard>
         <SectionHeader title="Nuevo partido" />
         <View style={styles.form}>
-          <GlassSurface radius={radii.button} flat>
+          <FieldSurface>
             <TextInput value={opponent} onChangeText={setOpponent} placeholder="Rival" placeholderTextColor={colors.textSecondary} maxLength={40} style={[styles.input, { color: colors.text }]} accessibilityLabel="Rival" />
-          </GlassSurface>
-          <GlassSurface radius={radii.button} flat>
+          </FieldSurface>
+          <FieldSurface>
             <TextInput value={competition} onChangeText={setCompetition} placeholder="Competición (por ejemplo, Liga)" placeholderTextColor={colors.textSecondary} maxLength={40} style={[styles.input, { color: colors.text }]} accessibilityLabel="Competición" />
-          </GlassSurface>
+          </FieldSurface>
           <View style={styles.row}>
             <Chip label="Local" selected={venue === 'local'} onPress={() => setVenue('local')} />
             <Chip label="Visitante" selected={venue === 'visitante'} onPress={() => setVenue('visitante')} />

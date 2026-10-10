@@ -2,11 +2,11 @@ import React, { useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { describeAiError, explainTactic, type TacticExplainOutput } from '../ai';
 import { useAiAccess } from '../ai/useAi';
-import { AppText, Disclosure, GlassButton, GlassCard, GlassSurface, Screen, SectionHeader } from '../components/common';
+import { AppText, Disclosure, GlassButton, GlassCard, Screen, SectionHeader, FieldSurface } from '../components/common';
 import { TacticalBoard } from '../components/specialized/TacticalBoard';
 import { useAppDispatch, useAppState } from '../context';
 import { newId } from '../core/dates';
-import { radii, spacing, useTheme } from '../theme';
+import { spacing, useTheme } from '../theme';
 import type { GameFormat, Play, PlayFrame } from '../types';
 
 interface Loaded {
@@ -90,9 +90,9 @@ export function TacticsScreen(): React.JSX.Element {
 
       <Disclosure title="Pregúntale al coach">
         <View style={styles.form}>
-          <GlassSurface radius={radii.button} flat>
+          <FieldSurface>
             <TextInput value={question} onChangeText={setQuestion} placeholder="Pregunta (opcional)" placeholderTextColor={colors.textSecondary} maxLength={300} style={[styles.input, { color: colors.text }]} accessibilityLabel="Pregunta sobre la pizarra" />
-          </GlassSurface>
+          </FieldSurface>
           <GlassButton label={busy ? 'Pensando…' : 'Explícame esta jugada'} icon="sparkles" variant="primary" disabled={busy} haptic="medium" onPress={() => { void askCoachAboutBoard(); }} />
           {explainError ? <AppText variant="callout" tone="danger">{explainError}</AppText> : null}
           {explain ? (
@@ -109,9 +109,9 @@ export function TacticsScreen(): React.JSX.Element {
 
       <Disclosure title="Guardar jugada" defaultOpen>
         <View style={styles.form}>
-          <GlassSurface radius={radii.button} flat>
+          <FieldSurface>
             <TextInput value={name} onChangeText={setName} placeholder="Nombre de la jugada" placeholderTextColor={colors.textSecondary} maxLength={40} style={[styles.input, { color: colors.text }]} accessibilityLabel="Nombre de la jugada" />
-          </GlassSurface>
+          </FieldSurface>
           <GlassButton label="Guardar" icon="square.and.arrow.down" variant="primary" haptic="success" onPress={save} />
         </View>
       </Disclosure>

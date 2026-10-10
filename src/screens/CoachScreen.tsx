@@ -3,7 +3,7 @@ import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View
 import { useRouter } from 'expo-router';
 import { AiError, AI_LABEL, CRISIS_MESSAGE, EATING_MESSAGE, askCoach, buildProfileContext, buildSnapshot, describeAiError, detectSensitive, localCoachReply, type CoachChatOutput } from '../ai';
 import { useAiAccess } from '../ai/useAi';
-import { AppText, GlassButton, GlassSurface, HapticTouch, Icon } from '../components/common';
+import { AppText, GlassButton, GlassSurface, HapticTouch, Icon, FieldSurface } from '../components/common';
 import { useAppDispatch, useAppState } from '../context';
 import { newId } from '../core/dates';
 import { useWeekPlan } from '../hooks/useTodayPlan';
@@ -144,7 +144,7 @@ export function CoachScreen(): React.JSX.Element {
       </ScrollView>
 
       <View style={styles.inputRow}>
-        <GlassSurface radius={radii.pill} flat style={styles.inputBox}>
+        <FieldSurface>
           <TextInput
             value={text}
             onChangeText={setText}
@@ -156,7 +156,7 @@ export function CoachScreen(): React.JSX.Element {
             accessibilityLabel="Mensaje para el coach"
             onSubmitEditing={() => { void send(); }}
           />
-        </GlassSurface>
+        </FieldSurface>
         <HapticTouch haptic="medium" onPress={() => { void send(); }} disabled={busy || text.trim().length === 0} accessibilityLabel="Enviar">
           <GlassSurface radius={radii.pill} tint={colors.accent} interactive flat style={styles.send}>
             <Icon name="arrow.up" size={20} color={colors.accent} />

@@ -15,3 +15,4 @@ export * from './OnlineGate';
 export * from './Columns';
 export * from './SwipeRow';
 export * from './Disclosure';
+export * from './FieldSurface';
