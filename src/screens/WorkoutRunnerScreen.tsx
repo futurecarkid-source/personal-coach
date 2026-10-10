@@ -173,7 +173,7 @@ export function WorkoutRunnerScreen(): React.JSX.Element {
             </GlassCard>
           )}
 
-          <Disclosure title="Cómo hacerlo">
+          <Disclosure title="Cómo hacerlo" defaultOpen>
             <View style={styles.steps}>
               {current.steps.map((step, i) => (
                 <AppText key={step} variant="callout">{i + 1}. {step}</AppText>

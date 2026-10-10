@@ -6,7 +6,7 @@ import { AppText, FieldSurface, GlassButton, GlassSurface, Icon, ProgressBar, Sc
 import { Confetti } from '../components/specialized/Confetti';
 import { PlanCreated } from '../components/specialized/PlanCreated';
 import { PlayerCard3D } from '../components/specialized/PlayerCard3D';
-import { ATTRIBUTE_LABELS, BODY_ZONE_LABELS, LEVEL_LABELS, POSITION_LABELS } from '../content/attributeLabels';
+import { ATTRIBUTE_LABELS, BODY_ZONE_LABELS, EQUIPMENT_LABELS, LEVEL_LABELS, POSITION_LABELS } from '../content/attributeLabels';
 import { useAppDispatch } from '../context';
 import { newId, toISODate } from '../core/dates';
 import { planDays, startWithTraining } from '../core/planner';
@@ -42,16 +42,6 @@ const AGE_LABELS: Record<AgeBand, string> = {
 
 const COUNTRY_NAMES: Record<string, string> = { CO: 'Colombia', MX: 'México', AR: 'Argentina', CL: 'Chile', PE: 'Perú', EC: 'Ecuador', VE: 'Venezuela', UY: 'Uruguay', PY: 'Paraguay', BO: 'Bolivia', CR: 'Costa Rica', PA: 'Panamá', DO: 'Rep. Dominicana', GT: 'Guatemala', HN: 'Honduras', SV: 'El Salvador', NI: 'Nicaragua', ES: 'España', US: 'Estados Unidos', BR: 'Brasil' };
 const COUNTRIES = ['CO', 'MX', 'AR', 'CL', 'PE', 'EC', 'VE', 'UY', 'PY', 'BO', 'CR', 'PA', 'DO', 'GT', 'HN', 'SV', 'NI', 'ES', 'US', 'BR'] as const;
-
-const EQUIPMENT_LABELS: Record<Equipment, string> = {
-  ninguno: 'Sin equipo',
-  bandas: 'Bandas elásticas',
-  mancuernas: 'Mancuernas',
-  gimnasio: 'Gimnasio',
-  balon: 'Balón',
-  conos: 'Conos',
-  escalera: 'Escalera de agilidad',
-};
 
 const GOAL_LABELS: Record<Goal, string> = {
   subir_nivel: 'Subir de nivel o fichar',

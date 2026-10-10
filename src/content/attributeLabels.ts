@@ -1,4 +1,4 @@
-import type { AttributeKey } from '../types';
+import type { AttributeKey, Equipment } from '../types';
 
 /** Etiqueta corta (en la cara de la tarjeta) y nombre completo (en el detalle). */
 export const ATTRIBUTE_LABELS: Record<AttributeKey, { short: string; full: string }> = {
@@ -69,3 +69,13 @@ export function flagEmoji(countryCode: string): string {
   const base = 0x1f1e6;
   return String.fromCodePoint(base + code.charCodeAt(0) - 65, base + code.charCodeAt(1) - 65);
 }
+
+export const EQUIPMENT_LABELS: Record<Equipment, string> = {
+  ninguno: 'Sin equipo',
+  bandas: 'Bandas elásticas',
+  mancuernas: 'Mancuernas',
+  gimnasio: 'Gimnasio',
+  balon: 'Balón',
+  conos: 'Conos',
+  escalera: 'Escalera de agilidad',
+};
