@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { describeAiError, refineScouting } from '../ai';
 import { useAiAccess } from '../ai/useAi';
-import { AppText, Chip, Columns, Disclosure, GlassButton, GlassCard, Screen, SectionHeader, Stepper } from '../components/common';
+import { AppText, Chip, Columns, Disclosure, GlassButton, GlassCard, Screen, SectionHeader, Stepper, showActionSheet } from '../components/common';
 import { NativeSegmented, NativeToggle } from '../components/native/NativeControls';
 import { ensureNotificationPermission, refreshReminders } from '../services/reminders';
 import { shareCard } from '../services/share';
@@ -59,11 +59,21 @@ export function ProfileScreen(): React.JSX.Element {
     }
   };
 
+  // Se usa la hoja de acciones (funciona en iPhone y en la web); Alert.alert no hace nada en el navegador.
   const confirmReset = (): void => {
-    Alert.alert('Borrar todos mis datos', 'Se borrarán tu tarjeta, tus sesiones, partidos y jugadas de este dispositivo. No se puede deshacer.', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Borrar todo', style: 'destructive', onPress: () => dispatch({ type: 'RESET_ALL' }) },
-    ]);
+    showActionSheet({
+      title: 'Se borrarán tu tarjeta, tus sesiones, partidos, jugadas y la clave de la IA de este dispositivo. No se puede deshacer.',
+      options: [
+        {
+          label: 'Borrar todos mis datos',
+          destructive: true,
+          onPress: () => {
+            void access.saveAccessCode('');
+            dispatch({ type: 'RESET_ALL' });
+          },
+        },
+      ],
+    });
   };
 
   const renderAttr = (key: AttributeKey): React.JSX.Element | null => {
