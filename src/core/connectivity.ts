@@ -16,7 +16,8 @@ export interface OnlineStatusResult {
  * Sin servicio configurado (modo local) no hay límite. La primera vez se da el margen completo desde `firstSeenAt`.
  */
 export function onlineStatus(args: { gatewayUrl: string; lastOnlineAt: string | null; now: Date }): OnlineStatusResult {
-  if (args.gatewayUrl.trim().length === 0) return { status: 'sin_servicio', hoursOffline: null, hoursLeft: null };
+  // Con tu propia clave (modo directo) no hay servicio nuestro que confirmar: sin límite de 72 h.
+  if (args.gatewayUrl.trim().length === 0 || args.gatewayUrl.trim().startsWith('direct:')) return { status: 'sin_servicio', hoursOffline: null, hoursLeft: null };
   if (args.lastOnlineAt === null) return { status: 'ok', hoursOffline: null, hoursLeft: OFFLINE_LIMIT_HOURS };
   const last = Date.parse(args.lastOnlineAt);
   if (Number.isNaN(last)) return { status: 'ok', hoursOffline: null, hoursLeft: OFFLINE_LIMIT_HOURS };

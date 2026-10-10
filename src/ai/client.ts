@@ -1,3 +1,4 @@
+import { providerFromUrl, runDirectTask } from './direct';
 import { AI_ERROR_CODES, TASK_SCHEMAS, type AiErrorCode, type AiTask, type TaskInput, type TaskOutput } from './contract';
 
 export class AiError extends Error {
@@ -35,6 +36,8 @@ function isErrorCode(value: unknown): value is AiErrorCode {
  * que guarda las claves, comprueba el acceso y limita el uso. Valida entrada y salida con Zod.
  */
 export async function runAiTask<T extends AiTask>(config: GatewayConfig, task: T, input: TaskInput<T>): Promise<AiResult<T>> {
+  const direct = providerFromUrl(config.baseUrl);
+  if (direct) return runDirectTask(direct, config.accessCode, task, input, config.fetchImpl);
   const schemas = TASK_SCHEMAS[task];
   const parsedInput = schemas.input.safeParse(input);
   if (!parsedInput.success) throw new AiError('bad_request', 'Los datos de la consulta no son válidos.');

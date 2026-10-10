@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { Linking, StyleSheet, TextInput, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { CONSENT_TEXT } from '../ai';
-import { CONNECTION_MESSAGES, parseConnectionLink, pingGateway, type ConnectionStatus } from '../ai/connect';
+import { CONNECTION_MESSAGES, parseConnectionLink, pingGateway } from '../ai/connect';
+import { DIRECT_MESSAGES, PROVIDER_NAME, detectKey, directUrl, isDirectUrl, pingDirect, providerFromUrl } from '../ai/direct';
 import { useAiAccess } from '../ai/useAi';
 import { AppText, Disclosure, FieldSurface, GlassButton, GlassCard, Icon, Screen } from '../components/common';
 import { useAppDispatch, useAppState } from '../context';
@@ -36,7 +37,7 @@ export function AiSetupScreen(): React.JSX.Element {
   const [address, setAddress] = useState(settings.aiGatewayUrl);
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
-  const [status, setStatus] = useState<ConnectionStatus | null>(null);
+  const [status, setStatus] = useState<{ ok: boolean; text: string } | null>(null);
   const [showConsent, setShowConsent] = useState(false);
 
   const connected = settings.aiGatewayUrl.trim().length > 0 && access.hasAccessCode;
@@ -45,20 +46,38 @@ export function AiSetupScreen(): React.JSX.Element {
   const ready = connected && consented && adultOk;
 
   const connect = async (): Promise<void> => {
-    const parsed = link.trim() ? parseConnectionLink(link) : parseConnectionLink(address);
-    const finalCode = (parsed?.code ?? code).trim();
-    if (!parsed) return setStatus('bad_address');
-    if (!finalCode) return setStatus('bad_code');
+    const text = link.trim() || address.trim();
     setBusy(true);
     setStatus(null);
-    const result = await pingGateway(parsed.url, finalCode);
-    if (result === 'ok') {
-      dispatch({ type: 'SET_SETTINGS', patch: { aiGatewayUrl: parsed.url } });
-      await access.saveAccessCode(finalCode);
-      setLink('');
-      setCode('');
+    // 1) ¿Pegaron una clave de API (Google AI Studio o Anthropic)? Se conecta directo, sin servidor.
+    const key = detectKey(`${text} ${code}`);
+    if (key) {
+      const result = await pingDirect(key.provider, key.key);
+      if (result === 'ok') {
+        dispatch({ type: 'SET_SETTINGS', patch: { aiGatewayUrl: directUrl(key.provider) } });
+        await access.saveAccessCode(key.key);
+        setLink('');
+        setCode('');
+      }
+      setStatus({ ok: result === 'ok', text: result === 'ok' ? `Conectada a ${PROVIDER_NAME[key.provider]}. Ya puedes usar la IA.` : DIRECT_MESSAGES[result] });
+      setBusy(false);
+      return;
     }
-    setStatus(result);
+    // 2) Si no, un enlace de servicio propio (https://…/#código).
+    const parsed = parseConnectionLink(text);
+    const finalCode = (parsed?.code ?? code).trim();
+    if (!parsed) setStatus({ ok: false, text: 'No encontré una clave ni una dirección. La clave de Google empieza por AIza y la de Anthropic por sk-ant-.' });
+    else if (!finalCode) setStatus({ ok: false, text: CONNECTION_MESSAGES.bad_code });
+    else {
+      const result = await pingGateway(parsed.url, finalCode);
+      if (result === 'ok') {
+        dispatch({ type: 'SET_SETTINGS', patch: { aiGatewayUrl: parsed.url } });
+        await access.saveAccessCode(finalCode);
+        setLink('');
+        setCode('');
+      }
+      setStatus({ ok: result === 'ok', text: CONNECTION_MESSAGES[result] });
+    }
     setBusy(false);
   };
 
@@ -109,28 +128,32 @@ export function AiSetupScreen(): React.JSX.Element {
         </View>
         {connected ? (
           <View style={styles.block}>
-            <AppText variant="callout" tone="secondary">Conectado a {settings.aiGatewayUrl.replace(/^https?:\/\//, '')}</AppText>
+            <AppText variant="callout" tone="secondary">
+              Conectado a {providerFromUrl(settings.aiGatewayUrl) ? PROVIDER_NAME[providerFromUrl(settings.aiGatewayUrl)!] : settings.aiGatewayUrl.replace(/^https?:\/\//, '')}
+            </AppText>
             <GlassButton label="Desconectar" size="compact" variant="danger" haptic="warning" onPress={() => { void disconnect(); }} />
           </View>
         ) : (
           <View style={styles.block}>
             <AppText variant="callout" tone="secondary">
-              Pega el enlace de conexión que te dio quien administra tu servicio de IA. Se ve así: https://…workers.dev/#tu-código
+              Pega tu clave de API. Con una clave gratuita de Google AI Studio basta: no necesitas ningún servidor.
             </AppText>
-            {field(link, setLink, 'Pega aquí el enlace', 'Enlace de conexión')}
-            <Disclosure title="Prefiero escribir la dirección y el código" summary="Opcional">
+            {field(link, setLink, 'Pega aquí tu clave (AIza…)', 'Clave de API o enlace')}
+            <GlassButton label="Conseguir clave gratis" icon="sparkles" size="compact" variant="secondary" haptic="light" onPress={() => { void Linking.openURL('https://aistudio.google.com/apikey'); }} />
+            <Disclosure title="Tengo un servicio propio (enlace)" summary="Avanzado">
               <View style={styles.block}>
+                <AppText variant="caption" tone="secondary">Pega el enlace https://…workers.dev/#tu-código en el campo de arriba, o escribe la dirección y el código aquí.</AppText>
                 {field(address, setAddress, 'https://…', 'Dirección del servicio')}
                 {field(code, setCode, 'Código de acceso', 'Código de acceso', true)}
               </View>
             </Disclosure>
-            <GlassButton label={busy ? 'Probando…' : 'Conectar y probar'} icon="bolt.fill" variant="go" haptic="medium" fullWidth disabled={busy || (!link.trim() && !address.trim())} onPress={() => { void connect(); }} />
+            <GlassButton label={busy ? 'Probando…' : 'Conectar y probar'} icon="bolt.fill" variant="go" haptic="medium" fullWidth disabled={busy || (!link.trim() && !address.trim() && !code.trim())} onPress={() => { void connect(); }} />
           </View>
         )}
         {status ? (
           <View style={styles.statusRow}>
-            <Icon name={status === 'ok' ? 'checkmark.circle.fill' : 'exclamationmark.triangle.fill'} size={18} color={status === 'ok' ? colors.pitch : colors.volt} />
-            <AppText variant="callout" tone={status === 'ok' ? 'success' : 'danger'} style={styles.flex}>{CONNECTION_MESSAGES[status]}</AppText>
+            <Icon name={status.ok ? 'checkmark.circle.fill' : 'exclamationmark.triangle.fill'} size={18} color={status.ok ? colors.pitch : colors.volt} />
+            <AppText variant="callout" tone={status.ok ? 'success' : 'danger'} style={styles.flex}>{status.text}</AppText>
           </View>
         ) : null}
       </GlassCard>
@@ -144,7 +167,7 @@ export function AiSetupScreen(): React.JSX.Element {
           <AppText variant="callout" tone="secondary">
             Para responder, la app envía datos mínimos de tu entrenamiento (nunca tu nombre, fotos ni video).
           </AppText>
-          {showConsent ? <AppText variant="caption" tone="secondary">{CONSENT_TEXT}</AppText> : null}
+          {showConsent ? <AppText variant="caption" tone="secondary">{isDirectUrl(settings.aiGatewayUrl) && providerFromUrl(settings.aiGatewayUrl) === 'gemini' ? CONSENT_TEXT.replace('a su servicio y de ahí a Anthropic (el proveedor del modelo Claude)', 'directamente a Google (Gemini, con tu clave de AI Studio)').replace('Fulbito no guarda el contenido de las consultas.', 'Fulbito no guarda el contenido de las consultas. Con una clave gratuita de Google, Google puede usar lo enviado para mejorar sus productos: no escribas datos que no quieras compartir.') : CONSENT_TEXT}</AppText> : null}
           <View style={styles.wrapRow}>
             <GlassButton label={showConsent ? 'Ocultar detalle' : 'Ver detalle'} size="compact" haptic="light" onPress={() => setShowConsent((v) => !v)} />
             {consented ? (
@@ -178,9 +201,9 @@ export function AiSetupScreen(): React.JSX.Element {
       <GlassButton label={ready ? 'Probar con el coach' : 'Completa los pasos para empezar'} icon="bubble.left.fill" variant="go" haptic="medium" fullWidth disabled={!ready} onPress={() => router.replace('/coach')} />
 
       <GlassCard>
-        <AppText variant="label" tone="secondary">¿No tienes enlace?</AppText>
+        <AppText variant="label" tone="secondary">Privacidad de tu clave</AppText>
         <AppText variant="callout" tone="secondary" style={styles.spaced}>
-          El servicio de IA es un pequeño programa que guarda tu clave de Anthropic y la protege con un código. Se publica una sola vez (guía en server/README.md) y de ahí sale el enlace de conexión.
+          Tu clave se guarda solo en este dispositivo y la app habla directo con Google o Anthropic. Si algún día quieres compartir la IA con otras personas sin darles tu clave, se puede montar un servicio propio (guía en server/README.md).
         </AppText>
       </GlassCard>
     </Screen>

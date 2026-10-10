@@ -13,7 +13,7 @@ export function useOnlineGate(): { result: OnlineStatusResult; retry: () => void
 
   const check = useCallback(async (): Promise<void> => {
     setNow(new Date());
-    if (url.trim().length === 0) return;
+    if (url.trim().length === 0 || url.trim().startsWith('direct:')) return;
     setChecking(true);
     try {
       const controller = new AbortController();
