@@ -1,6 +1,5 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View, useWindowDimensions, type StyleProp, type ViewStyle } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -59,9 +58,8 @@ function WebHeader({ title, back }: { title: string; back: boolean }): React.JSX
 }
 
 export function Screen({ children, scroll = true, tabBarSpace = true, nativeHeader = false, plain = false, wide = false, title, back = false, contentStyle }: ScreenProps): React.JSX.Element {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
   const maxWidth = wide ? 1100 : 760;
   const [locked, setLocked] = useState(false);
   const lock = useCallback(() => setLocked(true), []);
@@ -96,15 +94,7 @@ export function Screen({ children, scroll = true, tabBarSpace = true, nativeHead
         )}
         {plain ? null : (
           <>
-            <LinearGradient
-              pointerEvents="none"
-              colors={isDark ? ['#14171B', '#0A0C0F'] : ['#F1F3F6', '#DCE0E5']}
-              style={[StyleSheet.absoluteFill, styles.behind]}
-            />
-            {/* Franjas diagonales: dan color y movimiento detrás del vidrio. */}
-            <View pointerEvents="none" style={[styles.stripe, styles.behind, { backgroundColor: colors.volt, opacity: isDark ? 0.22 : 0.18, top: -width * 0.1, right: -width * 0.28, width: width * 0.75, height: width * 0.34 }]} />
-            <View pointerEvents="none" style={[styles.stripe, styles.behind, { backgroundColor: colors.graphite, opacity: isDark ? 0.5 : 0.12, top: width * 0.12, right: -width * 0.45, width: width * 0.9, height: width * 0.16 }]} />
-            <View pointerEvents="none" style={[styles.stripe, styles.behind, { backgroundColor: colors.graphite, opacity: isDark ? 0.55 : 0.2, top: width * 0.95, left: -width * 0.5, width: width * 1.1, height: width * 0.4 }]} />
+            <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.behind, { backgroundColor: colors.background }]} />
           </>
         )}
       </View>

@@ -27,12 +27,12 @@ export interface Palette {
 }
 
 export const lightPalette: Palette = {
-  background: '#E6E9ED',
-  backgroundAlt: '#D9DDE2',
+  background: '#F2F2F7',
+  backgroundAlt: '#E5E5EA',
   surface: '#FFFFFF',
-  surfaceStrong: '#D2D7DD',
+  surfaceStrong: '#E5E5EA',
   text: '#16191E',
-  textSecondary: '#556070',
+  textSecondary: '#6C6C70',
   textOnAccent: '#FFFFFF',
   separator: 'rgba(22,25,30,0.14)',
   accent: '#2A2F37',
@@ -46,18 +46,18 @@ export const lightPalette: Palette = {
   warning: '#D99A00',
   danger: '#B3261E',
   glassBorder: 'rgba(255,255,255,0.7)',
-  glassFill: 'rgba(255,255,255,0.26)',
+  glassFill: 'rgba(120,120,128,0.14)',
   glassTint: 'rgba(255,255,255,0.12)',
   shadow: 'rgba(22,25,30,0.22)',
 };
 
 export const darkPalette: Palette = {
-  background: '#0C0E11',
-  backgroundAlt: '#14171B',
-  surface: '#1A1E24',
-  surfaceStrong: '#2A3039',
+  background: '#000000',
+  backgroundAlt: '#1C1C1E',
+  surface: '#1C1C1E',
+  surfaceStrong: '#2C2C2E',
   text: '#F4F6F8',
-  textSecondary: '#AEB7C3',
+  textSecondary: '#98989F',
   textOnAccent: '#16191E',
   separator: 'rgba(235,240,245,0.18)',
   accent: '#E4E8ED',
@@ -71,7 +71,7 @@ export const darkPalette: Palette = {
   warning: '#F0B429',
   danger: '#F05A5A',
   glassBorder: 'rgba(255,255,255,0.2)',
-  glassFill: 'rgba(20,23,28,0.55)',
+  glassFill: 'rgba(120,120,128,0.30)',
   glassTint: 'rgba(255,255,255,0.06)',
   shadow: 'rgba(0,0,0,0.6)',
 };
