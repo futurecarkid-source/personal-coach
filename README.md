@@ -32,6 +32,9 @@ npm start           # Expo (Expo Go en iPhone/iPad)
 ## Navegación iOS 26
 Cada pestaña tiene su pila nativa con título grande. La barra de pestañas es la **del sistema** (Liquid Glass real, `NativeTabs`, alfa en Expo SDK 57) con una guarda de arranque: si falla, se usa la barra de vidrio propia (`FloatingTabBar`). Las hojas (Coach, Dolor) son `formSheet` con detents. Los ajustes usan controles SwiftUI reales (`@expo/ui`).
 
+## Versión web instalable
+`scripts/build-web.sh <carpeta> /personal-coach` genera la web (PWA con icono, pantalla completa y modo sin conexión). Se publica en la rama `gh-pages`.
+
 ## Estado
 Hecho y verificado (tipos, lint, 237 pruebas, empaquetado de iOS con Metro y del Worker): cuestionario inicial, plan por reglas, "Empezar ejercicio", check-in, racha y XP, tarjeta con inclinación, temporizador, tracker de partido con xG y mapa de calor, pizarra táctica, **IA** (coach en chat, plan semanal validado, orientación de dolor, explicación de pizarra, revisión de partido, refinado de cifras), **dolor y lesiones** (reglas locales de alerta R1 a R11 y seguimiento a 24/48/72 h), navegación nativa de iOS 26, **Preparación** (carga ACWR/EWMA, monotonía, bienestar, sueño, sensibilidad), **Mente** (respiración guiada con háptica y test de reflejos con línea base), **guía de lesiones** (14 fichas con acceso a "Tengo este dolor"), 30 ejercicios y la regla **"online primero"** (aviso a las 48 h y pantalla de conexión a las 72 h, solo si hay servicio configurado).
 
