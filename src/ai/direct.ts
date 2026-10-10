@@ -27,7 +27,8 @@ const ANTHROPIC_MODEL = 'claude-sonnet-5-5';
 
 /** Busca una clave de API en lo que se pegó (aunque venga dentro de un enlace o con texto alrededor). */
 export function detectKey(text: string): { provider: DirectProvider; key: string } | null {
-  const g = /AIza[0-9A-Za-z_-]{30,}/.exec(text);
+  // Google tiene dos formatos de clave: el clásico (AIza…) y el nuevo de AI Studio (AQ.…, con un punto).
+  const g = /AIza[0-9A-Za-z_-]{30,}/.exec(text) ?? /AQ\.[0-9A-Za-z_-]{20,}/.exec(text);
   if (g) return { provider: 'gemini', key: g[0] };
   const a = /sk-ant-[0-9A-Za-z_-]{20,}/.exec(text);
   if (a) return { provider: 'anthropic', key: a[0] };
@@ -160,4 +161,10 @@ export async function runDirectTask<T extends AiTask>(provider: DirectProvider, 
     messages = [...spec.messages, { role: 'assistant', content: reply.text.slice(0, 2000) }, { role: 'user', content: 'Tu respuesta no cumplió el formato. Responde de nuevo solo con el JSON que cumple el esquema.' }];
   }
   throw new AiError('bad_output', lastError);
+}
+
+/** ¿Parece una clave suelta (sin espacios ni enlace) aunque no reconozcamos el formato? Se probará con ambos proveedores. */
+export function looksLikeBareKey(text: string): string | null {
+  const t = text.trim();
+  return t.length >= 24 && t.length <= 300 && !/\s/.test(t) && !/^https?:/i.test(t) ? t : null;
 }

@@ -4,7 +4,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { CONSENT_TEXT } from '../ai';
 import { CONNECTION_MESSAGES, parseConnectionLink, pingGateway } from '../ai/connect';
-import { DIRECT_MESSAGES, PROVIDER_NAME, detectKey, directUrl, isDirectUrl, pingDirect, providerFromUrl } from '../ai/direct';
+import { DIRECT_MESSAGES, PROVIDER_NAME, detectKey, directUrl, isDirectUrl, looksLikeBareKey, pingDirect, providerFromUrl, type DirectProvider } from '../ai/direct';
 import { useAiAccess } from '../ai/useAi';
 import { AppText, Disclosure, FieldSurface, GlassButton, GlassCard, Icon, Screen } from '../components/common';
 import { useAppDispatch, useAppState } from '../context';
@@ -50,7 +50,19 @@ export function AiSetupScreen(): React.JSX.Element {
     setBusy(true);
     setStatus(null);
     // 1) ¿Pegaron una clave de API (Google AI Studio o Anthropic)? Se conecta directo, sin servidor.
-    const key = detectKey(`${text} ${code}`);
+    let key: ReturnType<typeof detectKey> = detectKey(`${text} ${code}`);
+    if (!key) {
+      // Formato desconocido: si parece una clave suelta, se prueba con Google y luego con Anthropic.
+      const bare = looksLikeBareKey(text);
+      if (bare) {
+        for (const provider of ['gemini', 'anthropic'] as DirectProvider[]) {
+          if ((await pingDirect(provider, bare)) === 'ok') {
+            key = { provider, key: bare };
+            break;
+          }
+        }
+      }
+    }
     if (key) {
       const result = await pingDirect(key.provider, key.key);
       if (result === 'ok') {
@@ -66,7 +78,7 @@ export function AiSetupScreen(): React.JSX.Element {
     // 2) Si no, un enlace de servicio propio (https://…/#código).
     const parsed = parseConnectionLink(text);
     const finalCode = (parsed?.code ?? code).trim();
-    if (!parsed) setStatus({ ok: false, text: 'No encontré una clave ni una dirección. La clave de Google empieza por AIza y la de Anthropic por sk-ant-.' });
+    if (!parsed) setStatus({ ok: false, text: 'No reconocí esa clave. La de Google AI Studio empieza por AIza o AQ. y la de Anthropic por sk-ant-. Cópiala completa, sin espacios.' });
     else if (!finalCode) setStatus({ ok: false, text: CONNECTION_MESSAGES.bad_code });
     else {
       const result = await pingGateway(parsed.url, finalCode);
@@ -138,7 +150,7 @@ export function AiSetupScreen(): React.JSX.Element {
             <AppText variant="callout" tone="secondary">
               Pega tu clave de API. Con una clave gratuita de Google AI Studio basta: no necesitas ningún servidor.
             </AppText>
-            {field(link, setLink, 'Pega aquí tu clave (AIza…)', 'Clave de API o enlace')}
+            {field(link, setLink, 'Pega aquí tu clave (AIza… o AQ.…)', 'Clave de API o enlace')}
             <GlassButton label="Conseguir clave gratis" icon="sparkles" size="compact" variant="secondary" haptic="light" onPress={() => { void Linking.openURL('https://aistudio.google.com/apikey'); }} />
             <Disclosure title="Tengo un servicio propio (enlace)" summary="Avanzado">
               <View style={styles.block}>

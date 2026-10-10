@@ -14,6 +14,7 @@ describe('detectKey', () => {
     const k = 'AIzaSyA1234567890abcdefghijklmnopqrstuv';
     expect(detectKey(`https://aistudio.google.com/apikey#${k}`)).toEqual({ provider: 'gemini', key: k });
     expect(detectKey('mi clave sk-ant-api03-abcdefghijklmnopqrstuvwx')?.provider).toBe('anthropic');
+    expect(detectKey('AQ.Ab8RN6Kxyz_1234567890abcdefgh')).toEqual({ provider: 'gemini', key: 'AQ.Ab8RN6Kxyz_1234567890abcdefgh' });
     expect(detectKey('hola')).toBeNull();
   });
 });
