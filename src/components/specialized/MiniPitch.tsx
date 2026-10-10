@@ -36,7 +36,7 @@ export function MiniPitch({ width, markers = [], selected, onSelect }: MiniPitch
           {selected ? (
             <>
               <Circle cx={selected.x} cy={selected.y} r={3} fill="rgba(194,73,29,0.4)" />
-              <Circle cx={selected.x} cy={selected.y} r={1.4} fill="#E0663A" stroke="#FFFFFF" strokeWidth={0.35} />
+              <Circle cx={selected.x} cy={selected.y} r={1.4} fill="#FF9F0A" stroke="#FFFFFF" strokeWidth={0.35} />
             </>
           ) : null}
         </PitchSvg>

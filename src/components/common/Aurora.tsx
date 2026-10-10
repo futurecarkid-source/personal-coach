@@ -13,8 +13,8 @@ export function Aurora(): React.JSX.Element {
   const a = isDark ? 0.16 : 0.12;
   return (
     <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: colors.background, overflow: 'hidden' }]}>
-      <View style={[styles.blob, { top: -200, left: -80, backgroundColor: withAlpha(isDark ? '#32D583' : '#12A868', a) }]} />
-      <View style={[styles.blob, { bottom: -160, left: -100, width: 380, height: 380, borderRadius: 190, backgroundColor: withAlpha(isDark ? '#32D583' : '#12A868', a) }]} />
+      <View style={[styles.blob, { top: -200, left: -80, backgroundColor: withAlpha(isDark ? '#30D158' : '#34C759', a) }]} />
+      <View style={[styles.blob, { bottom: -160, left: -100, width: 380, height: 380, borderRadius: 190, backgroundColor: withAlpha(isDark ? '#30D158' : '#34C759', a) }]} />
       <BlurView intensity={isDark ? 90 : 70} tint={isDark ? 'dark' : 'light'} style={StyleSheet.absoluteFill} />
     </View>
   );

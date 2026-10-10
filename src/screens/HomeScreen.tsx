@@ -4,6 +4,8 @@ import { useRouter } from 'expo-router';
 import { describeAiError, requestAiPlan } from '../ai';
 import { useAiAccess } from '../ai/useAi';
 import { AppText, Columns, GlassButton, GlassCard, Icon, Screen } from '../components/common';
+import { ActivityRings } from '../components/specialized/ActivityRings';
+import { MetricCard } from '../components/specialized/MetricCard';
 import { WeeklyRecap } from '../components/specialized/WeeklyRecap';
 import { WelcomeTour } from '../components/specialized/WelcomeTour';
 import { PlanCreated } from '../components/specialized/PlanCreated';
@@ -16,7 +18,8 @@ import { ReadinessRing } from '../components/specialized/ReadinessRing';
 import { useReadiness } from '../hooks/useReadiness';
 import { EXERCISE_BY_ID } from '../content/exercises';
 import { useAppDispatch, useAppState } from '../context';
-import { weekdayMonday0 } from '../core/dates';
+import { addDays, weekdayMonday0 } from '../core/dates';
+import { WATER_GOAL } from '../core/progression';
 import { useWeekPlan } from '../hooks/useTodayPlan';
 import { deletePhoto } from '../services/photoStore';
 import { spacing, useTheme } from '../theme';
@@ -68,6 +71,13 @@ export function HomeScreen(): React.JSX.Element {
     }
   };
 
+  const minutesOn = (date: string): number => Math.round(state.sessionLogs.filter((l) => l.date === date).reduce((n, l) => n + l.durationSeconds, 0) / 60);
+  const last7 = Array.from({ length: 7 }, (_, i) => addDays(today, i - 6));
+  const minuteBars = last7.map(minutesOn);
+  const sessionBars = last7.map((d) => state.sessionLogs.filter((l) => l.date === d).length);
+  const waterToday = state.waterLogs.find((w) => w.date === today)?.glasses ?? 0;
+  const plannedMinutes = todaySession && todaySession.kind !== 'descanso' ? todaySession.estimatedMinutes : 20;
+  const checkedIn = state.checkIns.some((c) => c.date === today);
   const activePain = state.painReports.filter((r) => r.status === 'activo');
   const sessionIsRest = todaySession?.kind === 'descanso';
   const restRegistered = state.gamification.lastActiveDate === today;
@@ -116,6 +126,18 @@ export function HomeScreen(): React.JSX.Element {
         </View>
       </GlassCard>
 
+
+      <ActivityRings
+        rings={[
+          { label: 'Entrenar', value: Math.min(minutesOn(today), plannedMinutes), goal: plannedMinutes, unit: 'MIN', color: theme.colors.pitch },
+          { label: 'Check-in', value: checkedIn ? 1 : 0, goal: 1, unit: 'HECHO', color: theme.colors.blue },
+          { label: 'Agua', value: Math.min(waterToday, WATER_GOAL), goal: WATER_GOAL, unit: 'VASOS', color: theme.colors.volt },
+        ]}
+      />
+      <View style={styles.metricRow}>
+        <MetricCard title="Sesiones" value={String(sessionBars.reduce((a, b) => a + b, 0))} unit="esta semana" color={theme.colors.pitch} bars={sessionBars} />
+        <MetricCard title="Minutos" value={String(minuteBars.reduce((a, b) => a + b, 0))} unit="min" color={theme.colors.blue} bars={minuteBars} />
+      </View>
 
       <GlassCard>
         <AppText variant="label" tone="secondary">Tu semana</AppText>
@@ -176,7 +198,13 @@ export function HomeScreen(): React.JSX.Element {
           </AppText>
           <AppText variant="title">Hola, {player?.nickname ?? 'jugador'}</AppText>
         </View>
-        <GlassButton label="Coach" icon="bubble.left.fill" size="compact" haptic="medium" onPress={() => router.push('/coach')} />
+        <View style={styles.headRight}>
+          <View style={styles.streakChip} accessible accessibilityLabel={`Racha de ${state.gamification.streak}`}>
+            <Icon name="flame.fill" size={18} color={theme.colors.volt} />
+            <AppText variant="headline" style={{ color: theme.colors.volt }}>{state.gamification.streak}</AppText>
+          </View>
+          <GlassButton label="Coach" icon="bubble.left.fill" size="compact" haptic="medium" onPress={() => router.push('/coach')} />
+        </View>
       </View>
       <Columns left={left} right={right} />
       <Modal visible={planModal !== null} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setPlanModal(null)}>
@@ -211,6 +239,9 @@ function DayDot({ session, isToday, done }: { session: PlannedSession; isToday: 
 }
 
 const styles = StyleSheet.create({
+  metricRow: { flexDirection: 'row', gap: spacing.md },
+  headRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  streakChip: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: spacing.sm },
   sheet: { flex: 1 },
   sheetContent: { padding: spacing.lg, paddingBottom: spacing.xl },
   sheetCta: { padding: spacing.lg, paddingBottom: spacing.xl },

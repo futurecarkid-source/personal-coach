@@ -18,7 +18,7 @@ export function HeatmapPitch({ heatmap, width }: { heatmap: Heatmap; width: numb
               y={r * cellH}
               width={cellW + 0.05}
               height={cellH + 0.05}
-              fill="#E0663A"
+              fill="#FF9F0A"
               opacity={Math.min(0.85, Math.pow(value, 0.8) * 0.85)}
             />
           ) : null,

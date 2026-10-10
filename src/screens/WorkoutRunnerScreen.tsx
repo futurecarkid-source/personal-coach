@@ -14,7 +14,7 @@ import { initialWorkoutFlow, totalSets, workoutReducer, type WorkoutEvent, type 
 import { useCountdown } from '../hooks/useCountdown';
 import { monotonicNow } from '../hooks/useTicker';
 import { useWeekPlan } from '../hooks/useTodayPlan';
-import { haptics, spacing } from '../theme';
+import { haptics, spacing, useTheme } from '../theme';
 import type { Exercise } from '../types';
 
 const KEEP_AWAKE_TAG = 'dorsal-workout';
@@ -26,6 +26,7 @@ const PREP_MS = 3000;
  * Descanso automático, siguiente/anterior/saltar, pausa de pantalla encendida, esfuerzo percibido al final y XP.
  */
 export function WorkoutRunnerScreen(): React.JSX.Element {
+  const { colors } = useTheme();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { today, todaySession } = useWeekPlan();
@@ -138,7 +139,13 @@ export function WorkoutRunnerScreen(): React.JSX.Element {
         <GlassButton label="Salir" icon="xmark" size="compact" haptic="light" onPress={() => router.back()} />
         <AppText variant="callout" tone="secondary">Ejercicio {flow.exerciseIndex + 1} de {exercises.length}</AppText>
       </View>
-      <ProgressBar fraction={flow.setsDone / sets} />
+      <View style={styles.segments} accessible accessibilityLabel={`Ejercicio ${flow.exerciseIndex + 1} de ${exercises.length}`}>
+        {exercises.map((e, i) => (
+          <View key={e.id} style={[styles.segment, { backgroundColor: colors.surfaceStrong }]}>
+            <View style={[styles.segmentFill, { backgroundColor: colors.pitch, width: i < flow.exerciseIndex ? '100%' : i === flow.exerciseIndex ? `${Math.round((flow.setsDone / sets) * 100)}%` : '0%' }]} />
+          </View>
+        ))}
+      </View>
 
       {flow.stage === 'rest' ? (
         <RestPanel
@@ -163,7 +170,7 @@ export function WorkoutRunnerScreen(): React.JSX.Element {
             <WorkPanel key={`work-${flow.exerciseIndex}-${flow.setIndex}`} seconds={current.seconds ?? 30} onDone={() => { haptics.medium(); send({ type: 'COMPLETE_SET' }); }} />
           ) : (
             <GlassCard contentStyle={styles.center}>
-              <AppText variant="digitsLarge">{isTimed ? `${current.seconds}s` : `${current.reps}`}</AppText>
+              <AppText variant="digitsLarge" tone="pitch">{isTimed ? `${current.seconds}s` : `${current.reps}`}</AppText>
               <AppText variant="callout" tone="secondary">{isTimed ? 'Mantén el tiempo' : 'repeticiones'}</AppText>
               {isTimed ? (
                 <GlassButton label="Empezar serie" icon="play.fill" variant="go" haptic="heavy" fullWidth onPress={() => send({ type: 'START_WORK' })} />
@@ -231,6 +238,9 @@ function RestPanel({ seconds, nextLabel, onDone }: { seconds: number; nextLabel:
 }
 
 const styles = StyleSheet.create({
+  segments: { flexDirection: 'row', gap: 4 },
+  segment: { flex: 1, height: 5, borderRadius: 3, overflow: 'hidden' },
+  segmentFill: { height: '100%', borderRadius: 3 },
   swipeArea: { gap: spacing.lg },
   top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   center: { alignItems: 'center', gap: spacing.md },

@@ -31,14 +31,14 @@
     "splash": {
       "image": "./assets/icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#23272E"
+      "backgroundColor": "#072A1B"
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "name": "Fulbito",
       "shortName": "Fulbito",
-      "themeColor": "#23272E",
-      "backgroundColor": "#E9EDF1"
+      "themeColor": "#072A1B",
+      "backgroundColor": "#F2F2F7"
     }
   }
 }

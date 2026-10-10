@@ -24,7 +24,7 @@ for size, name in ((180, 'apple-touch-icon.png'), (192, 'icon-192.png'), (512, '
 manifest = {
     'name': 'Fulbito', 'short_name': 'Fulbito', 'description': 'Entrena, juega y mejora.',
     'start_url': base + '/', 'scope': base + '/', 'display': 'standalone', 'orientation': 'any',
-    'background_color': '#23272E', 'theme_color': '#23272E', 'lang': 'es',
+    'background_color': '#072A1B', 'theme_color': '#072A1B', 'lang': 'es',
     'icons': [{'src': base + '/icon-192.png', 'sizes': '192x192', 'type': 'image/png'},
               {'src': base + '/icon-512.png', 'sizes': '512x512', 'type': 'image/png', 'purpose': 'any maskable'}],
 }
@@ -50,7 +50,7 @@ e.respondWith(caches.match(r).then(m=>m||fetch(r).then(res=>{{const c=res.clone(
 """
 open(os.path.join(out, 'sw.js'), 'w').write(sw)
 html = open(os.path.join(out, 'index.html')).read()
-inject = f'''<link rel="manifest" href="{base}/manifest.json" /><link rel="apple-touch-icon" href="{base}/apple-touch-icon.png" /><meta name="apple-mobile-web-app-capable" content="yes" /><meta name="mobile-web-app-capable" content="yes" /><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" /><meta name="apple-mobile-web-app-title" content="Fulbito" /><meta name="theme-color" content="#23272E" /><style>html,body{{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;touch-action:manipulation;-webkit-text-size-adjust:100%}}body{{-webkit-user-select:none;user-select:none}}input,textarea{{-webkit-user-select:text;user-select:text;font-size:16px!important}}</style><script>if('serviceWorker' in navigator){{window.addEventListener('load',function(){{navigator.serviceWorker.register('{base}/sw.js');var had=!!navigator.serviceWorker.controller;navigator.serviceWorker.addEventListener('controllerchange',function(){{if(had)location.reload();had=true}})}})}}</script>'''
+inject = f'''<link rel="manifest" href="{base}/manifest.json" /><link rel="apple-touch-icon" href="{base}/apple-touch-icon.png" /><meta name="apple-mobile-web-app-capable" content="yes" /><meta name="mobile-web-app-capable" content="yes" /><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" /><meta name="apple-mobile-web-app-title" content="Fulbito" /><meta name="theme-color" content="#072A1B" /><style>html,body{{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;touch-action:manipulation;-webkit-text-size-adjust:100%}}body{{-webkit-user-select:none;user-select:none}}input,textarea{{-webkit-user-select:text;user-select:text;font-size:16px!important}}</style><script>if('serviceWorker' in navigator){{window.addEventListener('load',function(){{navigator.serviceWorker.register('{base}/sw.js');var had=!!navigator.serviceWorker.controller;navigator.serviceWorker.addEventListener('controllerchange',function(){{if(had)location.reload();had=true}})}})}}</script>'''
 html = re.sub(r'<meta name="viewport"[^>]*>', '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />', html)
 html = re.sub(r'<title>.*?</title>', '<title>Fulbito</title>', html)
 html = html.replace('</head>', inject + '</head>', 1)
