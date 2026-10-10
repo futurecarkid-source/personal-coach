@@ -258,6 +258,9 @@ export function ProfileScreen(): React.JSX.Element {
       <Disclosure title="Tus datos" summary="En este dispositivo">
         <GlassButton label="Borrar todos mis datos" icon="trash" variant="danger" haptic="warning" onPress={confirmReset} />
       </Disclosure>
+      <AppText variant="caption" tone="secondary" style={{ textAlign: 'center', marginTop: spacing.lg }}>
+        © {new Date().getFullYear()} Fulbito. Todos los derechos reservados.
+      </AppText>
     </>
   );
 

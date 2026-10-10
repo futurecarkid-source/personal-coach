@@ -230,10 +230,9 @@ export function OnboardingScreen(): React.JSX.Element {
     haptics.success();
   };
 
-  const blocked = ageBand === 'menor13';
-  const needsButton = !step.auto;
+    const needsButton = !step.auto;
   const canContinue =
-    step.id === 'edad' ? ageBand !== null && !blocked : step.id === 'apodo' ? nickname.trim().length > 0 : true;
+    step.id === 'edad' ? ageBand !== null : step.id === 'apodo' ? nickname.trim().length > 0 : true;
   const total = steps.length - 1;
   const entering = dir === 'fwd' ? FadeInRight.springify().damping(20) : FadeInLeft.springify().damping(20);
 
@@ -288,19 +287,19 @@ export function OnboardingScreen(): React.JSX.Element {
         return (
           <Animated.View entering={FadeInDown.delay(150).springify()} style={styles.hero}>
             <AppText variant="digitsLarge" style={styles.heroEmoji}>⚽</AppText>
+            <AppText variant="caption" tone="secondary" style={styles.copyright}>© {new Date().getFullYear()} Fulbito. Todos los derechos reservados.</AppText>
           </Animated.View>
         );
       case 'edad':
         return (
           <View style={styles.list}>
             {AGE_BANDS.map((b, i) => (
-              <OptionCard key={b} index={i} label={AGE_LABELS_FULL[b]} selected={ageBand === b} onPress={() => (b === 'menor13' ? setAgeBand(b) : choose(() => setAgeBand(b)))} />
+              <OptionCard key={b} index={i} label={AGE_LABELS_FULL[b]} selected={ageBand === b} onPress={() => choose(() => setAgeBand(b))} />
             ))}
-            {ageBand && isMinor(ageBand) && !blocked ? (
+            {ageBand && isMinor(ageBand) ? (
               <AppText variant="callout" tone="secondary">Al ser menor de edad, algunas funciones (IA con fotos o video y compras) estarán desactivadas y se recomienda usar la app con un adulto responsable.</AppText>
             ) : null}
-            {blocked ? <AppText variant="callout" tone="danger">Por ahora la app no está disponible para menores de 13 años: se necesita un flujo de permiso parental que aún no existe.</AppText> : null}
-          </View>
+                      </View>
         );
       case 'aviso':
         return anyYes ? (
@@ -514,6 +513,7 @@ function BigStepper({ value, min, max, step = 1, onChange, unit }: { value: numb
 }
 
 const styles = StyleSheet.create({
+  copyright: { textAlign: 'center', marginTop: spacing.xl },
   flex: { flex: 1 },
   topBar: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingTop: spacing.sm },
   back: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
