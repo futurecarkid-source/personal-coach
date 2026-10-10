@@ -51,6 +51,12 @@ export function HeroCard({ gamification, weekly, achievementCount, onPress }: { 
         <View style={styles.footer}>
           <Icon name="trophy.fill" size={14} color={colors.volt} />
           <AppText variant="caption" style={styles.white}>{achievementCount} logros</AppText>
+          {!weekly && gamification.freezes > 0 ? (
+            <View style={styles.shield}>
+              <Icon name="shield.fill" size={14} color={colors.pitch} />
+              <AppText variant="caption" style={styles.white}>{gamification.freezes} {gamification.freezes === 1 ? 'escudo' : 'escudos'} de racha</AppText>
+            </View>
+          ) : null}
         </View>
       </LinearGradient>
     </Pressable>
@@ -68,5 +74,6 @@ const styles = StyleSheet.create({
   streak: { alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: radii.button, gap: 0 },
   bar: { gap: spacing.sm },
   row: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing.sm },
+  shield: { flexDirection: 'row', alignItems: 'center', gap: 4, marginLeft: 'auto' },
   footer: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
 });

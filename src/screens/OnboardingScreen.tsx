@@ -9,7 +9,7 @@ import { PlayerCard3D } from '../components/specialized/PlayerCard3D';
 import { ATTRIBUTE_LABELS, BODY_ZONE_LABELS, LEVEL_LABELS, POSITION_LABELS } from '../content/attributeLabels';
 import { useAppDispatch } from '../context';
 import { newId, toISODate } from '../core/dates';
-import { planDays } from '../core/planner';
+import { planDays, startWithTraining } from '../core/planner';
 import { estimateAttributes, headlineKeys, type SelfAssessment } from '../core/ovr';
 import { ensureNotificationPermission } from '../services/reminders';
 import { haptics, radii, spacing, useTheme } from '../theme';
@@ -304,7 +304,7 @@ export function OnboardingScreen(): React.JSX.Element {
       case 'plan':
         return (
           <PlanCreated
-            week={planDays({ startDate: toISODate(new Date()), days: 7, daysPerWeek: days, minutesPerSession: minutes, equipment: equipment.length > 0 ? equipment : ['ninguno'], discomfortZones: zones, matchDates: [] })}
+            week={startWithTraining(planDays({ startDate: toISODate(new Date()), days: 7, daysPerWeek: days, minutesPerSession: minutes, equipment: equipment.length > 0 ? equipment : ['ninguno'], discomfortZones: zones, matchDates: [] }), false)}
             tasks={[
               `Ajustando a ${days} ${days === 1 ? 'día' : 'días'} por semana`,
               `Sesiones de unos ${minutes} minutos`,

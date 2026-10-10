@@ -1,5 +1,5 @@
 import { EXERCISE_BY_ID } from '../../content/exercises';
-import { planDays } from '../planner';
+import { planDays, startWithTraining } from '../planner';
 
 const base = {
   startDate: '2026-10-05', // lunes
@@ -57,5 +57,20 @@ describe('planner', () => {
   it('keeps sessions short enough', () => {
     const plan = planDays({ ...base, minutesPerSession: 25 });
     for (const s of plan) expect(s.estimatedMinutes).toBeLessThanOrEqual(40);
+  });
+});
+
+describe('startWithTraining', () => {
+  const rest = (date: string) => ({ date, kind: 'descanso' as const, title: 'Descanso', exerciseIds: [], estimatedMinutes: 0 });
+  const train = (date: string) => ({ date, kind: 'fuerza' as const, title: 'Fuerza', exerciseIds: ['a'], estimatedMinutes: 30 });
+  it('mueve la primera sesión a hoy si hoy era descanso y no hay historial', () => {
+    const out = startWithTraining([rest('d0'), rest('d1'), train('d2'), rest('d3')], false);
+    expect(out.map((s) => s.kind)).toEqual(['fuerza', 'descanso', 'descanso', 'descanso']);
+    expect(out.map((s) => s.date)).toEqual(['d0', 'd1', 'd2', 'd3']);
+  });
+  it('no cambia nada si ya hay historial o hoy ya se entrena', () => {
+    const week = [rest('d0'), train('d1')];
+    expect(startWithTraining(week, true)).toEqual(week);
+    expect(startWithTraining([train('d0'), rest('d1')], false)[0]!.kind).toBe('fuerza');
   });
 });

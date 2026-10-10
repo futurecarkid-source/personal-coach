@@ -31,6 +31,8 @@ export const settingsSchema = z.object({
   readinessSensitivity: z.enum(['estricto', 'equilibrado', 'permisivo']).default('equilibrado'),
   /** Horas de sueño que quieres dormir (cada persona elige la suya). */
   sleepGoalHours: z.number().min(5).max(12).default(8),
+  /** Ya se cerró la guía de bienvenida de la pantalla Hoy. */
+  tourDismissed: z.boolean().default(false),
 });
 
 export const sleepLogSchema = z.object({

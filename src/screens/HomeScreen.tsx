@@ -4,6 +4,8 @@ import { useRouter } from 'expo-router';
 import { describeAiError, requestAiPlan } from '../ai';
 import { useAiAccess } from '../ai/useAi';
 import { AppText, Columns, GlassButton, GlassCard, Icon, Screen } from '../components/common';
+import { WeeklyRecap } from '../components/specialized/WeeklyRecap';
+import { WelcomeTour } from '../components/specialized/WelcomeTour';
 import { PlanCreated } from '../components/specialized/PlanCreated';
 import { HydrationCard } from '../components/specialized/HydrationCard';
 import { HeroCard } from '../components/specialized/HeroCard';
@@ -72,6 +74,7 @@ export function HomeScreen(): React.JSX.Element {
 
   const left = (
     <>
+      {state.settings.tourDismissed ? null : <WelcomeTour onDone={() => dispatch({ type: 'SET_SETTINGS', patch: { tourDismissed: true } })} />}
       <HeroCard gamification={state.gamification} weekly={weekly} achievementCount={state.achievements.length} onPress={() => router.push('/logros')} />
 
       <GlassCard>
@@ -113,12 +116,22 @@ export function HomeScreen(): React.JSX.Element {
         </View>
       </GlassCard>
 
+
+      <GlassCard>
+        <AppText variant="label" tone="secondary">Tu semana</AppText>
+        <View style={styles.weekRow}>
+          {week.map((s) => (
+            <DayDot key={s.date} session={s} isToday={s.date === today} done={state.sessionLogs.some((l) => l.date === s.date)} />
+          ))}
+        </View>
+      </GlassCard>
       <ReadinessRing readiness={readiness} />
     </>
   );
 
   const right = (
     <>
+      {weekdayMonday0(today) >= 6 || weekdayMonday0(today) === 0 ? <WeeklyRecap state={state} today={today} /> : null}
       <QuestsCard state={state} date={today} onClaim={(key, xp) => dispatch({ type: 'CLAIM_QUEST', key, xp })} />
 
       <QuickCheckIn today={today} />
@@ -151,14 +164,6 @@ export function HomeScreen(): React.JSX.Element {
         />
       ))}
 
-      <GlassCard>
-        <AppText variant="label" tone="secondary">Tu semana</AppText>
-        <View style={styles.weekRow}>
-          {week.map((s) => (
-            <DayDot key={s.date} session={s} isToday={s.date === today} done={state.sessionLogs.some((l) => l.date === s.date)} />
-          ))}
-        </View>
-      </GlassCard>
     </>
   );
 

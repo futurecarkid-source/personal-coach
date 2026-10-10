@@ -16,6 +16,7 @@ export const DEFAULT_SETTINGS: Settings = {
   coachPersona: 'motivador',
   readinessSensitivity: 'equilibrado',
   sleepGoalHours: 8,
+  tourDismissed: false,
 };
 
 export const DEFAULT_PLAN_PREFS: PlanPrefs = {

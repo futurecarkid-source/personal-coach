@@ -3,7 +3,7 @@ import { StyleSheet, TextInput, View } from 'react-native';
 import { describeAiError, reviewMatch, type MatchReviewOutput } from '../ai';
 import { useAiAccess } from '../ai/useAi';
 import { EXERCISE_BY_ID } from '../content/exercises';
-import { AppText, Chip, FaceRating, GlassButton, GlassCard, Screen, SectionHeader, Stepper, SwipeRow, FieldSurface, HapticTouch, showActionSheet } from '../components/common';
+import { AppText, Chip, FaceRating, GlassButton, GlassCard, Screen, SectionHeader, Stepper, SwipeRow, FieldSurface, HapticTouch, Icon, showActionSheet } from '../components/common';
 import { MatchTracker, type NewMatchEvent } from '../components/specialized/MatchTracker';
 import { useAppDispatch, useAppState } from '../context';
 import { newId, toISODate } from '../core/dates';
@@ -165,7 +165,19 @@ export function MatchScreen(): React.JSX.Element {
 
       <SectionHeader title="Tus partidos" subtitle={state.matches.length > 0 ? 'Desliza a la izquierda para borrar' : undefined} />
       {state.matches.length === 0 ? (
-        <AppText variant="callout" tone="secondary">Aún no registraste partidos.</AppText>
+        <GlassCard>
+          <AppText variant="headline">Así funciona</AppText>
+          {[
+            { icon: 'plus' as const, text: 'Crea el partido con el rival y la competición.' },
+            { icon: 'soccerball' as const, text: 'Durante el juego toca goles, pases, tiros y acciones.' },
+            { icon: 'star.fill' as const, text: 'Al final pon tu nota y el esfuerzo; tu tarjeta aprende de ello.' },
+          ].map((row) => (
+            <View key={row.text} style={styles.helpRow}>
+              <View style={[styles.helpTile, { backgroundColor: colors.pitch }]}><Icon name={row.icon} size={16} color="#FFFFFF" /></View>
+              <AppText variant="callout" tone="secondary" style={styles.flex}>{row.text}</AppText>
+            </View>
+          ))}
+        </GlassCard>
       ) : (
         [...state.matches].reverse().map((m) => (
           <SwipeRow key={m.id} onDelete={() => dispatch({ type: 'DELETE_MATCH', matchId: m.id })}>
@@ -193,6 +205,8 @@ export function MatchScreen(): React.JSX.Element {
 }
 
 const styles = StyleSheet.create({
+  helpRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginTop: spacing.md },
+  helpTile: { width: 30, height: 30, borderRadius: 9, alignItems: 'center', justifyContent: 'center' },
   seasonRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: spacing.md },
   seasonCell: { alignItems: 'center', flex: 1 },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.md },

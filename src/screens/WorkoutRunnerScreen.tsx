@@ -5,7 +5,7 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { scheduleOnRN } from 'react-native-worklets';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { AppText, Disclosure, FaceRating, GlassButton, GlassCard, ProgressBar, Screen } from '../components/common';
-import { ExerciseFigure } from '../components/specialized/ExerciseFigure';
+import { ExerciseMedia } from '../components/specialized/ExerciseMedia';
 import { EXERCISE_BY_ID, youtubeSearchUrl } from '../content/exercises';
 import { useAppDispatch } from '../context';
 import { newId } from '../core/dates';
@@ -151,7 +151,7 @@ export function WorkoutRunnerScreen(): React.JSX.Element {
         <>
           <GestureDetector gesture={swipe}>
             <View style={styles.swipeArea}>
-              <ExerciseFigure key={current.id} exercise={current} />
+              <ExerciseMedia key={current.id} exercise={current} />
               <View style={styles.center}>
                 <AppText variant="title" style={styles.titleCenter}>{current.name}</AppText>
                 <AppText variant="callout" tone="secondary">Serie {flow.setIndex + 1} de {current.sets}</AppText>

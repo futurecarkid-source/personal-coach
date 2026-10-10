@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { AppText, Columns, GlassButton, HapticTouch, showActionSheet, GlassCard, Icon, Screen, SectionHeader, SegmentedControl } from '../components/common';
-import { ExerciseFigure } from '../components/specialized/ExerciseFigure';
+import { ExerciseMedia } from '../components/specialized/ExerciseMedia';
 import { IntervalTimer } from '../components/specialized/IntervalTimer';
 import { EXERCISES, EXERCISE_BY_ID, youtubeSearchUrl } from '../content/exercises';
 import { useAppDispatch, useAppState } from '../context';
@@ -127,7 +127,7 @@ function ExerciseRow({ exercise }: { exercise: Exercise }): React.JSX.Element {
       </View>
       {open ? (
         <View style={styles.names}>
-          <ExerciseFigure exercise={exercise} maxWidth={260} />
+          <ExerciseMedia exercise={exercise} maxWidth={320} />
           {exercise.steps.map((step, i) => (
             <AppText key={step} variant="callout">{i + 1}. {step}</AppText>
           ))}

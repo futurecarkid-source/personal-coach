@@ -1,4 +1,5 @@
 import { INITIAL_GAMIFICATION, levelFromXp, levelProgress, sessionXp, touchStreak } from '../gamification';
+import type { Gamification } from '../../types';
 
 describe('streak', () => {
   it('starts at 1 and counts consecutive days', () => {
@@ -53,5 +54,17 @@ describe('xp and levels', () => {
     expect(p.level).toBe(2);
     expect(p.fraction).toBeGreaterThan(0);
     expect(p.fraction).toBeLessThan(1);
+  });
+});
+
+describe('escudo de racha', () => {
+  it('gana un escudo al llegar a 7 días seguidos, con tope de 2', () => {
+    let g: Gamification = { ...INITIAL_GAMIFICATION, freezes: 0 };
+    for (let d = 1; d <= 7; d += 1) g = touchStreak(g, `2026-10-${String(d).padStart(2, '0')}`, false);
+    expect(g.streak).toBe(7);
+    expect(g.freezes).toBe(1);
+    let h: Gamification = { ...INITIAL_GAMIFICATION, freezes: 2, streak: 6, lastActiveDate: '2026-10-06' };
+    h = touchStreak(h, '2026-10-07', false);
+    expect(h.freezes).toBe(2);
   });
 });

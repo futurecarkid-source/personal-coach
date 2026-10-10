@@ -53,6 +53,8 @@ export function touchStreak(g: Gamification, dateISO: string, weekly: boolean): 
       streak = g.streak + 1;
     } else streak = 1;
   }
+  // Cada 7 días seguidos se gana un escudo para proteger la racha de un día perdido (máximo 2).
+  if (!weekly && streak > g.streak && streak % 7 === 0) freezes = Math.min(2, freezes + 1);
   return {
     ...g,
     streak,

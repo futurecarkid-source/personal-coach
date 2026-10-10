@@ -92,17 +92,17 @@ export function ExerciseFigure({ exercise, maxWidth = 320 }: ExerciseFigureProps
           <Rect key={`${p.x}-${p.y}`} x={p.x} y={p.y} width={p.w} height={p.h} rx={1.5} fill={colors.surfaceStrong} />
         ))}
         {/* Piernas y brazo lejanos, más claros y finos; luego el cuerpo cercano, grueso y redondeado como un maniquí. */}
-        <Segment t={t} tracks={tracks} from="neck" to="el2" color={far} width={4.6} opacity={0.55} />
-        <Segment t={t} tracks={tracks} from="el2" to="wr2" color={far} width={4.2} opacity={0.55} />
-        <Segment t={t} tracks={tracks} from="hip" to="kn2" color={far} width={6} opacity={0.55} />
-        <Segment t={t} tracks={tracks} from="kn2" to="an2" color={far} width={5} opacity={0.55} />
-        <Segment t={t} tracks={tracks} from="an2" to="to2" color={colors.pitch} width={4.4} opacity={0.5} />
-        <Segment t={t} tracks={tracks} from="hip" to="neck" color={near} width={9.5} />
-        <Segment t={t} tracks={tracks} from="hip" to="kn1" color={near} width={7} />
-        <Segment t={t} tracks={tracks} from="kn1" to="an1" color={near} width={5.6} />
-        <Segment t={t} tracks={tracks} from="an1" to="to1" color={colors.pitch} width={5} />
-        <Segment t={t} tracks={tracks} from="neck" to="el1" color={near} width={5.2} />
-        <Segment t={t} tracks={tracks} from="el1" to="wr1" color={near} width={4.6} />
+        <Segment t={t} tracks={tracks} from="neck" to="el2" color={far} width={3.3} opacity={0.55} />
+        <Segment t={t} tracks={tracks} from="el2" to="wr2" color={far} width={3.0} opacity={0.55} />
+        <Segment t={t} tracks={tracks} from="hip" to="kn2" color={far} width={4.3} opacity={0.55} />
+        <Segment t={t} tracks={tracks} from="kn2" to="an2" color={far} width={3.6} opacity={0.55} />
+        <Segment t={t} tracks={tracks} from="an2" to="to2" color={colors.pitch} width={3.2} opacity={0.5} />
+        <Segment t={t} tracks={tracks} from="hip" to="neck" color={near} width={6.8} />
+        <Segment t={t} tracks={tracks} from="hip" to="kn1" color={near} width={5.0} />
+        <Segment t={t} tracks={tracks} from="kn1" to="an1" color={near} width={4.0} />
+        <Segment t={t} tracks={tracks} from="an1" to="to1" color={colors.pitch} width={3.6} />
+        <Segment t={t} tracks={tracks} from="neck" to="el1" color={near} width={3.7} />
+        <Segment t={t} tracks={tracks} from="el1" to="wr1" color={near} width={3.3} />
         {def.band ? <Segment t={t} tracks={tracks} from={def.band.from} to={def.band.to} color={colors.volt} width={1.2} /> : null}
         <Dot t={t} xs={tracks.x.head} ys={tracks.y.head} r={HEAD_R} color={near} samples={tracks.samples} />
         {tracks.ball ? <Dot t={t} xs={tracks.ball.x} ys={tracks.ball.y} r={tracks.ball.r} color={tracks.ball.kind === 'rodillo' ? colors.textSecondary : colors.volt} samples={tracks.samples} /> : null}

@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { effectiveDiscomfortZones } from '../ai/context';
 import { mergeAiPlan } from '../ai/mergePlan';
 import { useAppState } from '../context';
-import { feelsBad, planDays } from '../core/planner';
+import { feelsBad, planDays, startWithTraining } from '../core/planner';
 import type { PlannedSession } from '../types';
 import { useReadiness } from './useReadiness';
 import { useToday } from './useToday';
@@ -14,7 +14,7 @@ import { useToday } from './useToday';
 export function useWeekPlan(): { today: string; week: PlannedSession[]; todaySession: PlannedSession | undefined; usingAi: boolean } {
   const { state } = useAppState();
   const today = useToday();
-  const { planPrefs, checkIns, painReports, aiPlan } = state;
+  const { planPrefs, checkIns, painReports, aiPlan, sessionLogs } = state;
   const todayCheckIn = checkIns.find((c) => c.date === today) ?? null;
   const readiness = useReadiness();
   const forceRecovery = readiness.level === 'descansa' && readiness.confidence !== 'baja';
@@ -22,8 +22,8 @@ export function useWeekPlan(): { today: string; week: PlannedSession[]; todaySes
   return useMemo(() => {
     const zones = effectiveDiscomfortZones({ planPrefs, painReports });
     const rules = planDays({ ...planPrefs, discomfortZones: zones, startDate: today, days: 7, latestCheckIn: todayCheckIn, forceRecovery });
-    const week = mergeAiPlan(rules, aiPlan, zones, feelsBad(todayCheckIn) || forceRecovery);
+    const week = startWithTraining(mergeAiPlan(rules, aiPlan, zones, feelsBad(todayCheckIn) || forceRecovery), sessionLogs.length > 0);
     const usingAi = aiPlan !== null && week.some((s, i) => s !== rules[i]);
     return { today, week, todaySession: week[0], usingAi };
-  }, [planPrefs, painReports, aiPlan, today, todayCheckIn, forceRecovery]);
+  }, [planPrefs, painReports, aiPlan, sessionLogs.length, today, todayCheckIn, forceRecovery]);
 }

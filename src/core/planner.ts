@@ -153,3 +153,20 @@ export function planDays(input: PlanInput, library: readonly Exercise[] = EXERCI
   }
   return sessions;
 }
+
+/**
+ * Para quien aún no ha entrenado: si el primer día cae en descanso, la primera sesión de la semana pasa a hoy
+ * (y su día original queda de descanso). Así la primera impresión es entrenar, no esperar. No toca la cantidad de sesiones.
+ */
+export function startWithTraining(week: readonly PlannedSession[], hasHistory: boolean): PlannedSession[] {
+  const first = week[0];
+  if (hasHistory || !first || first.kind !== 'descanso') return [...week];
+  const j = week.findIndex((s) => s.kind !== 'descanso');
+  if (j <= 0) return [...week];
+  const moved = week[j]!;
+  return week.map((s, i) => {
+    if (i === 0) return { ...moved, date: first.date };
+    if (i === j) return { ...first, date: s.date };
+    return s;
+  });
+}
