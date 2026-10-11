@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { describeAiError, refineScouting } from '../ai';
 import { useAiAccess } from '../ai/useAi';
@@ -165,7 +165,7 @@ export function ProfileScreen(): React.JSX.Element {
           {settings.remindersEnabled ? <Stepper label="Hora del recordatorio" value={settings.reminderHour} min={5} max={22} unit="h" onChange={(v) => dispatch({ type: 'SET_SETTINGS', patch: { reminderHour: v } })} /> : null}
           <NativeToggle
             label="Háptica"
-            description={isHapticsSupported() ? 'Vibraciones finas en cada interacción.' : 'Este dispositivo (iPad) no tiene motor de vibración.'}
+            description={isHapticsSupported() ? 'Vibraciones finas en cada interacción.' : Platform.OS === 'web' ? 'La versión web no vibra; en la app de iPhone sí.' : 'Este dispositivo no tiene motor de vibración.'}
             value={settings.hapticsEnabled}
             onChange={(v) => dispatch({ type: 'SET_SETTINGS', patch: { hapticsEnabled: v } })}
           />

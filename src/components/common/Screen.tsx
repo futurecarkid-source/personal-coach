@@ -97,7 +97,7 @@ export function Screen({ children, scroll = true, tabBarSpace = true, nativeHead
         {plain ? null : <View pointerEvents="none" style={styles.behind}><Aurora /></View>}
         {Platform.OS === 'web' && insets.top > 0 ? (
           <View pointerEvents="none" style={[styles.statusScrim, { height: insets.top }]}>
-            <GlassSurface radius={0} variant="regular" flat style={StyleSheet.absoluteFill}>
+            <GlassSurface radius={0} variant="clear" flat style={StyleSheet.absoluteFill}>
               <View style={StyleSheet.absoluteFill} />
             </GlassSurface>
           </View>
