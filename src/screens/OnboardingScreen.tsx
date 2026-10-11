@@ -99,7 +99,7 @@ function OptionCard({ label, hint, icon, badge, tint, selected, onPress, index =
         }}
         style={({ pressed }) => [pressed && styles.pressed]}
       >
-        <GlassSurface radius={radii.card} flat tint={selected ? colors.pitch : undefined} interactive>
+        <View style={{ borderRadius: radii.card, backgroundColor: selected ? colors.accentSoft : colors.surface }}>
           <View style={[styles.option, compact && styles.optionCompact, selected && { borderColor: colors.pitch }]}>
             {icon || badge ? (
               <View style={[styles.tile, { backgroundColor: tint ?? (selected ? colors.pitch : colors.surfaceStrong) }]}>
@@ -112,7 +112,7 @@ function OptionCard({ label, hint, icon, badge, tint, selected, onPress, index =
             </View>
             {selected ? <Icon name="checkmark" size={18} color={colors.pitch} /> : null}
           </View>
-        </GlassSurface>
+        </View>
       </Pressable>
     </Animated.View>
   );

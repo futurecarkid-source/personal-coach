@@ -27,7 +27,7 @@ export function AchievementsScreen(): React.JSX.Element {
     const done = a.unlockedAt !== null;
     return (
       <View key={a.def.id} style={styles.cell}>
-        <GlassCard padding={spacing.md} contentStyle={styles.cardInner}>
+        <GlassCard glass={false} padding={spacing.md} contentStyle={styles.cardInner}>
           <View style={[styles.badge, { backgroundColor: done ? colors.volt : colors.surfaceStrong }]}>
             <Icon name={(done ? a.def.icon : 'lock.fill') as IconName} size={24} color={done ? '#FFFFFF' : colors.textSecondary} />
           </View>

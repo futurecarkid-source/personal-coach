@@ -187,7 +187,7 @@ export function MatchScreen(): React.JSX.Element {
               accessibilityLabel={`Partido contra ${m.opponent}. Mantén pulsado para ver opciones.`}
               onLongPress={() => showActionSheet({ title: `vs ${m.opponent}`, options: [{ label: 'Abrir', onPress: () => setSelectedId(m.id) }, { label: 'Borrar partido', destructive: true, onPress: () => dispatch({ type: 'DELETE_MATCH', matchId: m.id }) }] })}
             >
-            <GlassCard>
+            <GlassCard glass={false}>
               <View style={styles.rowBetween}>
                 <View style={styles.flex}>
                   <AppText variant="headline">vs {m.opponent}</AppText>

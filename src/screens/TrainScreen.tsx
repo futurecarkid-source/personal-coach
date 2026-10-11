@@ -53,7 +53,7 @@ export function TrainScreen(): React.JSX.Element {
             const done = state.sessionLogs.some((l) => l.date === session.date);
             return (
               <HapticTouch key={session.date} haptic="selection" pressedScale={0.99} onPress={() => { if (!isToday && !rest) setOpenDay((d) => (d === session.date ? null : session.date)); }} accessibilityLabel={`${DAY_NAMES[weekdayMonday0(session.date)]}: ${session.title}`}>
-              <GlassCard>
+              <GlassCard glass={false}>
                 <View style={styles.rowBetween}>
                   <View style={styles.flex}>
                     <AppText variant="label" tone={done ? 'success' : isToday ? 'accent' : 'secondary'}>
@@ -117,7 +117,7 @@ function ExerciseRow({ exercise }: { exercise: Exercise }): React.JSX.Element {
       accessibilityLabel={`${exercise.name}. Mantén pulsado para ver opciones.`}
       onLongPress={() => showActionSheet({ title: exercise.name, options: [{ label: open ? 'Cerrar detalle' : 'Ver detalle', onPress: () => setOpen((v) => !v) }, { label: 'Ver en YouTube', onPress: () => { Linking.openURL(youtubeSearchUrl(exercise.youtubeQuery)).catch(() => undefined); } }] })}
     >
-    <GlassCard>
+    <GlassCard glass={false}>
       <View style={styles.rowBetween}>
         <View style={styles.flex}>
           <AppText variant="headline">{exercise.name}</AppText>

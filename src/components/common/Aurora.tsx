@@ -1,25 +1,23 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { Image, StyleSheet, View } from 'react-native';
 import { useTheme } from '../../theme';
-import { withAlpha } from './GlassSurface';
+
+const LIGHT = require('../../../assets/aurora-light.png');
+const DARK = require('../../../assets/aurora-dark.png');
 
 /**
- * Fondo con manchas de color suaves (verde deportivo y azul) bajo un desenfoque grande.
- * Es lo que da algo que refractar al vidrio líquido de las tarjetas y la barra; sobre un fondo liso el vidrio no se nota.
+ * Fondo con un resplandor verde muy suave arriba y abajo. Es una imagen ya difuminada (no un desenfoque en vivo):
+ * cuesta casi nada de rendimiento y le da algo que refractar al vidrio líquido de las tarjetas y la barra.
  */
 export function Aurora(): React.JSX.Element {
   const { colors, isDark } = useTheme();
-  const a = isDark ? 0.16 : 0.12;
   return (
     <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: colors.background, overflow: 'hidden' }]}>
-      <View style={[styles.blob, { top: -200, left: -80, backgroundColor: withAlpha(isDark ? '#30D158' : '#34C759', a) }]} />
-      <View style={[styles.blob, { bottom: -160, left: -100, width: 380, height: 380, borderRadius: 190, backgroundColor: withAlpha(isDark ? '#30D158' : '#34C759', a) }]} />
-      <BlurView intensity={isDark ? 90 : 70} tint={isDark ? 'dark' : 'light'} style={StyleSheet.absoluteFill} />
+      <Image source={isDark ? DARK : LIGHT} style={styles.img} resizeMode="stretch" fadeDuration={0} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  blob: { position: 'absolute', width: 400, height: 400, borderRadius: 200 },
+  img: { width: '100%', height: '100%' },
 });

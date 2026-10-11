@@ -24,7 +24,7 @@ function InjuryCard({ info, open, onToggle }: { info: InjuryInfo; open: boolean;
   const router = useRouter();
   const exercises = info.exerciseIds.map((id) => EXERCISE_BY_ID.get(id)).filter((e): e is NonNullable<typeof e> => e !== undefined);
   return (
-    <GlassCard padding={spacing.md}>
+    <GlassCard glass={false} padding={spacing.md}>
       <Pressable onPress={() => { haptics.selection(); onToggle(); }} accessibilityRole="button" accessibilityState={{ expanded: open }}>
         <AppText variant="headline">{info.name}</AppText>
         <AppText variant="caption" tone="secondary">{BODY_ZONE_LABELS[info.zone]}</AppText>
