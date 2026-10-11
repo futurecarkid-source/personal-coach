@@ -22,8 +22,8 @@ export function useWeekPlan(): { today: string; week: PlannedSession[]; todaySes
   return useMemo(() => {
     const zones = effectiveDiscomfortZones({ planPrefs, painReports });
     const rules = planDays({ ...planPrefs, discomfortZones: zones, startDate: today, days: 7, latestCheckIn: todayCheckIn, forceRecovery });
-    const week = startWithTraining(mergeAiPlan(rules, aiPlan, zones, feelsBad(todayCheckIn) || forceRecovery), sessionLogs.length > 0);
+    const week = startWithTraining(mergeAiPlan(rules, aiPlan, zones, feelsBad(todayCheckIn) || forceRecovery), sessionLogs.some((l) => l.date < today), planPrefs.matchDates);
     const usingAi = aiPlan !== null && week.some((s, i) => s !== rules[i]);
     return { today, week, todaySession: week[0], usingAi };
-  }, [planPrefs, painReports, aiPlan, sessionLogs.length, today, todayCheckIn, forceRecovery]);
+  }, [planPrefs, painReports, aiPlan, sessionLogs, today, todayCheckIn, forceRecovery]);
 }

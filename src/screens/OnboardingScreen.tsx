@@ -189,6 +189,7 @@ export function OnboardingScreen(): React.JSX.Element {
   const step = steps[Math.min(idx, steps.length - 1)]!;
 
   const go = (delta: 1 | -1): void => {
+    if (timer.current) clearTimeout(timer.current);
     setDir(delta === 1 ? 'fwd' : 'back');
     setIdx((i) => Math.max(0, Math.min(steps.length - 1, i + delta)));
   };
@@ -217,9 +218,12 @@ export function OnboardingScreen(): React.JSX.Element {
     };
   };
 
+  const finishing = useRef(false);
   const finish = async (): Promise<void> => {
+    if (finishing.current) return;
     const preview = buildPlayer();
     if (!preview) return;
+    finishing.current = true;
     const notify = reminders === true ? await ensureNotificationPermission() : false;
     dispatch({ type: 'SET_SETTINGS', patch: { healthNoticeAccepted: true, sleepGoalHours: sleep, coachPersona: persona, wearable: wearable ?? 'ninguno', remindersEnabled: notify } });
     dispatch({
@@ -294,7 +298,7 @@ export function OnboardingScreen(): React.JSX.Element {
       case 'plan':
         return (
           <PlanCreated
-            week={startWithTraining(planDays({ startDate: toISODate(new Date()), days: 7, daysPerWeek: days, minutesPerSession: minutes, equipment: equipment.length > 0 ? equipment : ['ninguno'], discomfortZones: zones, matchDates: [] }), false)}
+            week={startWithTraining(planDays({ startDate: toISODate(new Date()), days: 7, daysPerWeek: days, minutesPerSession: minutes, equipment: equipment.length > 0 ? equipment : ['ninguno'], discomfortZones: zones, matchDates: [] }), false, [])}
             tasks={[
               `Ajustando a ${days} ${days === 1 ? 'día' : 'días'} por semana`,
               `Sesiones de unos ${minutes} minutos`,

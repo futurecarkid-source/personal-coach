@@ -7,12 +7,14 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ActionSheetHost, OnlineGate } from '@/components/common';
 import { CelebrationHost } from '@/components/specialized/CelebrationHost';
 import { AppProvider, useAppState } from '@/context';
+import { useReminders } from '@/hooks/useReminders';
 import { TabsModeProvider } from '@/navigation';
 import { useTheme } from '@/theme';
 
 function RootNavigator(): React.JSX.Element {
   const { hydrated, state } = useAppState();
   const { colors, isDark } = useTheme();
+  useReminders();
 
   if (!hydrated) {
     return (

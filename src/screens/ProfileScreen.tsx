@@ -1,16 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { describeAiError, refineScouting } from '../ai';
 import { useAiAccess } from '../ai/useAi';
 import { AppText, Chip, Columns, Disclosure, GlassButton, GlassCard, Screen, SectionHeader, Stepper, showActionSheet } from '../components/common';
 import { NativeSegmented, NativeToggle } from '../components/native/NativeControls';
-import { ensureNotificationPermission, refreshReminders } from '../services/reminders';
+import { ensureNotificationPermission } from '../services/reminders';
 import { shareCard } from '../services/share';
 import { PlayerCard3D } from '../components/specialized/PlayerCard3D';
 import { ATTRIBUTE_LABELS, LEVEL_LABELS, POSITION_LABELS } from '../content/attributeLabels';
 import { useAppDispatch, useAppState } from '../context';
-import { toISODate } from '../core/dates';
 import { levelProgress } from '../core/gamification';
 import { computeOvr, headlineKeys } from '../core/ovr';
 import { rankFor } from '../core/progression';
@@ -29,12 +28,6 @@ export function ProfileScreen(): React.JSX.Element {
   const [aiNote, setAiNote] = useState<string | null>(null);
   const [aiBusy, setAiBusy] = useState(false);
   const cardRef = useRef<View>(null);
-  const plan = { enabled: settings.remindersEnabled, hour: settings.reminderHour, activeToday: state.gamification.lastActiveDate === toISODate(new Date()), streak: state.gamification.streak };
-  useEffect(() => {
-    void refreshReminders(plan);
-    // Se reprograma cuando cambia algo relevante.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [plan.enabled, plan.hour, plan.activeToday, plan.streak]);
   if (!player) return <Screen><AppText variant="body">Crea tu tarjeta para empezar.</AppText></Screen>;
 
   const ovr = computeOvr(player.position, player.attributes);

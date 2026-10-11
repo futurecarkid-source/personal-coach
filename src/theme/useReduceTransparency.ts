@@ -1,21 +1,33 @@
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import { AccessibilityInfo, Platform } from 'react-native';
+
+let current = false;
+let started = false;
+const listeners = new Set<() => void>();
+
+function set(v: boolean): void {
+  if (v === current) return;
+  current = v;
+  listeners.forEach((l) => l());
+}
+
+function start(): void {
+  if (started || Platform.OS !== 'ios') return;
+  started = true;
+  AccessibilityInfo.isReduceTransparencyEnabled().then(set).catch(() => undefined);
+  AccessibilityInfo.addEventListener('reduceTransparencyChanged', set);
+}
+
+function subscribe(cb: () => void): () => void {
+  start();
+  listeners.add(cb);
+  return () => listeners.delete(cb);
+}
 
 /**
  * Ajuste de accesibilidad de iOS "Reducir transparencia": quien lo activa pide fondos opacos.
- * Con él, el vidrio y los desenfoques se sustituyen por superficies sólidas.
+ * Se lee una sola vez para toda la app (un solo oyente), no una vez por cada tarjeta.
  */
 export function useReduceTransparency(): boolean {
-  const [reduce, setReduce] = useState(false);
-  useEffect(() => {
-    if (Platform.OS !== 'ios') return undefined;
-    let alive = true;
-    AccessibilityInfo.isReduceTransparencyEnabled().then((v) => alive && setReduce(v)).catch(() => undefined);
-    const sub = AccessibilityInfo.addEventListener('reduceTransparencyChanged', setReduce);
-    return () => {
-      alive = false;
-      sub.remove();
-    };
-  }, []);
-  return reduce;
+  return useSyncExternalStore(subscribe, () => current, () => false);
 }

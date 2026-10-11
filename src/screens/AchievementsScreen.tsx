@@ -57,7 +57,7 @@ export function AchievementsScreen(): React.JSX.Element {
       </GlassCard>
       <GlassCard>
         <AppText variant="label" tone="secondary">{season.name}</AppText>
-        <AppText variant="title">{season.done} de {season.goal} sesiones</AppText>
+        <AppText variant="title">{season.done} de {season.goal} días de entrenamiento</AppText>
         <View style={styles.seasonBar}>
           <ProgressBar fraction={season.done / season.goal} height={10} color={season.complete ? colors.success : colors.volt} />
         </View>
@@ -69,13 +69,13 @@ export function AchievementsScreen(): React.JSX.Element {
             fullWidth
             onPress={() => {
               dispatch({ type: 'CLAIM_QUEST', key: season.key, xp: season.xp });
-              celebrate({ id: `temporada:${season.key}`, kind: 'mision', title: '¡Temporada cumplida!', subtitle: `Completaste ${season.goal} sesiones este mes.`, icon: 'trophy.fill', xp: season.xp });
+              celebrate({ id: `temporada:${season.key}`, kind: 'mision', title: '¡Temporada cumplida!', subtitle: `Entrenaste ${season.goal} días este mes.`, icon: 'trophy.fill', xp: season.xp });
             }}
           />
         ) : season.claimed ? (
           <AppText variant="caption" tone="success">Recompensa cobrada</AppText>
         ) : (
-          <AppText variant="caption" tone="secondary">Cumple {season.goal} sesiones este mes para ganar +{season.xp} XP.</AppText>
+          <AppText variant="caption" tone="secondary">Entrena {season.goal} días este mes para ganar +{season.xp} XP.</AppText>
         )}
       </GlassCard>
       {unlocked.length > 0 ? <AppText variant="title">Desbloqueados</AppText> : null}

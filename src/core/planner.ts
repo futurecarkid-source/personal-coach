@@ -156,12 +156,15 @@ export function planDays(input: PlanInput, library: readonly Exercise[] = EXERCI
 
 /**
  * Para quien aún no ha entrenado: si el primer día cae en descanso, la primera sesión de la semana pasa a hoy
- * (y su día original queda de descanso). Así la primera impresión es entrenar, no esperar. No toca la cantidad de sesiones.
+ * (y su día original queda de descanso). Así la primera impresión es entrenar, no esperar. No toca la cantidad de sesiones
+ * ni los días de partido (ni el día antes o después). `hasHistory` debe ser verdadero cuando ya se entrenó en días anteriores.
  */
-export function startWithTraining(week: readonly PlannedSession[], hasHistory: boolean): PlannedSession[] {
+export function startWithTraining(week: readonly PlannedSession[], hasHistory: boolean, matchDates: readonly string[] = []): PlannedSession[] {
   const first = week[0];
   if (hasHistory || !first || first.kind !== 'descanso') return [...week];
-  const j = week.findIndex((s) => s.kind !== 'descanso');
+  const near = (d: string): boolean => matchDates.some((m) => m === d || addDays(m, 1) === d || addDays(m, -1) === d);
+  if (near(first.date)) return [...week];
+  const j = week.findIndex((s) => s.kind !== 'descanso' && !near(s.date));
   if (j <= 0) return [...week];
   const moved = week[j]!;
   return week.map((s, i) => {

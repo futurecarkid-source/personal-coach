@@ -4,8 +4,9 @@ set -euo pipefail
 OUT="${1:?carpeta de salida}"
 BASE="${2:-}"
 # La ruta base se escribe temporalmente en app.json (solo afecta a la web) y se restaura al terminar.
-cp app.json /tmp/app.json.bak
-trap 'cp /tmp/app.json.bak app.json' EXIT
+BAK="$(mktemp)"
+cp app.json "$BAK"
+trap 'cp "$BAK" app.json; rm -f "$BAK"' EXIT
 if [ -n "$BASE" ]; then
   python3 - "$BASE" <<'PY2'
 import json, sys
@@ -42,11 +43,11 @@ version = h.hexdigest()[:10]
 core = ['', 'index.html', 'manifest.json', 'apple-touch-icon.png'] + [f for f in files if f.startswith('_expo/')]
 sw = f"""const V='fulbito-{version}';const BASE='{base}';
 const CORE={json.dumps([base + '/' + c for c in core])};
-self.addEventListener('install',e=>{{e.waitUntil(caches.open(V).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))}});
+self.addEventListener('install',e=>{{e.waitUntil(caches.open(V).then(c=>Promise.all(CORE.map(u=>fetch(u).then(r=>r.ok?c.put(u,r):null).catch(()=>null)))).then(()=>self.skipWaiting()))}});
 self.addEventListener('activate',e=>{{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==V).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))}});
 self.addEventListener('fetch',e=>{{const r=e.request;if(r.method!=='GET'||new URL(r.url).origin!==location.origin)return;
 if(r.mode==='navigate'){{e.respondWith(fetch(r).catch(()=>caches.match(BASE+'/index.html')));return}}
-e.respondWith(caches.match(r).then(m=>m||fetch(r).then(res=>{{const c=res.clone();caches.open(V).then(x=>x.put(r,c));return res}})))}});
+e.respondWith(caches.match(r).then(m=>m||fetch(r).then(res=>{{if(res.ok){{const c=res.clone();caches.open(V).then(x=>x.put(r,c))}}return res}})))}});
 """
 open(os.path.join(out, 'sw.js'), 'w').write(sw)
 html = open(os.path.join(out, 'index.html')).read()

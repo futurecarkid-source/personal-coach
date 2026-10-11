@@ -110,3 +110,13 @@ describe('water quest and season', () => {
     expect(seasonProgress(s, '2026-11-02').done).toBe(0);
   });
 });
+
+describe('misión de primera sesión', () => {
+  it('sigue siendo la de 60 XP después de entrenar el mismo día', () => {
+    const state = { ...createInitialState(), sessionLogs: [{ id: 'a', date: '2026-10-11', title: 'x', durationSeconds: 600, rpe: 5, exerciseIds: [] }] } as never;
+    const q = dailyQuests(state, '2026-10-11').quests.find((x) => x.id === 'sesion')!;
+    expect(q.xp).toBe(60);
+    const later = dailyQuests(state, '2026-10-12').quests.find((x) => x.id === 'sesion')!;
+    expect(later.xp).not.toBe(60);
+  });
+});

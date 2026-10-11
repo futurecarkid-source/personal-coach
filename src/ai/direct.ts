@@ -165,6 +165,7 @@ export async function runDirectTask<T extends AiTask>(provider: DirectProvider, 
 
 /** ¿Parece una clave suelta (sin espacios ni enlace) aunque no reconozcamos el formato? Se probará con ambos proveedores. */
 export function looksLikeBareKey(text: string): string | null {
+  // Solo letras, números, guion y guion bajo: así nunca se confunde con un enlace de servicio propio ni se envía a terceros.
   const t = text.trim();
-  return t.length >= 24 && t.length <= 300 && !/\s/.test(t) && !/^https?:/i.test(t) ? t : null;
+  return t.length >= 24 && t.length <= 300 && /^[A-Za-z0-9_-]+$/.test(t) ? t : null;
 }

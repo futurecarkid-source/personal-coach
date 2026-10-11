@@ -82,7 +82,8 @@ export const DAILY_BONUS_XP = 50;
 /** Misiones del día: sesión, check-in y una rotativa. Se completan solas; tú las reclamas. */
 export function dailyQuests(state: AppState, date: string): { quests: Quest[]; bonusKey: string; bonusReady: boolean; bonusClaimed: boolean } {
   const ids = ['sesion', 'checkin', pick(date)];
-  const first = state.sessionLogs.length === 0;
+  // "Primer día": aún no hay sesiones de días anteriores (así la recompensa sigue visible después de entrenar hoy).
+  const first = !state.sessionLogs.some((l) => l.date < date);
   const quests = ids.map((id) => {
     const def = DEFS[id]!;
     const key = `${date}:${id}`;

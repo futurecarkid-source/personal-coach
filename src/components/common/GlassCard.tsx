@@ -6,13 +6,12 @@ import { GlassSurface, type GlassSurfaceProps } from './GlassSurface';
 export interface GlassCardProps extends Omit<GlassSurfaceProps, 'radius'> {
   padding?: number;
   contentStyle?: StyleProp<ViewStyle>;
-  /** Fuerza vidrio (por defecto las tarjetas de contenido son superficies sólidas, como en iOS 26; el vidrio es para controles). */
+  /** Vidrio (por defecto sí, por pedido de diseño). Con `false` la tarjeta es una superficie sólida, como las del contenido en iOS 26. */
   glass?: boolean;
 }
 
 /**
- * Tarjeta de contenido. En iOS 26 el contenido va sobre superficies sólidas y el Liquid Glass se reserva para
- * lo que flota y se toca (botones, barra de pestañas, selectores), así que por defecto es sólida.
+ * Tarjeta de contenido de vidrio líquido (con `glass={false}` pasa a superficie sólida).
  */
 export function GlassCard({ children, padding = spacing.lg, style, contentStyle, glass = true, tint, ...rest }: GlassCardProps): React.JSX.Element {
   const { colors } = useTheme();

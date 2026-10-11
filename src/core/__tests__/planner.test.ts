@@ -74,3 +74,15 @@ describe('startWithTraining', () => {
     expect(startWithTraining([train('d0'), rest('d1')], false)[0]!.kind).toBe('fuerza');
   });
 });
+
+describe('startWithTraining y partidos', () => {
+  const rest = (date: string) => ({ date, kind: 'descanso' as const, title: 'Descanso', exerciseIds: [], estimatedMinutes: 0 });
+  const train = (date: string) => ({ date, kind: 'fuerza' as const, title: 'Fuerza', exerciseIds: ['a'], estimatedMinutes: 30 });
+  it('no pisa un día de partido ni los días contiguos', () => {
+    const week = [rest('2026-10-10'), train('2026-10-11'), train('2026-10-12')];
+    expect(startWithTraining(week, false, ['2026-10-10'])).toEqual(week);
+    // el día siguiente a un partido no se elige como sesión para mover
+    const w2 = [rest('2026-10-10'), train('2026-10-11'), train('2026-10-13')];
+    expect(startWithTraining(w2, false, ['2026-10-12'])[0]!.kind).toBe('descanso');
+  });
+});
