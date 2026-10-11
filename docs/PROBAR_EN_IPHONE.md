@@ -33,3 +33,14 @@ La clave se guarda en el llavero seguro del teléfono.
 
 ## Y para publicar después
 Cuando estés conforme: cuenta de Apple Developer (99 USD al año), una compilación con EAS Build y TestFlight para que prueben otros, y luego el envío a la App Store. Los textos de salud conviene que los revise un fisioterapeuta antes.
+
+## Opciones para tenerla "como app" sin pagar (de más fácil a más difícil)
+| Opción | Costo | Cómo queda | Límite |
+|---|---|---|---|
+| **PWA** (la versión web instalada desde Safari) | Gratis | Icono en la pantalla de inicio, pantalla completa, funciona sin internet | No tiene el vidrio líquido real ni vibraciones |
+| **Expo Go + tu PC** (esta guía) | Gratis | La app nativa real, abierta dentro de Expo Go | El PC debe estar encendido con `npx expo start` |
+| **Expo Go + EAS Update** | Gratis (cuenta de Expo) | La app nativa real, sin PC: se abre desde Expo Go con un enlace | Sigue siendo Expo Go (no tiene tu icono propio); no verificado con esta versión de Expo |
+| **Instalada con una Mac y Xcode** | Gratis con tu Apple ID | App propia con su icono | Caduca a los 7 días y hay que reinstalarla; necesita una Mac |
+| **TestFlight / App Store** | 99 USD al año (Apple Developer) | App propia, instalable por otros | De pago |
+
+Con solo un PC con Windows, no se puede compilar una app de iPhone propia gratis: Apple exige una Mac (o su cuenta de pago con un servicio de compilación en la nube).
