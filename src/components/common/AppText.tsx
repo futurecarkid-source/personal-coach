@@ -5,15 +5,15 @@ import { useTheme } from '../../theme';
 export type TextVariant = 'largeTitle' | 'title' | 'headline' | 'body' | 'callout' | 'caption' | 'digits' | 'digitsLarge' | 'label';
 
 const variants: Record<TextVariant, TextStyle> = {
-  largeTitle: { fontSize: 34, lineHeight: 40, fontWeight: '800', letterSpacing: -0.4 },
-  title: { fontSize: 22, lineHeight: 27, fontWeight: '800', letterSpacing: -0.2 },
-  headline: { fontSize: 17, lineHeight: 22, fontWeight: '700' },
-  body: { fontSize: 17, lineHeight: 22, fontWeight: '400' },
-  callout: { fontSize: 15, lineHeight: 20, fontWeight: '400' },
+  largeTitle: { fontSize: 34, lineHeight: 41, fontWeight: '700', letterSpacing: 0.37 },
+  title: { fontSize: 22, lineHeight: 28, fontWeight: '700', letterSpacing: 0.35 },
+  headline: { fontSize: 17, lineHeight: 22, fontWeight: '600', letterSpacing: -0.4 },
+  body: { fontSize: 17, lineHeight: 22, fontWeight: '400', letterSpacing: -0.4 },
+  callout: { fontSize: 16, lineHeight: 21, fontWeight: '400', letterSpacing: -0.3 },
   caption: { fontSize: 12, lineHeight: 16, fontWeight: '600', letterSpacing: 0.3 },
-  label: { fontSize: 11, lineHeight: 14, fontWeight: '800', letterSpacing: 1.2, textTransform: 'uppercase' },
-  digits: { fontSize: 22, lineHeight: 28, fontWeight: '800', fontVariant: ['tabular-nums'] },
-  digitsLarge: { fontSize: 64, lineHeight: 70, fontWeight: '800', fontVariant: ['tabular-nums'], letterSpacing: -1 },
+  label: { fontSize: 12, lineHeight: 16, fontWeight: '600', letterSpacing: 0.6, textTransform: 'uppercase' },
+  digits: { fontSize: 22, lineHeight: 28, fontWeight: '700', fontVariant: ['tabular-nums'] },
+  digitsLarge: { fontSize: 64, lineHeight: 70, fontWeight: '700', fontVariant: ['tabular-nums'], letterSpacing: -1 },
 };
 
 export interface AppTextProps extends TextProps {

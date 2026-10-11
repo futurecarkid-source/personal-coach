@@ -3,7 +3,7 @@ import { StyleSheet, View, type ColorValue, type StyleProp, type ViewStyle } fro
 import { BlurView } from 'expo-blur';
 import { GlassView } from 'expo-glass-effect';
 import { LinearGradient } from 'expo-linear-gradient';
-import { blur, getGlassTier, radii, useTheme } from '../../theme';
+import { blur, getGlassTier, radii, useReduceTransparency, useTheme } from '../../theme';
 
 /** Aplica transparencia a un color hexadecimal (#RRGGBB); otros formatos se devuelven igual. */
 export function withAlpha(color: string, alpha: number): string {
@@ -41,12 +41,22 @@ export function GlassSurface({
   flat = false,
 }: GlassSurfaceProps): React.JSX.Element {
   const { colors, isDark } = useTheme();
+  const reduceTransparency = useReduceTransparency();
   const tier = getGlassTier();
   // El color de acento solo "baña" el vidrio: se mantiene transparente para que se vea lo que hay detrás.
   const soft = typeof tint === 'string' ? withAlpha(tint, 0.34) : tint;
   const shadow: ViewStyle = flat
     ? {}
     : { shadowColor: colors.shadow, shadowOpacity: 1, shadowRadius: 18, shadowOffset: { width: 0, height: 8 } };
+
+  if (reduceTransparency) {
+    // Accesibilidad: sin transparencias, superficie sólida con borde fino (el tinte se mantiene suave).
+    return (
+      <View style={[{ borderRadius: radius, backgroundColor: typeof tint === 'string' ? withAlpha(tint, 0.22) : colors.surface, borderWidth: StyleSheet.hairlineWidth * 2, borderColor: colors.separator }, style]}>
+        {children}
+      </View>
+    );
+  }
 
   if (tier === 'liquid') {
     return (

@@ -9,7 +9,11 @@
     "ios": {
       "supportsTablet": true,
       "requireFullScreen": false,
-      "icon": "./assets/icon.png"
+      "icon": {
+        "light": "./assets/icon.png",
+        "dark": "./assets/icon-dark.png",
+        "tinted": "./assets/icon-tinted.png"
+      }
     },
     "plugins": [
       "expo-router",
