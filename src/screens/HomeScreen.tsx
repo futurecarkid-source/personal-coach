@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, ScrollView, StyleSheet, View } from 'react-native';
+import { Modal, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { describeAiError, requestAiPlan } from '../ai';
 import { useAiAccess } from '../ai/useAi';
@@ -23,6 +23,7 @@ import { WATER_GOAL } from '../core/progression';
 import { useWeekPlan } from '../hooks/useTodayPlan';
 import { deletePhoto } from '../services/photoStore';
 import { spacing, useTheme } from '../theme';
+import { useInsets } from '../theme/useInsets';
 import { isMinor, type PlannedSession } from '../types';
 
 const DAY_LETTERS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'] as const;
@@ -48,6 +49,7 @@ export function HomeScreen(): React.JSX.Element {
   const [planModal, setPlanModal] = useState<string | null>(null);
   const [planModalReady, setPlanModalReady] = useState(false);
   const theme = useTheme();
+  const insets = useInsets();
   const player = state.player;
   const weekly = player ? isMinor(player.ageBand) : false;
 
@@ -209,7 +211,7 @@ export function HomeScreen(): React.JSX.Element {
       <Columns left={left} right={right} />
       <Modal visible={planModal !== null} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setPlanModal(null)}>
         <View style={[styles.sheet, { backgroundColor: theme.colors.background }]}>
-          <ScrollView contentContainerStyle={styles.sheetContent} showsVerticalScrollIndicator={false}>
+          <ScrollView contentContainerStyle={[styles.sheetContent, Platform.OS === 'web' ? { paddingTop: insets.top + spacing.lg } : null]} showsVerticalScrollIndicator={false}>
             <PlanCreated
               week={week}
               note={planModal || undefined}
@@ -217,7 +219,7 @@ export function HomeScreen(): React.JSX.Element {
               onReady={() => setPlanModalReady(true)}
             />
           </ScrollView>
-          <View style={styles.sheetCta}>
+          <View style={[styles.sheetCta, Platform.OS === 'web' ? { paddingBottom: insets.bottom + spacing.lg } : null]}>
             <GlassButton label="Ver mi plan" variant="go" haptic="success" fullWidth disabled={!planModalReady} onPress={() => setPlanModal(null)} />
           </View>
         </View>

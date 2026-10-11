@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ActionSheetIOS, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { haptics, radii, spacing, useTheme } from '../../theme';
+import { useInsets } from '../../theme/useInsets';
 import { AppText } from './AppText';
 import { GlassSurface } from './GlassSurface';
 
@@ -40,6 +41,7 @@ export function showActionSheet(req: ActionSheetRequest): void {
 /** Se monta una sola vez en la raíz para la versión web. */
 export function ActionSheetHost(): React.JSX.Element | null {
   const { colors } = useTheme();
+  const insets = useInsets();
   const [req, setReq] = useState<ActionSheetRequest | null>(null);
   useEffect(() => {
     listener = setReq;
@@ -52,7 +54,7 @@ export function ActionSheetHost(): React.JSX.Element | null {
   return (
     <Modal visible={req !== null} transparent animationType="slide" onRequestClose={close}>
       <Pressable style={styles.backdrop} onPress={close} accessibilityLabel="Cerrar">
-        <View style={styles.sheet}>
+        <View style={[styles.sheet, { paddingBottom: spacing.md + insets.bottom }]}>
           <GlassSurface radius={radii.card} variant="regular" style={styles.group}>
             {req?.title ? <AppText variant="caption" tone="secondary" style={styles.title}>{req.title}</AppText> : null}
             {req?.options.map((o, i) => (

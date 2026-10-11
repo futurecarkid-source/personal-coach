@@ -9,6 +9,7 @@ import { useAppDispatch, useAppState } from '../context';
 import { newId } from '../core/dates';
 import { useWeekPlan } from '../hooks/useTodayPlan';
 import { haptics, radii, spacing, useTheme } from '../theme';
+import { useInsets } from '../theme/useInsets';
 import type { CoachMessage } from '../types';
 
 type Action = CoachChatOutput['actions'][number];
@@ -33,6 +34,7 @@ export function CoachScreen(): React.JSX.Element {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { colors } = useTheme();
+  const insets = useInsets();
   const access = useAiAccess();
   const { today, todaySession } = useWeekPlan();
   const [text, setText] = useState('');
@@ -121,7 +123,7 @@ export function CoachScreen(): React.JSX.Element {
   const lastAssistantId = [...log].reverse().find((m) => m.role === 'assistant')?.id;
 
   return (
-    <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={[styles.root, Platform.OS === 'web' ? { backgroundColor: colors.background, paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom } : null]} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <View style={styles.header}>
         <View>
           <AppText variant="title">Coach</AppText>

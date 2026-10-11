@@ -2,7 +2,7 @@ import React, { createContext, useCallback, useContext, useMemo, useState } from
 import { ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
-import { spacing } from '../../theme';
+import { spacing, useTheme } from '../../theme';
 import { useInsets } from '../../theme/useInsets';
 import { AppText } from './AppText';
 import { GlassButton } from './GlassButton';
@@ -60,6 +60,7 @@ function WebHeader({ title, back }: { title: string; back: boolean }): React.JSX
 }
 
 export function Screen({ children, scroll = true, tabBarSpace = true, nativeHeader = false, plain = false, wide = false, title, back = false, contentStyle }: ScreenProps): React.JSX.Element {
+  const { colors } = useTheme();
   const insets = useInsets();
   const maxWidth = wide ? 1100 : 760;
   const [locked, setLocked] = useState(false);
@@ -69,14 +70,14 @@ export function Screen({ children, scroll = true, tabBarSpace = true, nativeHead
   const paddingBottom = (tabBarSpace ? FLOATING_TAB_BAR_CLEARANCE : 0) + insets.bottom + spacing.lg;
 
   const body = (
-    <View style={[styles.inner, { maxWidth, paddingBottom, paddingTop: nativeHeader && Platform.OS !== 'web' ? spacing.md : plain ? spacing.lg : insets.top + spacing.md }, contentStyle]}>{Platform.OS === 'web' && title ? <WebHeader title={title} back={back} /> : null}
+    <View style={[styles.inner, { maxWidth, paddingBottom, paddingTop: Platform.OS === 'web' ? insets.top + (plain ? spacing.lg : spacing.md) : nativeHeader ? spacing.md : plain ? spacing.lg : insets.top + spacing.md }, contentStyle]}>{Platform.OS === 'web' && title ? <WebHeader title={title} back={back} /> : null}
       {children}
     </View>
   );
 
   return (
     <ScrollLockContext.Provider value={scrollLock}>
-      <View style={[styles.root, { backgroundColor: 'transparent' }]}>
+      <View style={[styles.root, { backgroundColor: plain && Platform.OS === 'web' ? colors.background : 'transparent' }]}>
         {/* El ScrollView va primero: así iOS lo reconoce para el título grande y el ajuste automático del espacio. */}
         {scroll ? (
           <ScrollView

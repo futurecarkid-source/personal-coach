@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import type { Insets } from './useInsets';
 
 export type { Insets };
@@ -20,5 +21,15 @@ function measure(): Insets {
 }
 
 export function useInsets(): Insets {
-  return measure();
+  const [insets, setInsets] = useState<Insets>(measure);
+  useEffect(() => {
+    // Al girar el teléfono cambian los márgenes (la muesca pasa al lado): se vuelve a medir.
+    const onResize = (): void => {
+      cached = null;
+      setInsets(measure());
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  return insets;
 }
